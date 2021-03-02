@@ -56,13 +56,13 @@ Revision history:
 
 /*
 
-Name:  main()
+Name:  McciBootloader_Main()
 
 Function:
 	Entry point for MCCI STM32 bootloader.
 
 Definition:
-	int main(void);
+	void McciBootloader_Main(void);
 
 Description:
 	This function is called by the ROM boot loader, and implements
@@ -73,8 +73,7 @@ Description:
         the ld script for the linker.
 
 Returns:
-	No explicit result. Doesn't actually return, but we
-        use this signature for toolchain compatibilty.
+	No explicit result. Doesn't return.
 
 Implementation notes:
         Our reuse model is to have non-portable code at the
@@ -94,9 +93,12 @@ Implementation notes:
 
 */
 
-int
-main(void)
+void
+McciBootloader_Main(void)
         {
+        /* run the platform entry code. This must be minimal, if it exists at all */
+        McciBootloaderPlatform_Entry();
+
         /* our first job is to check the signature of the boot loader */
         if (! McciBootloader_checkCodeValid(&gk_McciBootloader_SelfBase, McciBootloader_codeSize(&gk_McciBootloader_SelfBase, &gk_McciBootloader_SelfTop)))
                 {
