@@ -19,6 +19,7 @@
 	- [Memory mapping and image layout](#memory-mapping-and-image-layout)
 	- [Bootloader RAM layout](#bootloader-ram-layout)
 	- [Required drivers](#required-drivers)
+	- [Application Structure](#application-structure)
 	- [Signature Verification](#signature-verification)
 	- [Programming app image from SPI](#programming-app-image-from-spi)
 	- [SPI flash layout](#spi-flash-layout)
@@ -29,6 +30,10 @@
 	- [SPI flash initialization](#spi-flash-initialization)
 - [Practical Details](#practical-details)
 	- [Building](#building)
+- [Meta](#meta)
+	- [License](#license)
+	- [Support Open Source Hardware and Software](#support-open-source-hardware-and-software)
+	- [Trademarks](#trademarks)
 
 <!-- /TOC -->
 <!-- markdownlint-restore -->
@@ -117,13 +122,78 @@ We need to have some validation of the above so that we can do the right thing i
 - LED driver (init, run)
 - Test: UART driver so we can get traces **or** a proper logging driver so we can check after boot.
 
+### Application Structure
+
+Boot images always have the following structure (on Cortex M0).
+
+Images are generally 256-byte aligned (once placed at final address).
+
+```c
+typedef struct
+	{
+	uint32_t	stack;	// must be multiple of 4
+	uint32_t	entry;	// must be odd, and must be
+	} McciBootloader_CortexHeader_t;
+
+typedef struct
+	{
+	uint32_t	vectors[192/4];	// the vectors
+
+	uint32_t	magic;		// the format identifier.
+	uint32_t	targetAddress;	// the target load address
+	uint32_t	imagesize;	// size of the app, in bytes.
+					//   Must be multiple of 4.
+	uint32_t	gpsTimestamp;	// GPS timestamp of image
+	MCCIADK_GUID	appId;		// application ID
+	uint32_t	version;	// version of the image (semantic version)
+	uint32_t	authsize;	// size of authentication data.
+	} McciBootloader_CortexPageZero_t;
+
+typedef union
+	{
+	McciBootLoader_CortexHeader_t	Header;
+	McciBootLoader_CortexPageZero_t	PageZero;
+	} McciBootloader_AppImage_t;
+```
+
+The authentication message looks like this:
+
+```c
+// the 128-byte block containing hash plus signature.
+typedef struct
+	{
+	// the hash from the base of the image to here.
+	mcci_tweetnacl_sha512_t		hash;
+	mcci_tweetnacl_sign_signature_t	signature;
+	} McciBootloader_AppSignature_t;
+```
+
+We validate by computing the hash, and checking it. Then we apply `crypto_sign_open()` to the `McciBootloader_AppSignature_t` block. If the hash is properly signed, and the hash matches the hash of the application image, then we trust the image.
+
+The overall image layout is:
+
+| Bytes   | Content | Discussion & Constraints
+| --------|---------|-------------------------
+| 0..191	| Vectors | Stack must be in RAM segment. PC must be odd and in [targetAddress + 192..targetAddress + imageSize-4]
+| 192 | targetAddress | target load address; must be multiple of 256.
+| 196 | imageSize | image size in bytes. Must be < 168k - sha512 size - signature size.
+| 200..imageSize - 1 | applicationImage | the application image
+| imageSize..imageSize+127 | hash + signature | the hash of 0..imageSize, signed.
+
 ### Signature Verification
 
-1. Initialize signature checker with public key
+For verifying from SPI flash, we need a modified `crypto_hash()`:
+
+* `crypto_hash_begin()`, which initializes the 64-byte hash buffer.
+* Use existing `crypto_hashblocks()` to mutate the hash buffer using 64-byte chunks (e.g. a 4k buffer).
+* `crypto_hash_end()` deals with the partial bytes at the end.
+
+1. Initialize hash.
 2. For each block in image:
     1. read block into RAM buffer
-    2. update signature given previous signature and new block
-3. Finally, validate signature.
+    2. update hash given previous hash and new block
+3. Validate signature, which by quirks reveals the plaintext of the signature block.
+4. Compare signed hash to hash of code.
 
 We could build Arduino wrappers to test this (or test on Linux quickly), provided we have a signed test image living in SPI flash. Recommended test sequence.
 
@@ -220,6 +290,28 @@ The recovery image could be small, in which case we could save room by making it
 
 ### Building
 
-* Install GMake (on Windows, use scoop).
+Install GNU Make if not present (on Windows, use [scoop](https://scoop.io)).
 
-* Set the environment variable `CROSS_COMPILE` to  
+Install Arduino IDE for target.
+
+Do a build, setting CROSS_COMPILE to point to the compile directory, like this.
+
+```bash
+CROSS_COMPILE=~/AppData/Local/arduino15/packages/mcci/tools/arm-none-eabi-gcc/6-2017-q2-update/bin/arm-none-eabi- make
+```
+
+## Meta
+
+### License
+
+The bootloader and top-level wrappers are released under the [MIT](./LICENSE) license. Commercial licenses are also available from MCCI Corporation. The TweetNaCl and NaCl code is all public domain (including MCCI contributions in those directories). The collective work is MIT licensed.
+
+### Support Open Source Hardware and Software
+
+MCCI invests time and resources providing this open source code, please support MCCI and open-source hardware by purchasing products from MCCI, Adafruit and other open-source hardware/software vendors!
+
+For information about MCCI's products, please visit [store.mcci.com](https://store.mcci.com/).
+
+### Trademarks
+
+MCCI and MCCI Catena are registered trademarks of MCCI Corporation. All other marks are the property of their respective owners.
