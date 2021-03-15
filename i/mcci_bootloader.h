@@ -38,6 +38,14 @@ Revision history:
 # include "mcci_bootloader_types.h"
 #endif
 
+#ifdef _MSC_VER
+# define MCCI_BOOTLOADER_NORETURN_PFX	__declspec(noreturn)
+# define MCCI_BOOTLOADER_NORETURN_SFX	/* nothing */
+#else
+# define MCCI_BOOTLOADER_NORETURN_PFX	/* nothing */
+# define MCCI_BOOTLOADER_NORETURN_SFX	__attribute__((__noreturn__))
+#endif
+
 MCCIADK_BEGIN_DECLS
 
 /****************************************************************************\
@@ -60,10 +68,12 @@ typedef uint8_t McciBootloaderError_t;
 |
 \****************************************************************************/
 
-extern const void *gk_McciBootloader_SelfBase;
-extern const void *gk_McciBootloader_SelfTop;
+extern const void *gk_McciBootloader_BootBase;
+extern const void *gk_McciBootloader_BootTop;
 extern const void *gk_McciBootloader_AppBase;
 extern const void *gk_McciBootloader_AppTop;
+extern const void *gk_McciBootloader_MfgBase;
+extern const void *gk_McciBootloader_MfgTop;
 
 /****************************************************************************\
 |
@@ -106,5 +116,35 @@ size_t McciBootloader_codeSize(const void *base, const void *top)
         return (const uint8_t *)top - (const uint8_t *)base;
         }
 
+/****************************************************************************\
+|
+|	APIs
+|
+\****************************************************************************/
+
+void
+McciBootloader_main(void);
+
+bool
+McciBootloader_checkCodeValid(
+	const void *pBase,
+	size_t numBytes
+	);
+
+void
+McciBootloaderPlatform_entry(void);
+
+MCCI_BOOTLOADER_NORETURN_PFX
+void
+McciBootloaderPlatform_fail(
+	McciBootloaderError_t error
+	) MCCI_BOOTLOADER_NORETURN_SFX;
+
+MCCI_BOOTLOADER_NORETURN_PFX
+void
+McciBootloaderPlatform_startApp(
+	const void *pAppBase
+	) MCCI_BOOTLOADER_NORETURN_SFX;
+
 MCCIADK_END_DECLS
-#endif /* _MCCI_BOOTLOADER_H_ * /
+#endif /* _MCCI_BOOTLOADER_H_ */

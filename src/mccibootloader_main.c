@@ -56,13 +56,13 @@ Revision history:
 
 /*
 
-Name:  McciBootloader_Main()
+Name:  McciBootloader_main()
 
 Function:
 	Entry point for MCCI STM32 bootloader.
 
 Definition:
-	void McciBootloader_Main(void);
+	void McciBootloader_main(void);
 
 Description:
 	This function is called by the ROM boot loader, and implements
@@ -94,20 +94,20 @@ Implementation notes:
 */
 
 void
-McciBootloader_Main(void)
+McciBootloader_main(void)
         {
         /* run the platform entry code. This must be minimal, if it exists at all */
-        McciBootloaderPlatform_Entry();
+        McciBootloaderPlatform_entry();
 
         /* our first job is to check the signature of the boot loader */
-        if (! McciBootloader_checkCodeValid(&gk_McciBootloader_SelfBase, McciBootloader_codeSize(&gk_McciBootloader_SelfBase, &gk_McciBootloader_SelfTop)))
+        if (! McciBootloader_checkCodeValid(&gk_McciBootloader_BootBase, McciBootloader_codeSize(&gk_McciBootloader_BootBase, &gk_McciBootloader_BootTop)))
                 {
                 /* boot loader isn't valid */
                 McciBootloaderPlatform_fail(McciBootLoaderError_BootLoaderNotValid);
                 }
 
         /* next, we check the signature of the application */
-        if (! McciBootloader_checkCodeValid(&gk_McciBootloader_AppBase, McciBootloader_codesize(&gk_McciBootloader_AppBase, &gk_McciBootloader_AppTop)))
+        if (! McciBootloader_checkCodeValid(&gk_McciBootloader_AppBase, McciBootloader_codeSize(&gk_McciBootloader_AppBase, &gk_McciBootloader_AppTop)))
                 {
                 /* application isn't valid -- we don't know how to read flash yet */
                 McciBootloaderPlatform_fail(McciBootLoaderError_AppNotValid);

@@ -32,6 +32,7 @@ TARGETS := $(LIBRARIES) $(PROGRAMS)
 #   define OUTPUT_OPTION=-E to preprocess, etc.
 #
 COMPILE.c = $(CC) $(MCCI_DEPFLAGS) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
+COMPILE.cpp = $(CC) $(MCCI_DEPFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
 MCCI_DEPFLAGS = -MT $@ -MMD -MP -MF ${@:.o=.td}
 MCCI_POSTCOMPILE = mv -f $(@:.o=.td) $(@:.o=.d)
 
@@ -39,6 +40,8 @@ MCCI_POSTCOMPILE = mv -f $(@:.o=.td) $(@:.o=.d)
 # Specific rules for generating .o from .c, and dependencies.
 #
 %.o : %.c
+
+%.o : %.cpp
 
 ##############################################################################
 #
@@ -61,7 +64,7 @@ MCCI_POSTCOMPILE = mv -f $(@:.o=.td) $(@:.o=.d)
 #
 ##############################################################################
 
-define MCCI_DOCOMPILE
+define MCCI_DOCOMPILE_C
 _TOBJ_$1 := $$(patsubst %.c,$$(T_OBJDIR)/%.o,$$(notdir $1))
 _TDEP_$1 := $$(patsubst %.c,$$(T_OBJDIR)/%.d,$$(notdir $1))
 _TCPPFLAGS_$1 := $$(CPPFLAGS_$2) $$(CPPFLAGS_$1) \
@@ -75,6 +78,27 @@ $$(_TOBJ_$1): $1 $(_TDEP_$1)
 
 $(_TDEP_$1) : ;
 .PRECIOUS: $(_TDEP_$1)
+endef
+
+# rules for C++
+define MCCI_DOCOMPILE_CXX
+_TOBJ_$1 := $$(patsubst %.cpp,$$(T_OBJDIR)/%.o,$$(notdir $1))
+_TDEP_$1 := $$(patsubst %.cpp,$$(T_OBJDIR)/%.d,$$(notdir $1))
+_TCPPFLAGS_$1 := $$(CPPFLAGS_$2) $$(CPPFLAGS_$1) \
+	$${foreach includedir, $${INCLUDES_$2} $${INCLUDES_$1}, -I $$(includedir)}
+_TCXXFLAGS_$1 := $$(CXXFLAGS_$2) $$(CXXFLAGS_$1) $$(_TCPPFLAGS_$1)
+
+$$(_TOBJ_$1): $1 $(_TDEP_$1)
+	$$(COMPILE.cpp) $$(OUTPUT_OPTION) $$(CXXFLAGS) $$(_TCXXFLAGS_$1) $1
+	mv -f $$(@:.o=.td) $$(@:.o=.d)
+
+$(_TDEP_$1) : ;
+.PRECIOUS: $(_TDEP_$1)
+endef
+
+define MCCI_DOCOMPILE
+$$(foreach S,$$(filter %.cpp,$1),$$(eval $$(call MCCI_DOCOMPILE_CXX,$$(S),$2)))
+$$(foreach S,$$(filter %.c,$1),$$(eval $$(call MCCI_DOCOMPILE_C,$$(S),$2)))
 endef
 
 ##############################################################################
@@ -107,8 +131,9 @@ endef
 ##############################################################################
 
 define MCCI_SETOBJECTS
-OBJECTS_$1 := $$(patsubst %.c,$$(T_OBJDIR)/%.o,$$(notdir $$(SOURCES_$1)))
-DEPENDS_$1 := $$(patsubst %.c,$$(T_OBJDIR)/%.d,$$(notdir $$(SOURCES_$1)))
+_SRCS_$1 := $$(filter %.c %.cpp,$$(notdir $$(SOURCES_$1)))
+OBJECTS_$1 := $$(addsuffix .o,$$(addprefix $$(T_OBJDIR)/,$$(basename $$(filter %.c %.cpp,$$(notdir $$(SOURCES_$1))))))
+DEPENDS_$1 := $$(addsuffix .d,$$(addprefix $$(T_OBJDIR)/,$$(basename $$(filter %.c %.cpp,$$(notdir $$(SOURCES_$1))))))
 OBJECTS += $$(OBJECTS_$1)
 DEPENDS += $$(DEPENDS_$1)
 endef
@@ -145,7 +170,7 @@ endif
 #	MCCI_INSTALLDIR_INCLUDES Where to put include files
 #
 #	Install is controlled by:
-
+#
 ##############################################################################
 
 .PHONY:	install preintstall _install postinstall _install_announce \
@@ -188,7 +213,7 @@ _install_announce:
 #
 # Output:
 #	MCCI_CLEANFILES	updated with additional files to remove
-#	all;		is updated with the library to be built.
+#	all		is updated with the library to be built.
 #
 # Notes:
 #	The archive suffix (.a) is supplied here. The libraryname should not
@@ -239,7 +264,7 @@ _install_rules_$1:	$$(INSTALL_UDEVRULES_$1)
 endif
 
 ### rules for objects
-$(foreach S,$(SOURCES_$1),$(eval $(call MCCI_DOCOMPILE,$(S),$1)))
+$$(foreach S,$$(SOURCES_$1),$$(eval $$(call MCCI_DOCOMPILE,$$(S),$1)))
 endef
 
 ##############################################################################
@@ -284,13 +309,13 @@ $(foreach L,$(LIBRARIES),$(eval $(call MCCI_DOLIBRARY,$(L))))
 define MCCI_DOPROGRAM
 MCCI_CLEANFILES += $$(T_OBJDIR)/$1
 
-ifneq ($$(LDSCRIPT_$1),)
+ifeq ($$(LDSCRIPT_$1),)
 $$(error Not provided: LDSCRIPT_$1)
 endif
 
 $$(T_OBJDIR)/$1: $$(OBJECTS_$1) $$(LIBS_$1) $${LDADDDEP_$1} ${LDSCRIPT_$1}
 	@echo $1
-	$${MAKEHUSH}$$(CC) $$(CFLAGS) $$(LDFLAGS) $$(LDFLAGS_$1) -o $$@ $$(OBJECTS_$1) -Wl,--start-group $$(LIBS) $$(LIBS_$1) $$(LDADD) $$(LDADD_$1) -Wl,--end-group -T $$(LDSCRIPT_$1)
+	$${MAKEHUSH}$$(CC) $$(CFLAGS) $${foreach ldflag, $$(LDFLAGS) $$(LDFLAGS_$1), -Wl,$$(ldflag)} -o $$@ $$(OBJECTS_$1) -Wl,--start-group $$(LIBS) $$(LIBS_$1) $$(LDADD) $$(LDADD_$1) -Wl,--end-group -T $$(LDSCRIPT_$1)
 
 all:	$$(T_OBJDIR)/$1
 
@@ -302,7 +327,7 @@ _install_programs_$1:	$$(T_OBJDIR)/$1
 	$${MAKEHUSH}$${MCCI_INSTALL_CMD} -m 555 $$(T_OBJDIR)/$1 $${MCCI_INSTALLDIR_BIN}.
 
 ### rules for compiling
-$(foreach S,$(SOURCES_$1),$(eval $(call MCCI_DOCOMPILE,$(S),$1)))
+$$(foreach S,$$(SOURCES_$1),$$(eval $$(call MCCI_DOCOMPILE,$$(S),$1)))
 endef
 
 ##############################################################################

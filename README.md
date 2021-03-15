@@ -1,5 +1,39 @@
 # MCCI STM32L0 Bootloader
 
+<!--
+  This TOC uses the VS Code markdown TOC extension AlanWalk.markdown-toc.
+  We strongly recommend updating using VS Code, the markdown-toc extension and the
+  bierner.markdown-preview-github-styles extension. Note that if you are using
+  VS Code 1.29 and Markdown TOC 1.5.6, https://github.com/AlanWalk/markdown-toc/issues/65
+  applies -- you must change your line-ending to some non-auto value in Settings>
+  Text Editor>Files.  `\n` works for me.
+-->
+<!-- markdownlint-disable MD033 MD004 -->
+<!-- markdownlint-capture -->
+<!-- markdownlint-disable -->
+<!-- TOC depthFrom:2 updateOnSave:true -->
+
+- [Introduction](#introduction)
+	- [Comparison to other boot loaders](#comparison-to-other-boot-loaders)
+- [Technical Discussion](#technical-discussion)
+	- [Memory mapping and image layout](#memory-mapping-and-image-layout)
+	- [Bootloader RAM layout](#bootloader-ram-layout)
+	- [Required drivers](#required-drivers)
+	- [Signature Verification](#signature-verification)
+	- [Programming app image from SPI](#programming-app-image-from-spi)
+	- [SPI flash layout](#spi-flash-layout)
+	- [Invariants that the bootloader must maintain](#invariants-that-the-bootloader-must-maintain)
+		- [Action table for normal boots](#action-table-for-normal-boots)
+		- [Action table for update requests](#action-table-for-update-requests)
+		- [Action table if Program Flash is bad](#action-table-if-program-flash-is-bad)
+	- [SPI flash initialization](#spi-flash-initialization)
+- [Practical Details](#practical-details)
+	- [Building](#building)
+
+<!-- /TOC -->
+<!-- markdownlint-restore -->
+<!-- Due to a bug in Markdown TOC, the table is formatted incorrectly if tab indentation is set other than 4. Due to another bug, this comment must be *after* the TOC entry. -->
+
 ## Introduction
 
 The MCCI&reg; STM32L0 bootloader gets control from the ST boot loader, and handles various administrative tasks prior to transferring control to the application program.
@@ -34,7 +68,9 @@ The goal is to make the bootloader's operations *explicit* rather than depending
 
 One example of this: the bootloader does not use the normal C runtime startup. This means that the bootloader is responsible for initializing RAM, etc.; it means in turn that the bootloader does not, by default, support initialization of data variables. (To enforce that, the default linker script will display an error if ordinary initialized data is found in the bootloader image.)
 
-## Memory mapping and image layout
+## Technical Discussion
+
+### Memory mapping and image layout
 
 The boot loader the occupies up to 20k of flash, starting at the base of the flash region (locations 0x08000000 through 0x080027FF). The STM32 on-chip bootloader requires that the vector table be at the beginning of flash, so it makes more sense for the boot loader to be entirely at the beginning of flash.
 
@@ -50,7 +86,7 @@ To summarize:
 `0x08005000` | `0x0802EFFF` | 168k | Application image
 `0x0802F000` | `0x0802FFFF` |   4k | MCCI manufacturing sector; holds serial number, customization, other board details. Could hold public key for board and public key for MCCI if we want to do code signing.
 
-## Bootloader RAM layout
+### Bootloader RAM layout
 
 The bootloader RAM has the following layout:
 
@@ -68,7 +104,7 @@ The EEPROM has the following contents
 
 We need to have some validation of the above so that we can do the right thing if EEPROM is corrupt.
 
-## Required drivers
+### Required drivers
 
 - Need to initialize clocks, for sure
 - SPI driver
@@ -81,7 +117,7 @@ We need to have some validation of the above so that we can do the right thing i
 - LED driver (init, run)
 - Test: UART driver so we can get traces **or** a proper logging driver so we can check after boot.
 
-## Signature Verification
+### Signature Verification
 
 1. Initialize signature checker with public key
 2. For each block in image:
@@ -96,7 +132,7 @@ We could build Arduino wrappers to test this (or test on Linux quickly), provide
 3. copy signed image to SPI flash using Arduino sketch copies from serial command port and then checks signature
 4. port code that reads and checks into bootloader.
 
-## Programming app image from SPI
+### Programming app image from SPI
 
 1. Erase application image space
 2. For each block in image
@@ -104,7 +140,7 @@ We could build Arduino wrappers to test this (or test on Linux quickly), provide
     2. Program block by dividing into half pages and calling the HAL program routine (or a copy of the HAL program routine that we put in the boot loader; it's pretty small, and it might be better to control it).
 3. Verify image by running CRC32 check -- there's hardware CRC32.
 
-## SPI flash layout
+### SPI flash layout
 
 We need to arrange data on the SPI flash so that it's easy to set things up, and so that we have a fall-back image.
 
@@ -122,7 +158,7 @@ User | 512k | User space -- can be formatted as a file system, etc.
 
 The reason for making this table driven is that if the boot loader has to grow, the app image size max will change.
 
-## Invariants that the bootloader must maintain
+### Invariants that the bootloader must maintain
 
 Program flash is equal to the most valid image of { Program Flash, Recovery, App1, App2 }.
 
@@ -135,13 +171,13 @@ Recovery | Run signature check
 App1 | Run signature check
 App2 | Run signature check
 
-### Action table for normal boots
+#### Action table for normal boots
 
 | Update Request  | Fallback | Program Flash   | Recovery | App1 | App2 | Action
 |:---------------:|:--------:|:-------------:|:--------:|:----:|:----:|--------
 | No | x  | Valid | x     | x     | x     | Jump to program flash.
 
-### Action table for update requests
+#### Action table for update requests
 
 | Update Request  | Fallback | Program Flash   | Recovery | App1 | App2 | Action
 |:---------------:|:--------:|:-------------:|:--------:|:----:|:----:|--------
@@ -159,7 +195,7 @@ App2 | Run signature check
 | R  | x  | NG    | Valid | x     | x     | Load recovery, reset EEPROM, set fallback to R, go.
 | R  | x  | x     | NG    | x     | x     | Recovery is no good; loop flashing lights.
 
-### Action table if Program Flash is bad
+#### Action table if Program Flash is bad
 
 | Update Request  | Fallback | Program Flash   | Recovery | App1 | App2 | Action
 |:---------------:|:--------:|:-------------:|:--------:|:----:|:----:|--------
@@ -172,10 +208,18 @@ App2 | Run signature check
 | No | A2 | NG    | Valid | x     | NG    | Load recovery, set fallback to R, go.
 | No | A2 | NG    | NG    | x     | NG    | App2 and recovery no good, loop flashing lights. NVIC_Reset() after suitably long time (30 seconds, perhaps)
 
-## SPI flash initialization
+### SPI flash initialization
 
 The manufacturing process will have to initialize the SPI flash metadata.
 
 We will need tools for loading the recovery image and setting the write-protect bit.
 
 The recovery image could be small, in which case we could save room by making it smaller. The recovery image should at least flash the LED in a distinctive pattern.
+
+## Practical Details
+
+### Building
+
+* Install GMake (on Windows, use scoop).
+
+* Set the environment variable `CROSS_COMPILE` to  

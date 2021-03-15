@@ -21,34 +21,47 @@
 #
 ##############################################################################
 
-include(mk/setup.mk)
+include mk/setup.mk
 
-PROGRAMS = McciBootloader
+PROGRAMS += McciBootloader
 
 SOURCES_McciBootloader =			\
 	src/mccibootloader_main.c		\
 ### end SOURCES_McciBootloader
 
-INCLUDES_McciBootloader =			\
-	i					\
+INCLUDES_McciBootloader =				\
+	i						\
+	pkgsrc/mcci_arduino_development_kit_adk/src	\
 ### end INCLUDES_McciBootloader
 
 CFLAGS_OPT_McciBootloader ?= -Os
 
 LDFLAGS_McciBootloader = 			\
-	-Wl,--gc-sections 			\
-	-Wl,--cref 				\
-	-Wl,--check-sections 			\
-	-Wl,--unresolved-symbols=report-all 	\
-	-Wl,--warn-common 			\
-	-Wl,--warn-section-align		\
-	-nostdlib				\
-	-lgcc
+### end LDFLAGS_McciBootloader
 
 LDSCRIPT_McciBootloader = $(abspath mk/mccibootloader.ld)
 
+#
+# building mcci_tweetnacl
+LIBRARIES += libmcci_tweetnacl
+
+_ := pkgsrc/mcci_tweetnacl/src
+
+CFLAGS_OPT_libmcci_tweetnacl += -Os
+
+SOURCES_libmcci_tweetnacl =			\
+	$_/lib/mcci_tweetnacl.c			\
+	$_/lib/mcci_tweetnacl_sign.c		\
+	$_/hal/mcci_tweetnacl_box_keypair.c	\
+	$_/hal/mcci_tweetnacl_hal_randombytes.c	\
+	$_/hal/mcci_tweetnacl_sign_keypair.c	\
+# end SOURCES_libmcci_tweetnacl
+
+INCLUDES_libmcci_tweetnacl =			\
+	$_					\
+# end INCLUDES_libmcci_tweetnacl
 
 # post processing
-include(mk/tail.mk)
+include mk/tail.mk
 
 #### end of file ####

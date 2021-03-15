@@ -130,6 +130,7 @@ CFLAGS	=	-Wall -g -Werror ${CFLAGS_OPT}
 CFLAGS  +=	-Werror=missing-prototypes
 CFLAGS	+=	$(CFLAGS_CPU)
 CFLAGS	+=	-ffunction-sections -fdata-sections -std=gnu11
+CFLAGS	+=	-nostdlib
 CFLAGS  +=	${CFLAGS_BUILDTYPE_${T_BUILDTYPE}}
 CFLAGS 	+=	${CFLAGS_PROGRAM} ${CFLAGS_USER}
 
@@ -139,13 +140,12 @@ CPPFLAGS +=	${CPPFLAGS_PROGRAM} ${CPPFLAGS_USER}
 CPPFLAGS +=	${foreach includedir, ${INCLUDES_GLOBAL} ${INCLUDES_PROGRAM}, -I $(includedir)}
 
 LDFLAGS	?=					\
-	-Wl,--gc-sections 			\
-	-Wl,--cref 				\
-	-Wl,--check-sections 			\
-	-Wl,--unresolved-symbols=report-all 	\
-	-Wl,--warn-common 			\
-	-Wl,--warn-section-align		\
-	-nostdlib				\
+	--gc-sections 				\
+	--cref 					\
+	--check-sections 			\
+	--unresolved-symbols=report-all 	\
+	--warn-common 				\
+	--warn-section-align			\
 ### end LDFLAGS ###
 
 LDADD	?=					\
@@ -169,7 +169,7 @@ MCCIBOOTLOADER_LDSCRIPT	:=	$(abspath ${MCCIBOOTLOADER_ROOT}mk/mccibootloader.ld)
 #
 ##############################################################################
 
-GIT_ARCHIVE_ALL_SH := $(shell D=$(GIT_ARCHIVE_ALL_SH_DIR); which "$$D$${D:+/}git-archive-all.sh")
+GIT_ARCHIVE_ALL_SH ?= $(shell D=$(GIT_ARCHIVE_ALL_SH_DIR); which "$$D$${D:+/}git-archive-all.sh")
 
 ##############################################################################
 #
