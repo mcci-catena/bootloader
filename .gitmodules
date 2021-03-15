@@ -1,0 +1,6 @@
+[submodule "pkgsrc/mcci_tweetnacl"]
+	path = pkgsrc/mcci_tweetnacl
+	url = git@github.com:mcci-catena/mcci_tweetnacl.git
+[submodule "pkgsrc/mcci_arduino_development_kit_adk"]
+	path = pkgsrc/mcci_arduino_development_kit_adk
+	url = git@github.com:mcci-catena/Catena-mcciadk.git
