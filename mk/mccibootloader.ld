@@ -78,21 +78,28 @@ SECTIONS
                 /* no constructors, destructors, etc. The reset handler is responsible for everything */
                 } > FLASH
 
-        /* capture all the .data segments; we'll assert below. */
+        /* capture all the .data segments. */
+        gk_McciBootloader_DataImageBase = LOADADDR(.data);
         .data :
                 {
+                . = ALIGN(4);   /* dword-align */
+                g_McciBootloader_DataBase = .;
                 *(.data*)       /* all the data sections */
-                } > FLASH
+                *(.RamFunc)     /* code that runs from RAM */
+                . = ALIGN(4);   /* dword-align the tail */
+                g_McciBootloader_DataTop = .;
+                } >RAM AT> FLASH
 
         /* The RAM data (if any) */
         .bss :
                 {
                 . = ALIGN(4);
-                g_McciBootloader_BssStart = .;
+                g_McciBootloader_BssBase = .;
                 *(.bss*)
                 . = ALIGN(4);
-                g_McciBootloader_BssEnd = .;
+                g_McciBootloader_BssTop = .;
                 } > RAM
         }
 
-ASSERT(SIZEOF(.data) == 0, "Don't use initialized data in boot-loaders!");
+
+/* end of script */

@@ -63,7 +63,7 @@ Function:
 
 Definition:
 	bool McciBootloader_checkCodeValid(
-		const uint8_t *pBase,
+		const void *pBase,
 		size_t nBytes
 		);
 
@@ -102,7 +102,7 @@ Returns:
 
 bool
 McciBootloader_checkCodeValid(
-	const uint8_t *pBase,
+	const void *pBase,
 	size_t nBytes
 	)
 	{
