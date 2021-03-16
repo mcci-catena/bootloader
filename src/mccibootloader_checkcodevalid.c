@@ -32,6 +32,9 @@ Revision history:
 */
 
 #include "mcci_bootloader.h"
+
+#include "mcci_tweetnacl_hash.h"
+#include "mcci_tweetnacl_sign.h"
 
 /****************************************************************************\
 |
@@ -46,6 +49,11 @@ Revision history:
 |
 \****************************************************************************/
 
+const mcci_tweetnacl_sign_publickey_t
+gk_McciBootloader_PublicKey =
+	{
+	.bytes = { 0x1, }
+	};
 
 /****************************************************************************\
 |
@@ -106,5 +114,35 @@ McciBootloader_checkCodeValid(
 	size_t nBytes
 	)
 	{
-	return false;
+	// compute the hash over pBase
+	mcci_tweetnacl_sha512_t hash;
+	mcci_tweetnacl_sha512_t expectedHash;
+	const size_t nsig = mcci_tweetnacl_sign_signature_size();
+	const size_t nsigned = sizeof(expectedHash) + nsig;
+	size_t nActual;
+	int invalid;
+	
+	// compute the hash
+	mcci_tweetnacl_hash_sha512(
+		&hash,
+		pBase,
+		nBytes
+		);
+	
+	// invalid = non-zero or zero. 
+	invalid = 1 ^ mcci_tweetnacl_sign_ed25519_open(
+				expectedHash.bytes,
+				&nActual,
+				(const uint8_t *)pBase + nBytes,
+				nsigned,
+				&gk_McciBootloader_PublicKey
+				);
+
+	// constant time compare.
+	invalid |= nActual ^ sizeof(expectedHash);
+	invalid |= mcci_tweetnacl_verify_64(
+				hash.bytes,
+				expectedHash.bytes
+				);
+	return invalid == 0;
 	}

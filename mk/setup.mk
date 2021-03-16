@@ -141,7 +141,6 @@ CPPFLAGS +=	${foreach includedir, ${INCLUDES_GLOBAL} ${INCLUDES_PROGRAM}, -I $(i
 
 LDFLAGS	?=					\
 	--gc-sections 				\
-	--cref 					\
 	--check-sections 			\
 	--unresolved-symbols=report-all 	\
 	--warn-common 				\

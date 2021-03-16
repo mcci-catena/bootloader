@@ -41,11 +41,14 @@ SOURCES_McciBootloader =				\
 INCLUDES_McciBootloader =				\
 	i						\
 	pkgsrc/mcci_arduino_development_kit_adk/src	\
+	pkgsrc/mcci_tweetnacl/src			\
 ### end INCLUDES_McciBootloader
 
 CFLAGS_OPT_McciBootloader ?= -Os
 
-LDFLAGS_McciBootloader = 			\
+LDFLAGS_McciBootloader = 				\
+	--cref 						\
+	-Map=$(T_OUTPUT)/McciBootloader.map		\
 ### end LDFLAGS_McciBootloader
 
 LDSCRIPT_McciBootloader = $(abspath mk/mccibootloader.ld)
@@ -90,7 +93,7 @@ _ := pkgsrc/mcci_tweetnacl/src
 
 CFLAGS_OPT_libmcci_tweetnacl += -Os
 
-SOURCES_libmcci_tweetnacl =						\
+SOURCES_libmcci_tweetnacl :=						\
 	$_/lib/mcci_tweetnacl.c						\
 	$_/lib/mcci_tweetnacl_sign.c					\
 	$_/lib/mcci_tweetsalt_crypto_auth_hmacsha512256.c 		\
@@ -100,7 +103,7 @@ SOURCES_libmcci_tweetnacl =						\
 	$_/hal/mcci_tweetnacl_sign_keypair.c				\
 # end SOURCES_libmcci_tweetnacl
 
-INCLUDES_libmcci_tweetnacl =			\
+INCLUDES_libmcci_tweetnacl :=			\
 	$_					\
 # end INCLUDES_libmcci_tweetnacl
 
