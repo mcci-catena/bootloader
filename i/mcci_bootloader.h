@@ -75,6 +75,12 @@ extern const void *gk_McciBootloader_AppTop;
 extern const void *gk_McciBootloader_MfgBase;
 extern const void *gk_McciBootloader_MfgTop;
 
+extern const void *gk_McciBootloader_DataImageBase;
+extern void *g_McciBootloader_DataBase;
+extern void *g_McciBootloader_DataTop;
+extern void *g_McciBootloader_BssBase;
+extern void *g_McciBootloader_BssTop;
+
 /****************************************************************************\
 |
 |	Various utilities

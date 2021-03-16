@@ -23,10 +23,19 @@
 
 include mk/setup.mk
 
+##############################################################################
+#
+#	The bootloader per se
+#
+##############################################################################
+
 PROGRAMS += McciBootloader
 
-SOURCES_McciBootloader =			\
-	src/mccibootloader_main.c		\
+SOURCES_McciBootloader =				\
+	src/mccibootloader_checkcodevalid.c		\
+	src/mccibootloader_main.c			\
+	src/mccibootloaderplatform_entry.c		\
+	src/mccibootloaderplatform_fail.c		\
 ### end SOURCES_McciBootloader
 
 INCLUDES_McciBootloader =				\
@@ -41,8 +50,40 @@ LDFLAGS_McciBootloader = 			\
 
 LDSCRIPT_McciBootloader = $(abspath mk/mccibootloader.ld)
 
+LDADD_McciBootloader += -lc
+
+LIBS_McciBootloader +=					\
+	${T_OBJDIR}/libmcci_tweetnacl.a			\
+	${T_OBJDIR}/libmcci_bootloader_cm0plus.a	\
+### end LIBS_McciBootloader
+
+##############################################################################
 #
-# building mcci_tweetnacl
+#	The platform library
+#
+##############################################################################
+
+LIBRARIES += libmcci_bootloader_cm0plus
+
+_ := arch/cm0plus
+
+CFLAGS_OPT_libmcci_bootloader_cm0plus += -Os
+
+INCLUDES_libmcci_bootloader_cm0plus :=					\
+	$(INCLUDES_McciBootloader)					\
+	arch/cm0plus/i							\
+# end INCLUDES_libmcci_bootloader_cm0plus
+
+SOURCES_libmcci_bootloader_cm0plus :=					\
+	$_/src/mccibootloaderplatform_startapp.c			\
+# end SOURCES_libmcci_bootloader_cm0plus
+
+##############################################################################
+#
+#	mcci_tweetnacl
+#
+##############################################################################
+
 LIBRARIES += libmcci_tweetnacl
 
 _ := pkgsrc/mcci_tweetnacl/src
