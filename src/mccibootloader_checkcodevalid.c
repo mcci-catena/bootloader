@@ -130,7 +130,7 @@ McciBootloader_checkCodeValid(
 		);
 	
 	// invalid = non-zero or zero. 
-	invalid = 1 ^ mcci_tweetnacl_sign_ed25519_open(
+	invalid = mcci_tweetnacl_sign_ed25519_open(
 				expectedHash.bytes,
 				&nActual,
 				(const uint8_t *)pBase + nBytes,
