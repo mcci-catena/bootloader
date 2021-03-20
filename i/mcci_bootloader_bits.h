@@ -68,6 +68,10 @@ extern "C" {
 #define	MCCI_BOOTLOADER_VALUE_MAKE_FIELD(val, fmask)		\
 	(MCCI_BOOTLOADER_FIELD_LSB(fmask) * (val))
 
+/*! generate field value (properly positioned) */
+#define	MCCI_BOOTLOADER_FIELD_SET_VALUE(fmask, val)		\
+	(MCCI_BOOTLOADER_FIELD_LSB(fmask) * (val))
+
 /*! extract and normalize value of field */
 #define	MCCI_BOOTLOADER_VALUE_GET_FIELD(val, fmask)		\
 	(((val) & (fmask)) >> MCCI_BOOTLOADER_FIELD_SHIFT(fmask))
