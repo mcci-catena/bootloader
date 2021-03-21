@@ -25,6 +25,14 @@ include mk/setup.mk
 
 ##############################################################################
 #
+#	The board settings
+#
+##############################################################################
+
+BOARDPATH ?= platform/board/mcci/catena_abz
+
+##############################################################################
+#
 #	The bootloader per se
 #
 ##############################################################################
@@ -40,6 +48,7 @@ SOURCES_McciBootloader =				\
 
 INCLUDES_McciBootloader =				\
 	i						\
+	platform/i					\
 	pkgsrc/mcci_arduino_development_kit_adk/src	\
 	pkgsrc/mcci_tweetnacl/src			\
 ### end INCLUDES_McciBootloader
@@ -51,35 +60,82 @@ LDFLAGS_McciBootloader = 				\
 	-Map=$(T_OUTPUT)/McciBootloader.map		\
 ### end LDFLAGS_McciBootloader
 
-LDSCRIPT_McciBootloader = $(abspath mk/mccibootloader.ld)
+LDSCRIPT_McciBootloader = $(abspath $(BOARDPATH)/mk/mccibootloader.ld)
 
 LDADD_McciBootloader += -lc
 
 LIBS_McciBootloader +=					\
 	${T_OBJDIR}/libmcci_tweetnacl.a			\
 	${T_OBJDIR}/libmcci_bootloader_cm0plus.a	\
+	${T_OBJDIR}/libmcci_bootloader_stm32l0.a	\
+	${T_OBJDIR}/libmcci_bootloader_catena_abz.a	\
 ### end LIBS_McciBootloader
 
 ##############################################################################
 #
-#	The platform library
+#	The cm0plus library
 #
 ##############################################################################
 
 LIBRARIES += libmcci_bootloader_cm0plus
 
-_ := arch/cm0plus
+_ := platform/arch/cm0plus
 
 CFLAGS_OPT_libmcci_bootloader_cm0plus += -Os
 
 INCLUDES_libmcci_bootloader_cm0plus :=					\
 	$(INCLUDES_McciBootloader)					\
-	arch/cm0plus/i							\
+	$_/i								\
 # end INCLUDES_libmcci_bootloader_cm0plus
 
 SOURCES_libmcci_bootloader_cm0plus :=					\
 	$_/src/mccibootloaderplatform_startapp.c			\
 # end SOURCES_libmcci_bootloader_cm0plus
+
+##############################################################################
+#
+#	The stm32l0 library
+#
+##############################################################################
+
+LIBRARIES += libmcci_bootloader_stm32l0
+
+_ := platform/soc/stm32l0
+
+CFLAGS_OPT_libmcci_bootloader_stm32l0 += -Os
+
+INCLUDES_libmcci_bootloader_stm32l0 :=					\
+	$(INCLUDES_libmcci_bootloader_cm0plus)				\
+	$_/i								\
+# end INCLUDES_libmcci_bootloader_stm32l0
+
+SOURCES_libmcci_bootloader_stm32l0 :=					\
+	$_/src/mccibootloader_stm32l0_systeminit.c			\
+# end SOURCES_libmcci_bootloader_stm32l0
+
+##############################################################################
+#
+#	The catena-abz library
+#
+##############################################################################
+
+LIBRARIES += libmcci_bootloader_catena_abz
+
+_ := platform/board/mcci/catena_abz
+
+CFLAGS_OPT_libmcci_bootloader_catena_abz += -Os
+
+INCLUDES_libmcci_bootloader_catena_abz :=				\
+	$(INCLUDES_libmcci_bootloader_stm32l0)				\
+	$_/i								\
+# end INCLUDES_libmcci_bootloader_catena_abz
+
+SOURCES_libmcci_bootloader_catena_abz :=				\
+	$_/src/mccibootloaderboard_catenaabz_platforminterface.c	\
+	$_/src/mccibootloaderboard_catenaabz_systeminit.c		\
+	$_/src/mccibootloaderboard_catenaabz_vectors.c			\
+# end SOURCES_libmcci_bootloader_catena_abz
+
 
 ##############################################################################
 #

@@ -63,6 +63,8 @@ Revision history:
 # define MCCI_BOOTLOADER_NORETURN_SFX	__attribute__((__noreturn__))
 #endif
 
+#define	MCCI_BOOTLOADER_NOT_REACHED()	__builtin_unreachable()
+
 /****************************************************************************\
 |
 |	Scalar types and type handles.

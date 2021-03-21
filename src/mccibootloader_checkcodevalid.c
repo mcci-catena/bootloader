@@ -123,8 +123,8 @@ McciBootloader_checkCodeValid(
 	int invalid;
 	
 	// check whether the image is valid.
-	if (! McciBootloader_checkImageValid(pBase, nBytes))
-		return false;
+//	if (! McciBootloader_checkImageValid(pBase, nBytes))
+//		return false;
 
 	// compute the hash
 	mcci_tweetnacl_hash_sha512(
@@ -134,7 +134,7 @@ McciBootloader_checkCodeValid(
 		);
 	
 	// invalid = non-zero or zero. 
-	invalid = mcci_tweetnacl_sign_ed25519_open(
+	invalid = mcci_tweetnacl_sign_open(
 				expectedHash.bytes,
 				&nActual,
 				(const uint8_t *)pBase + nBytes,

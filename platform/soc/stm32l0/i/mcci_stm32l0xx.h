@@ -28,6 +28,10 @@ Author:
 # include "mcci_bootloader_bits.h"
 #endif
 
+#ifndef _mcci_arm_cm0plus_h_
+# include "mcci_arm_cm0plus.h"
+#endif
+
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -1027,7 +1031,7 @@ extern "C" {
 #define MCCI_STM32L0_SPI_I2SCFGR_I2SCFG		(UINT32_C(3) << 8)	///< I2S configuration mode
 #define MCCI_STM32L0_SPI_I2SCFGR_I2SCFG_STX	MCCI_BOOTLOADER_FIELD_SET_VALUE(MCCI_STM32L0_SPI_I2SCFGR_I2SCFG, 0)	///< I2S slave transmit
 #define MCCI_STM32L0_SPI_I2SCFGR_I2SCFG_SRX	MCCI_BOOTLOADER_FIELD_SET_VALUE(MCCI_STM32L0_SPI_I2SCFGR_I2SCFG, 1)	///< I2S slave receive
-#define MCCI_STM32L0_SPI_I2SCFGR_I2SCFG_MRX	MCCI_BOOTLOADER_FIELD_SET_VALUE(MCCI_STM32L0_SPI_I2SCFGR_I2SCFG, 2)	///< I2S master transmit
+#define MCCI_STM32L0_SPI_I2SCFGR_I2SCFG_MTX	MCCI_BOOTLOADER_FIELD_SET_VALUE(MCCI_STM32L0_SPI_I2SCFGR_I2SCFG, 2)	///< I2S master transmit
 #define MCCI_STM32L0_SPI_I2SCFGR_I2SCFG_MRX	MCCI_BOOTLOADER_FIELD_SET_VALUE(MCCI_STM32L0_SPI_I2SCFGR_I2SCFG, 3)	///< I2S master receive
 #define MCCI_STM32L0_SPI_I2SCFGR_PCMSYNC	(UINT32_C(1) << 7)	///< Long (not short) PCM frame synchronization
 #define MCCI_STM32L0_SPI_I2SCFGR_RSV6		(UINT32_C(1) << 6)	///< reserved, zero

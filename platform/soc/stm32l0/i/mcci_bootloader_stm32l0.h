@@ -24,9 +24,15 @@ Author:
 
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
+#ifndef _mcci_bootloader_types_h_
+# include "mcci_bootloader_types.h"
 #endif
+
+#ifndef _mcci_arm_cm0plus_h_
+# include "mcci_arm_cm0plus.h"
+#endif
+
+MCCI_BOOTLOADER_BEGIN_DECLS
 
 /****************************************************************************\
 |
@@ -36,8 +42,8 @@ extern "C" {
 
 void McciBootloader_Stm32L0_systemInit(void);
 
-#ifdef __cplusplus
-}
-#endif
+extern const Mcci_CortexVectors_t
+gk_McciBootloader_CortexVectors;
 
+MCCI_BOOTLOADER_END_DECLS
 #endif /* _mcci_bootloader_stm32l0_h_ */

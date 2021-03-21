@@ -20,9 +20,12 @@ Author:
 
 */
 
+#include "mcci_bootloader_board_catena_abz.h"
+
 #include "mcci_bootloader_cm0plus_appimage.h"
 #include "mcci_bootloader.h"
-#include "mcci_bootloader_stm32l0xx.h"
+#include "mcci_bootloader_stm32l0.h"
+#include "mcci_stm32l0xx.h"
 
 /****************************************************************************\
 |
@@ -51,7 +54,7 @@ Function:
 	Initialize MCCI Catena based on Murata ABZ module for bootloader.
 
 Definition:
-	McciBootloaderBoard_systemInitFn_t
+	McciBootloaderPlatform_SystemInitFn_t
 		McciBootloaderBoard_CatenaAbz_systemInit;
 
 	void McciBootloaderBoard_CatenaAbz_systemInit(

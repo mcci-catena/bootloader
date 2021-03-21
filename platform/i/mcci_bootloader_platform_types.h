@@ -58,10 +58,16 @@ typedef	void (McciBootloaderPlatform_PrepareForLaunchFn_t)(void);
 ///	calls this function, which must not return. If possible, the
 ///	function displays the errorCode in a platform-specific way.
 ///
-typedef void MCCI_BOOTLOADER_NORETURN_PFX
-	(McciBootloaderPlatform_FailFn_t)(
-		McciBootloaderError_t errorCode
-		) MCCI_BOOTLOADER_NORETURN_SFX;
+/// \note
+///	Although it would be nice to decorate the type with "noreturn",
+///	that's not possible in C. But we can mark a function that
+///	calls this as no-return, and then use __builtin_notreached()
+///	in that function.
+///
+typedef void 
+(McciBootloaderPlatform_FailFn_t)(
+	McciBootloaderError_t errorCode
+	);
 
 /// \brief interface structure
 typedef struct McciBootloaderPlatform_Interface_s
