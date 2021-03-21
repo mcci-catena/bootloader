@@ -38,15 +38,7 @@ Revision history:
 # include "mcci_bootloader_types.h"
 #endif
 
-#ifdef _MSC_VER
-# define MCCI_BOOTLOADER_NORETURN_PFX	__declspec(noreturn)
-# define MCCI_BOOTLOADER_NORETURN_SFX	/* nothing */
-#else
-# define MCCI_BOOTLOADER_NORETURN_PFX	/* nothing */
-# define MCCI_BOOTLOADER_NORETURN_SFX	__attribute__((__noreturn__))
-#endif
-
-MCCIADK_BEGIN_DECLS
+MCCI_BOOTLOADER_BEGIN_DECLS
 
 /****************************************************************************\
 |
@@ -56,11 +48,12 @@ MCCIADK_BEGIN_DECLS
 
 enum McciBootloaderError_e
 	{
-	McciBootloaderError_OK = 0,
-	McciBootLoaderError_BootLoaderNotValid,
-	McciBootLoaderError_AppNotValid,
+	McciBootloaderError_OK = 0,		///< successful
+	McciBootloaderError_BootloaderNotValid,	///< bootloader image isn't valid
+	McciBootloaderError_AppNotValid,	///< application image isn't vliad
+	McciBootloaderError_ResetClockNotValid,	///< post-reset clock not valid
 	};
-typedef uint8_t McciBootloaderError_t;
+// typedef uint32_t McciBootloaderError_t; -- in mcci_bootloader_types.h.
 
 /****************************************************************************\
 |
@@ -80,6 +73,7 @@ extern void *g_McciBootloader_DataBase;
 extern void *g_McciBootloader_DataTop;
 extern void *g_McciBootloader_BssBase;
 extern void *g_McciBootloader_BssTop;
+extern void *g_McciBootloader_StackTop;
 
 /****************************************************************************\
 |
@@ -152,5 +146,5 @@ McciBootloaderPlatform_startApp(
 	const void *pAppBase
 	) MCCI_BOOTLOADER_NORETURN_SFX;
 
-MCCIADK_END_DECLS
+MCCI_BOOTLOADER_END_DECLS
 #endif /* _MCCI_BOOTLOADER_H_ */

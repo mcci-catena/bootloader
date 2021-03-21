@@ -858,7 +858,7 @@ extern "C" {
 #define MCCI_STM32L0_GPIO_PUPDR		UINT32_C(0x0C)	//< port pull-up/pull-down register
 #define MCCI_STM32L0_GPIO_IDR		UINT32_C(0x10)	//< port input data register
 #define MCCI_STM32L0_GPIO_ODR		UINT32_C(0x14)	//< port output data register
-#define MCCI_STM32L0_GPIO_BSSR		UINT32_C(0x18)	//< port bit set/reset register
+#define MCCI_STM32L0_GPIO_BSRR		UINT32_C(0x18)	//< port bit set/reset register
 #define MCCI_STM32L0_GPIO_LCKR		UINT32_C(0x1C)	//< port configuration lock register
 #define MCCI_STM32L0_GPIO_AFRL		UINT32_C(0x20)	//< port alternate function low register
 #define MCCI_STM32L0_GPIO_AFRH		UINT32_C(0x24)	//< port alternate function high register

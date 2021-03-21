@@ -20,6 +20,8 @@ Author:
 */
 
 #include "mcci_bootloader.h"
+
+#include "mcci_bootloader_platform.h"
 
 /****************************************************************************\
 |
@@ -65,7 +67,7 @@ Returns:
 	No explicit result.
 
 Notes:
-	This version is the default stub; it just loops.
+	We save the error code, and then call the platform failure method.
 
 */
 
@@ -78,8 +80,7 @@ McciBootloaderPlatform_fail(
 	{
 	g_McciBootloader_failureCode = error;
 
-	while(true)
-		;
+	(*gk_McciBootloaderPlatformInterface.pFailFn)(error);
 	}
 
 #undef FUNCTION

@@ -122,6 +122,10 @@ McciBootloader_checkCodeValid(
 	size_t nActual;
 	int invalid;
 	
+	// check whether the image is valid.
+	if (! McciBootloader_checkImageValid(pBase, nBytes))
+		return false;
+
 	// compute the hash
 	mcci_tweetnacl_hash_sha512(
 		&hash,
