@@ -32,6 +32,8 @@ Revision history:
 */
 
 #include "mcci_bootloader.h"
+
+#include "mcci_bootloader_platform.h"
 
 /****************************************************************************\
 |
@@ -103,14 +105,14 @@ McciBootloader_main(void)
         if (! McciBootloader_checkCodeValid(&gk_McciBootloader_BootBase, McciBootloader_codeSize(&gk_McciBootloader_BootBase, &gk_McciBootloader_BootTop)))
                 {
                 /* boot loader isn't valid */
-                McciBootloaderPlatform_fail(McciBootLoaderError_BootLoaderNotValid);
+                McciBootloaderPlatform_fail(McciBootloaderError_BootloaderNotValid);
                 }
 
         /* next, we check the signature of the application */
         if (! McciBootloader_checkCodeValid(&gk_McciBootloader_AppBase, McciBootloader_codeSize(&gk_McciBootloader_AppBase, &gk_McciBootloader_AppTop)))
                 {
                 /* application isn't valid -- we don't know how to read flash yet */
-                McciBootloaderPlatform_fail(McciBootLoaderError_AppNotValid);
+                McciBootloaderPlatform_fail(McciBootloaderError_AppNotValid);
                 }
 
         /* looks like we're good to launch the application */

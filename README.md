@@ -135,25 +135,27 @@ typedef struct
 	uint32_t	entry;	// must be odd, and must be
 	} McciBootloader_CortexHeader_t;
 
+
 typedef struct
 	{
-	uint32_t	vectors[192/4];	// the vectors
+	uint32_t	vectors[192/4];
+	} McciBootloader_CortexVectors_t;
 
-	uint32_t	magic;		// the format identifier.
-	uint32_t	targetAddress;	// the target load address
-	uint32_t	imagesize;	// size of the app, in bytes.
-					//   Must be multiple of 4.
-	uint32_t	gpsTimestamp;	// GPS timestamp of image
-	MCCIADK_GUID	appId;		// application ID
-	uint32_t	version;	// version of the image (semantic version)
-	uint32_t	authsize;	// size of authentication data.
+typedef struct
+	{
+	McciBootloader_CortexVectors_t	CortexVectors;	// the vectors
+	McciBootLoader_AppInfo_t AppInfo;	// the application info
 	} McciBootloader_CortexPageZero_t;
 
 typedef union
 	{
 	McciBootLoader_CortexHeader_t	Header;
+	McciBootLoader_CortexVectors_t	Vectors;
 	McciBootLoader_CortexPageZero_t	PageZero;
+	uint8_t	bytes[256];
 	} McciBootloader_AppImage_t;
+
+MCCIADK_C_ASSERT(sizeof(McciBootloader_AppImage_t) == 256);
 ```
 
 The authentication message looks like this:

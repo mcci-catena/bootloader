@@ -21,6 +21,7 @@ Author:
 
 #include "mcci_bootloader.h"
 
+#include "mcci_bootloader_platform.h"
 #include <string.h>
 
 /****************************************************************************\
@@ -86,6 +87,9 @@ McciBootloaderPlatform_entry(
 
 	/* zero BSS */
 	memset(&g_McciBootloader_BssBase, 0, nBss);
+
+	/* call the platform init function */
+	McciBootloaderPlatform_systemInit();
 	}
 
 #undef FUNCTION
