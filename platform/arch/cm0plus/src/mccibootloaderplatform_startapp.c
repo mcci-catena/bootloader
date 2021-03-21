@@ -22,7 +22,7 @@ Author:
 #include "mcci_bootloader.h"
 
 #include "mcci_bootloader_bits.h"
-#include "mcci_bootloader_cm0plus.h"
+#include "mcci_arm_cm0plus.h"
 #include <stdint.h>
 
 /****************************************************************************\
@@ -94,10 +94,10 @@ McciBootloaderPlatform_startApp(
 	const uint32_t pc = pAppVectors[2];
 
 	// set the stack pointer
-	McciBootloaderArm_setMSP(stack);
+	McciArm_setMSP(stack);
 
 	// set the vector address
-	McciBootloaderArm_putReg(
+	McciArm_putReg(
 		MCCI_CM0PLUS_SCB_VTOR, 
 		(uint32_t) pAppVectors & MCCI_CM0PLUS_SCB_VTOR_TBLOFF
 		);

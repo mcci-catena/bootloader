@@ -80,7 +80,9 @@ McciBootloaderPlatform_fail(
 	{
 	g_McciBootloader_failureCode = error;
 
-	(*gk_McciBootloaderPlatformInterface.pFailFn)(error);
+	(*gk_McciBootloaderPlatformInterface.pFail)(error);
+
+	MCCI_BOOTLOADER_NOT_REACHED();
 	}
 
 #undef FUNCTION

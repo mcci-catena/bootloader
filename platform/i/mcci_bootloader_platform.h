@@ -35,7 +35,7 @@ struct McciBootloaderPlatform_Interface_s
 	{
 	McciBootloaderPlatform_SystemInitFn_t		*pSystemInit;		///< System init provider function
 	McciBootloaderPlatform_PrepareForLaunchFn_t	*pPrepareForLaunch;	///< Prepare to launch application
-	McciBootloaderPlatform_FailFn_t			*pFailFn;		///< Stop the boot, due to a failure
+	McciBootloaderPlatform_FailFn_t			*pFail;			///< Stop the boot, due to a failure
 	};
 
 extern const McciBootloaderPlatform_Interface_t

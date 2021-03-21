@@ -19,7 +19,11 @@ Author:
 
 */
 
-#include "include file declaring exports.h"
+#include "mcci_bootloader_stm32l0.h"
+
+#include "mcci_bootloader.h"
+#include "mcci_bootloader_platform.h"
+#include "mcci_stm32l0xx.h"
 
 /****************************************************************************\
 |
@@ -199,7 +203,7 @@ McciBootloader_Stm32L0_systemInit(void)
 		}
 
 	// turn on the LSE clock
-	McciArm_orReg(MCCI_STM32L0_REG_RCC_CSR, MCCI_STM32L0_REG_RCC_CSR_LSEON);
+	McciArm_putRegOr(MCCI_STM32L0_REG_RCC_CSR, MCCI_STM32L0_REG_RCC_CSR_LSEON);
 
 	// wait for it to come up.
 	while (! (McciArm_getReg(MCCI_STM32L0_REG_RCC_CSR) & MCCI_STM32L0_REG_RCC_CSR_LSERDY))

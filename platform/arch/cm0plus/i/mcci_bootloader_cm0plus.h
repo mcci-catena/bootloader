@@ -45,7 +45,7 @@ extern "C" {
 ///
 /// \see mccibootloader.ld
 ///
-extern const McciBootloader_CortexVectors_t
+extern const Mcci_CortexVectors_t
 gk_McciBootloader_CortexVectors
 __attribute__((__section__(".McciBootloader_Vectors")));
 
