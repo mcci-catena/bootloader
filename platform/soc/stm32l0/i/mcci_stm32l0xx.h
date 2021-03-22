@@ -915,6 +915,25 @@ extern "C" {
 #define	MCCI_STM32L0_GPIO_OSPEED_P(p)	(UINT32_C(3) << (2 * (p)))
 ///	@}
 
+/// \name GPIO_PUPDR bits -- used to select pin speed, two bits per pin
+///	@{
+#define MCCI_STM32L0_GPIO_PUPD_MASK	UINT32_C(3)	//< speed bit masks
+#define MCCI_STM32L0_GPIO_PUPD_NONE	UINT32_C(0)	//< no pullup/pulldown
+#define MCCI_STM32L0_GPIO_PUPD_PULLUP	UINT32_C(1)	//< pullup
+#define MCCI_STM32L0_GPIO_PUPD_PULLDOWN	UINT32_C(2)	//< pulldown
+
+/// \brief compute the mask for the mode bits for port bits 0..15
+///
+/// Normally we compute a mask using an expression like:
+///
+///	`MCCI_BOOTLOADER_FIELD_SET_VALUE(
+///		MCCI_STM32L0_GPIO_PUPD_P(3),
+///		MCCI_STM32L0_GPIO_PUPD_PULLDOWN
+///		)`
+///
+#define	MCCI_STM32L0_GPIO_PUPD_P(p)	(UINT32_C(3) << (2 * (p)))
+///	@}
+
 /// \name GPIO_BSRR bits
 ///	@{
 #define MCCI_STM32L0_GPIO_BSRR_BR0	(UINT32_C(1) << 16)		//< reset port bit 0
