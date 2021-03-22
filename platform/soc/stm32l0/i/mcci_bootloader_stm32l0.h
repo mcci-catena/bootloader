@@ -40,7 +40,15 @@ MCCI_BOOTLOADER_BEGIN_DECLS
 |
 \****************************************************************************/
 
-void McciBootloader_Stm32L0_systemInit(void);
+void
+McciBootloader_Stm32L0_systemInit(
+	void
+	);
+
+void
+McciBootloader_Stm32L0_prepareForLaunch(
+	void
+	);
 
 extern const Mcci_CortexVectors_t
 gk_McciBootloader_CortexVectors;
