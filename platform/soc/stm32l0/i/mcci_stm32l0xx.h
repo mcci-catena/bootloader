@@ -275,7 +275,8 @@ extern "C" {
 
 /// \name Flash programming constants
 ///	@{
-#define MCCI_STM32L0_FLASH_HALF_PAGE_SIZE	UINT32_C(256)	///< size in bytes of a half-page
+#define MCCI_STM32L0_FLASH_HALF_PAGE_SIZE	UINT32_C(64)	///< size in bytes of a half-page
+#define MCCI_STM32L0_FLASH_PAGE_SIZE		UINT32_C(128)	///< size in bytes of a page
 ///	@}
 
 /****************************************************************************\
