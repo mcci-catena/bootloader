@@ -26,12 +26,16 @@ Author:
 #include "mcci_bootloader.h"
 #include "mcci_bootloader_stm32l0.h"
 #include "mcci_stm32l0xx.h"
+#include "mcci_arm_cm0plus.h"
 
 /****************************************************************************\
 |
 |	Manifest constants & typedefs.
 |
 \****************************************************************************/
+
+static void
+McciBootloaderBoard_CatenaAbz_delayMs(uint32_t ms);
 
 /****************************************************************************\
 |
@@ -112,6 +116,32 @@ McciBootloaderBoard_CatenaAbz_systemInit(
 		MCCI_STM32L0_REG_GPIOB + MCCI_STM32L0_GPIO_BRR,
 		UINT32_C(1) << 2
 		);
+	}
+
+static void
+McciBootloaderBoard_CatenaAbz_delayMs(uint32_t ms)
+	{
+	for (++ms; ms > 0; --ms)
+		{
+		while ((McciArm_getReg(MCCI_CM0PLUS_SYSTICK_CSR) & MCCI_CM0PLUS_SYSTICK_CSR_COUNTFLAG) == 0)
+			;
+		}
+	}
+
+void
+McciBootloaderBoard_CatenaAbz_fail(
+	McciBootloaderError_t errorCode
+	)
+	{
+	uint32_t rOdr = McciArm_getReg(MCCI_STM32L0_REG_GPIOB + MCCI_STM32L0_GPIO_ODR);
+
+	while (true)
+		{
+		// blink the led
+		rOdr ^= UINT32_C(1) << 2;
+		McciArm_putReg(MCCI_STM32L0_REG_GPIOB + MCCI_STM32L0_GPIO_ODR, rOdr);
+		McciBootloaderBoard_CatenaAbz_delayMs(100);
+		}
 	}
 
 /**** end of mccibootloaderboard_catenaabz_systeminit.c ****/

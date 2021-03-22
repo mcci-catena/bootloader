@@ -69,7 +69,7 @@ _TOBJ_$1 := $$(patsubst %.c,$$(T_OBJDIR)/%.o,$$(notdir $1))
 _TDEP_$1 := $$(patsubst %.c,$$(T_OBJDIR)/%.d,$$(notdir $1))
 _TCPPFLAGS_$1 := $$(CPPFLAGS_$2) $$(CPPFLAGS_$1) \
 	$${foreach includedir, $${INCLUDES_$2} $${INCLUDES_$1}, -I $$(includedir)}
-_TCFLAGS_$1 := $$(CFLAGS_$2) $$(CFLAGS_$1) $$(_TCPPFLAGS_$1)
+_TCFLAGS_$1 := $$(CFLAGS_$2) $$(CFLAGS_$1) $$(CFLAGS_OPT_$2) $$(CFLAGS_OPT_$1) $$(_TCPPFLAGS_$1)
 
 $$(_TOBJ_$1): $1 $(_TDEP_$1)
 	@echo $1

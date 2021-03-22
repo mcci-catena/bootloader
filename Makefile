@@ -57,7 +57,7 @@ CFLAGS_OPT_McciBootloader ?= -Os
 
 LDFLAGS_McciBootloader = 				\
 	--cref 						\
-	-Map=$(T_OUTPUT)/McciBootloader.map		\
+	-Map=$(T_OBJDIR)/McciBootloader.map		\
 ### end LDFLAGS_McciBootloader
 
 LDSCRIPT_McciBootloader = $(abspath $(BOARDPATH)/mk/mccibootloader.ld)
@@ -111,6 +111,7 @@ INCLUDES_libmcci_bootloader_stm32l0 :=					\
 
 SOURCES_libmcci_bootloader_stm32l0 :=					\
 	$_/src/mccibootloader_stm32l0_systeminit.c			\
+	$_/src/mccibootloader_stm32l0_prepareforlaunch.c		\
 # end SOURCES_libmcci_bootloader_stm32l0
 
 ##############################################################################
@@ -132,6 +133,7 @@ INCLUDES_libmcci_bootloader_catena_abz :=				\
 
 SOURCES_libmcci_bootloader_catena_abz :=				\
 	$_/src/mccibootloaderboard_catenaabz_platforminterface.c	\
+	$_/src/mccibootloaderboard_catenaabz_prepareforlaunch.c		\
 	$_/src/mccibootloaderboard_catenaabz_systeminit.c		\
 	$_/src/mccibootloaderboard_catenaabz_vectors.c			\
 # end SOURCES_libmcci_bootloader_catena_abz
@@ -147,7 +149,7 @@ LIBRARIES += libmcci_tweetnacl
 
 _ := pkgsrc/mcci_tweetnacl/src
 
-CFLAGS_OPT_libmcci_tweetnacl += -Os
+CFLAGS_OPT_libmcci_tweetnacl += -O2
 
 SOURCES_libmcci_tweetnacl :=						\
 	$_/lib/mcci_tweetnacl.c						\
