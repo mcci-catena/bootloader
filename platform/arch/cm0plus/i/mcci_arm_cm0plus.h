@@ -101,7 +101,7 @@ extern "C" {
 
 /// \name SYSTICK CSR bits
 ///	@{
-#define MCCI_CM0PLUS_SYSTICK_CSR_RSV17		UINT32_C(0xFFFE0000)	///< reserved 
+#define MCCI_CM0PLUS_SYSTICK_CSR_RSV17		UINT32_C(0xFFFE0000)	///< reserved
 #define MCCI_CM0PLUS_SYSTICK_CSR_COUNTFLAG	(UINT32_C(1) << 16)	///< timer has counted to zero
 #define MCCI_CM0PLUS_SYSTICK_CSR_RSV3		UINT32_C(0x0000FFF8)	///< reserved
 #define MCCI_CM0PLUS_SYSTICK_CSR_CLKSOURCE	(UINT32_C(1) << 2)	///< use processor (not external) clock
@@ -142,17 +142,17 @@ extern "C" {
 
 /// \name SCB ICSR fields
 ///	@{
-#define	MCCI_CM0PLUS_SCB_ICSR_NMIPENDSET	(UINT32_C(1) << 31)	///< 
-#define	MCCI_CM0PLUS_SCB_ICSR_RSV29		(UINT32_C(3) << 29)	///< 
-#define	MCCI_CM0PLUS_SCB_ICSR_PENDSVSET		(UINT32_C(1) << 28)	///< 
-#define	MCCI_CM0PLUS_SCB_ICSR_PENDSVCLR		(UINT32_C(1) << 27)	///< 
-#define	MCCI_CM0PLUS_SCB_ICSR_PENDSTSET		(UINT32_C(1) << 26)	///< 
-#define	MCCI_CM0PLUS_SCB_ICSR_PENDSTCLR		(UINT32_C(1) << 26)	///< 
-#define	MCCI_CM0PLUS_SCB_ICSR_RSV24		(UINT32_C(1) << 24)	///< 
-#define	MCCI_CM0PLUS_SCB_ICSR_ISRPREEMPT	(UINT32_C(1) << 23)	///< 
-#define	MCCI_CM0PLUS_SCB_ICSR_ISRPENDING	(UINT32_C(1) << 22)	///< 
-#define	MCCI_CM0PLUS_SCB_ICSR_VECTPENDING	(UINT32_C(0x1FF) << 12)	///< 
-#define	MCCI_CM0PLUS_SCB_ICSR_VECTACTIVE	(UINT32_C(0x1FF) << 0)	///< 
+#define	MCCI_CM0PLUS_SCB_ICSR_NMIPENDSET	(UINT32_C(1) << 31)	///<
+#define	MCCI_CM0PLUS_SCB_ICSR_RSV29		(UINT32_C(3) << 29)	///<
+#define	MCCI_CM0PLUS_SCB_ICSR_PENDSVSET		(UINT32_C(1) << 28)	///<
+#define	MCCI_CM0PLUS_SCB_ICSR_PENDSVCLR		(UINT32_C(1) << 27)	///<
+#define	MCCI_CM0PLUS_SCB_ICSR_PENDSTSET		(UINT32_C(1) << 26)	///<
+#define	MCCI_CM0PLUS_SCB_ICSR_PENDSTCLR		(UINT32_C(1) << 26)	///<
+#define	MCCI_CM0PLUS_SCB_ICSR_RSV24		(UINT32_C(1) << 24)	///<
+#define	MCCI_CM0PLUS_SCB_ICSR_ISRPREEMPT	(UINT32_C(1) << 23)	///<
+#define	MCCI_CM0PLUS_SCB_ICSR_ISRPENDING	(UINT32_C(1) << 22)	///<
+#define	MCCI_CM0PLUS_SCB_ICSR_VECTPENDING	(UINT32_C(0x1FF) << 12)	///<
+#define	MCCI_CM0PLUS_SCB_ICSR_VECTACTIVE	(UINT32_C(0x1FF) << 0)	///<
 ///	@}
 
 /// \name SCB VTOR fields
@@ -331,7 +331,7 @@ McciArm_putRegMasked(uint32_t reg, uint32_t maskVal, uint32_t modVal)
 |
 \****************************************************************************/
 
-#if defined(__GNUC__)		// GCC or clang, likely 
+#if defined(__GNUC__)		// GCC or clang, likely
 
 ///
 /// \brief set main stack pointer
