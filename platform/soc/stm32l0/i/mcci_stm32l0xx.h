@@ -1040,7 +1040,7 @@ extern "C" {
 #define MCCI_STM32L0_SPI_SR_UDR		(UINT32_C(1) << 3)	///< underrun
 #define MCCI_STM32L0_SPI_SR_CHSIDE	(UINT32_C(1) << 2)	///< channel right (not left)
 #define MCCI_STM32L0_SPI_SR_TXE		(UINT32_C(1) << 1)	///< TX buffer empty
-#define MCCI_STM32L0_SPI_SR_RXE		(UINT32_C(1) << 0)	///< RX buffer not-empty
+#define MCCI_STM32L0_SPI_SR_RXNE	(UINT32_C(1) << 0)	///< RX buffer not-empty
 ///	@}
 
 /// \name SPI_I2SCFGR bits
