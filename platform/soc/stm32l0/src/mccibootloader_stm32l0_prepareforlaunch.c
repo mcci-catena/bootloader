@@ -96,7 +96,7 @@ McciBootloader_Stm32L0_prepareForLaunch(
 
 	// reset things to defaults
 	// scale MSI to 4194k
-	McciArm_putRegClearSet(
+	McciArm_putRegMasked(
 		MCCI_STM32L0_REG_RCC_ICSCR,
 		(MCCI_STM32L0_REG_RCC_ICSCR_MSIRANGE),
 		(MCCI_STM32L0_REG_RCC_ICSCR_MSIRANGE_4194k)

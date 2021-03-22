@@ -92,7 +92,7 @@ McciBootloaderBoard_CatenaAbz_systemInit(
 		);
 
 	// set up GPIO port B2 as an output
-	McciArm_putRegClearSet(
+	McciArm_putRegMasked(
 		MCCI_STM32L0_REG_GPIOB + MCCI_STM32L0_GPIO_MODER,
 		MCCI_STM32L0_GPIO_MODE_P(2),
 		MCCI_BOOTLOADER_FIELD_SET_VALUE(
