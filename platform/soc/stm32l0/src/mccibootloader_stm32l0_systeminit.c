@@ -139,7 +139,7 @@ McciBootloader_Stm32L0_systemInit(void)
 		);
 
 	// enable pre-read, pre-fetch,
-	McciArm_putRegClearSet(
+	McciArm_putRegMasked(
 		MCCI_STM32L0_REG_FLASH_ACR,
 		 MCCI_STM32L0_REG_FLASH_ACR_DISAB_BUF |
 		 MCCI_STM32L0_REG_FLASH_ACR_PRE_READ |
@@ -172,7 +172,7 @@ McciBootloader_Stm32L0_systemInit(void)
 		McciArm_putRegOr(MCCI_STM32L0_REG_RCC_APB1ENR, MCCI_STM32L0_REG_RCC_APB1ENR_PWREN);
 
 	// set up the clock -- set regulator to allow 32 MHz
-	McciArm_putRegClearSet(
+	McciArm_putRegMasked(
 		MCCI_STM32L0_REG_PWR_CR,
 		MCCI_STM32L0_REG_PWR_CR_VOS,
 		MCCI_STM32L0_REG_PWR_CR_VOS_1V8
@@ -189,7 +189,7 @@ McciBootloader_Stm32L0_systemInit(void)
 		;
 
 	// set the calibration value
-	McciArm_putRegClearSet(
+	McciArm_putRegMasked(
 		MCCI_STM32L0_REG_RCC_ICSCR,
 		MCCI_STM32L0_REG_RCC_ICSCR_HSI16TRIM,
 		MCCI_BOOTLOADER_FIELD_SET_VALUE(MCCI_STM32L0_REG_RCC_ICSCR_HSI16TRIM, 18)
@@ -222,7 +222,7 @@ McciBootloader_Stm32L0_systemInit(void)
 		/* loop */;
 
 	// set PLL to 2x HSI == 32 MHz
-	McciArm_putRegClearSet(
+	McciArm_putRegMasked(
 		MCCI_STM32L0_REG_RCC_CFGR,
 		(MCCI_STM32L0_REG_RCC_CFGR_PLLDIV |
 		 MCCI_STM32L0_REG_RCC_CFGR_PLLMUL |
@@ -244,7 +244,7 @@ McciBootloader_Stm32L0_systemInit(void)
 
 	//---- now that oscillators are configured and ready, change clock sources ----
 	// set flash latency to one wait state
-	McciArm_putRegClearSet(
+	McciArm_putRegMasked(
 		MCCI_STM32L0_REG_FLASH_ACR,
 		MCCI_STM32L0_REG_FLASH_ACR_LATENCY,
 		MCCI_BOOTLOADER_FIELD_SET_VALUE(MCCI_STM32L0_REG_FLASH_ACR_LATENCY, 1)
@@ -254,7 +254,7 @@ McciBootloader_Stm32L0_systemInit(void)
 	// HPRE is zero from above.
 
 	// initialize HCLK, *SYSCLK, PCLK1, PCLK2
-	McciArm_putRegClearSet(
+	McciArm_putRegMasked(
 		MCCI_STM32L0_REG_RCC_CFGR,
 		MCCI_STM32L0_REG_RCC_CFGR_SW,
 		MCCI_STM32L0_REG_RCC_CFGR_SW_PLL
@@ -276,7 +276,7 @@ McciBootloader_Stm32L0_systemInit(void)
 		);
 
 	// set the priority of systick to maximum.
-	McciArm_putRegClearSet(
+	McciArm_putRegMasked(
 		McciCm0Plus_SCB_SHPR_getRegister(MCCI_CM0PLUS_PRI_INDEX_SYSTICK),
 		McciCm0Plus_SCB_SHPR_getMask(MCCI_CM0PLUS_PRI_INDEX_SYSTICK),
 		~UINT32_C(0)

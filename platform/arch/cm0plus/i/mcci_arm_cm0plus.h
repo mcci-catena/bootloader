@@ -273,16 +273,55 @@ McciArm_putRegClear(uint32_t reg, uint32_t clearVal)
 		);
 	}
 
+///
 /// \brief clear and set 32-bit values to a cm0plus register
+///
+/// \param [in] reg register to be modified
+/// \param [in] clearVal mask of bits to be cleared (1 in mask clears bit in reg)
+/// \param [in] setVal mask of bits to be set
+///
+/// \note this is subtly different than \ref McciArm_putRegMasked,
+///	in that \p setVal is not modified by \p clearVal. Any bits
+///	set in \p setVal are unconditionally set in \p reg, whereas
+///	\ref McciArm_putRegMasked only changes bits that are set
+///	in its \c maskVal parameter.
+///
+/// \see McciArm_putRegMasked
+///
 static inline uint32_t
 McciArm_putRegClearSet(uint32_t reg, uint32_t clearVal, uint32_t setVal)
 	{
 	uint32_t const rValue = McciArm_getReg(reg);
 
-	setVal &= ~clearVal;
 	return McciArm_putReg(
 		reg,
 		(rValue & ~clearVal) | setVal
+		);
+	}
+
+///
+/// \brief store to cm0plus register under mask
+///
+/// \param [in] reg register to be modified
+/// \param [in] maskVal mask of bits to be modifed
+/// \param [in] modVal where \p maskVal is 1, provides values of bits
+///
+/// \note this is subtly different than \ref McciArm_putRegClearSet,
+///	in that any bits in \b ~maskVal are not changed, regardless of
+///	corresponding bits in \p modVal.
+///
+/// \see McciArm_putRegClearSet
+/// \see https://graphics.stanford.edu/~seander/bithacks.html#MaskedMerge
+///
+static inline uint32_t
+McciArm_putRegMasked(uint32_t reg, uint32_t maskVal, uint32_t modVal)
+	{
+	uint32_t const rValue = McciArm_getReg(reg);
+
+	return McciArm_putReg(
+		reg,
+		rValue ^ ((rValue ^ modVal) & maskVal)
+		/* same as (rValue & ~maskVal) | (modVal & maskVal) */
 		);
 	}
 
