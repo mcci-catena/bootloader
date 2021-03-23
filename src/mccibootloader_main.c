@@ -93,7 +93,7 @@ Implementation notes:
         pointers and drivers; but the table is static.
 
         It takes a long time to verify a ed25519 signature on the STM32L0;
-        so we only check signatures when deciding whether to program
+        so we only check signatures when deciding whether to update
         the flash. Otherwise we check the SHA512. The program format
         still includes the signature, but we only check this when
         deciding whether to apply it to the flash.
@@ -102,11 +102,10 @@ Implementation notes:
 
         1. If the boardloader hash is not valid, we stop with a failure code.
         2. Otherwise, there is a saved boot loader state. The state can be
-           either "check flash" or "go".  If state is "go", we compute the
-           hash on the application image; if it's valid, we launch it. If
-           not valid, we set the "check flash" flag, and mark the application
-           invalid by its first page.
-        3. "check flash" is set, so we ask the platform to enable the flash
+           either "update" or "go".  If state is "go", we compute the
+           hash on the application image; if it's valid, we launch it.
+        3. The flag is set to "update", or the application is invalid, so we ask
+           the platform to enable the flash
            driver. (This may bring up power to the flash chip, bring up the
            SPI bus, etc.)  We also ask the driver to enable notifications
            as this is going to take a while.
@@ -114,10 +113,10 @@ Implementation notes:
            (Including hash and signature.) This involves reading 4k at a
            time and doing the signature check.
         5. If the flash app image is not valid, and the application image
-           is valid, we reset the "check flash" flag and launch the application.
-        6. If the flash image is valid, we program it into the app image,
-           and then check the hash. If valid, we reset the "check flash flag",
-           set the "new app flag", and launch the app.
+           is valid, we reset the update flag and launch the application.
+        6. If the flash image is valid, we erase the flash, clear the update
+           flag, then program the new image into the app flash. When done,
+           we check the hash. If not valid, we continue to the next step. 
         7. If the flash app image is not valid, and the application image is
            not valid, we repeat step 4 using the "safety app" image. If the
            "safety app" is valid, we repeat step 6 with the safety app. If
@@ -145,62 +144,78 @@ McciBootloader_main(void)
         McciBootloaderPlatform_entry();
 
         /* our first job is to check the hash of the boot loader */
-        if (! McciBootloader_checkCodeValid(&gk_McciBootloader_BootBase, McciBootloader_codeSize(&gk_McciBootloader_BootBase, &gk_McciBootloader_BootTop)))
+        if (! McciBootloader_checkCodeValid(
+                        &gk_McciBootloader_BootBase,
+                        McciBootloader_codeSize(&gk_McciBootloader_BootBase, &gk_McciBootloader_BootTop)
+                        ))
                 {
                 /* Case (1): boot loader isn't valid */
                 McciBootloaderPlatform_fail(McciBootloaderError_BootloaderNotValid);
                 }
 
         /* next, we check the hash of the application */
-        bool const appOk = McciBootloader_checkCodeValid(&gk_McciBootloader_AppBase, McciBootloader_codeSize(&gk_McciBootloader_AppBase, &gk_McciBootloader_AppTop));
+        bool const appOk = McciBootloader_checkCodeValid(
+                                &gk_McciBootloader_AppBase,
+                                McciBootloader_codeSize(&gk_McciBootloader_AppBase, &gk_McciBootloader_AppTop)
+                                );
 
-        /* check the flash flag */
-        bool checkFlash;
+        /* check the update flag */
+        bool fFirmwareUpdatePending;
 
-        checkFlash = McciBootloaderPlatform_getFlashFlag();
-        if (appOk && ! checkFlash)
+        fFirmwareUpdatePending = McciBootloaderPlatform_getUpdateFlag();
+        if (appOk && ! fFirmwareUpdatePending)
                 {
                 /* Case (2): looks like we're good to launch the application */
                 McciBootloaderPlatform_startApp(&gk_McciBootloader_AppBase);
                 }
 
-        /* initialize the flash and annunciator */
-        McciBootloaderPlatform_initializeFlash();
-        McciBootloaderPlatform_initializeAnnunciator();
+        /* initialize the storage and annunciator drivers */
+        McciBootloaderPlatform_storageInit();
+        McciBootloaderPlatform_annunciatorInit();
 
         /* check the app image */
         do      {
-                /* don't check again unless asked */
-                McciBootloader_setFlashFlag(false);
+                /* because of power failures, don't clear the update-image flag just yet */
 
-                McciBootloaderFlashAddress_t const hPrimary = McciBootloaderPlaform_getPrimaryFlashAddress();
+                /* start with the primary image */
+                McciBootloaderStorageAddress_t const hPrimary = McciBootloaderPlatform_getPrimaryStorageAddress();
 
-                const bool flashOk = McciBootloader_checkFlashImage(hPrimary);
+                /* indicate that we're checking the storage */
+                McciBootloaderPlatform_annunciatorIndicateState(
+                        McciBootloaderState_CheckingPrimaryStorageHash
+                        );
+
+                const bool fImageOk = McciBootloader_checkStorageImage(hPrimary);
 
                 /* check for Case (3) */
-                if (appOk && !flashOk)
+                if (appOk && !fImageOk)
                         {
                         /* case (3): looks like we're good to launch the application */
+                        /* consume the storage flag; don't check again until asked */
+                        McciBootloaderPlatform_setUpdateFlag(false);
                         McciBootloaderPlatform_startApp(&gk_McciBootloader_AppBase);
                         }
 
                 /* case (4) or (5), maybe */
                 bool programOk;
 
+                /* as soon as we've erased the app, we'll reset the storage flag inside the routine below */
                 programOk = McciBootloader_programAndCheckFlash(hPrimary);
                 if (programOk)
                         {
                         /* definitely (4) or (5): launch the application */
                         McciBootloaderPlatform_startApp(&gk_McciBootloader_AppBase);
                         }
+
+                /* otherwise app is invalid so try the fallback image */
                 } while (0);
 
         /* case (6) or (7) */
         do      {
-                McciBootloaderFlashAddress_t const hFallback = McciBootloaderPlaform_getFallbackFlashAddress();
+                McciBootloaderStorageAddress_t const hFallback = McciBootloaderPlatform_getFallbackStorageAddress();
 
-                const bool flashOk = McciBootloader_checkFlashImage(hFallback);
-                if (flashOk && McciBootloader_programAndCheckFlash(hFallback))
+                const bool fImageOk = McciBootloader_checkStorageImage(hFallback);
+                if (fImageOk && McciBootloader_programAndCheckFlash(hFallback))
                         {
                         /* case (6) */
                         McciBootloaderPlatform_startApp(&gk_McciBootloader_AppBase);
