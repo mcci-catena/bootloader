@@ -941,9 +941,9 @@ extern "C" {
 #define MCCI_STM32L0_GPIO_BSRR_BS0	(UINT32_C(1) << 0)		//< set port bit 0
 #define MCCI_STM32L0_GPIO_BSRR_BS	(UINT32_C(0xFFFF) << 0)		//< mask of port-set bits
 /// \brief compute port-bit reset mask for bit \p p.
-#define MCCI_STM32L0_GPIO_BSRR_BR_P(p)	(MCCI_STM32L0_GPIO_BR0 << (p))
+#define MCCI_STM32L0_GPIO_BSRR_BR_P(p)	(MCCI_STM32L0_GPIO_BSRR_BR0 << (p))
 /// \brief compute port-bit set mask for bit \p p.
-#define MCCI_STM32L0_GPIO_BSRR_BS_P(p)	(MCCI_STM32L0_GPIO_BS0 << (p))
+#define MCCI_STM32L0_GPIO_BSRR_BS_P(p)	(MCCI_STM32L0_GPIO_BSRR_BS0 << (p))
 ///	@}
 
 /// \name GPIO_LCKR bits
