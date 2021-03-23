@@ -80,5 +80,24 @@ MCCI_BOOTLOADER_BEGIN_DECLS
 ///
 typedef uint32_t McciBootloaderError_t;
 
+///
+/// \brief Abstract type for storage byte addresses
+///
+/// The bootloader assumes that boot images are wholly contained in the
+/// first 4 GiB of the storage device.
+///
+typedef uint32_t	McciBootloaderStorageAddress_t;
+
+///
+/// \brief Current boot system state
+///
+/// \note enum types don't have predictable width. So we declare this as
+///	a `uint32_t`, and have a separate declariton for the enum.
+///
+/// \see McciBootloaderState_e
+///
+typedef uint32_t McciBootloaderState_t;
+
+
 MCCI_BOOTLOADER_END_DECLS
 #endif /* _MCCI_BOOTLOADER_TYPES_H_ */

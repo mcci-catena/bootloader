@@ -19,7 +19,7 @@ Author:
 
 */
 
-#include "mcci_bootloader.h"
+#include "mcci_bootloader_platform.h"
 
 #include "mcci_bootloader_bits.h"
 #include "mcci_arm_cm0plus.h"
@@ -89,9 +89,9 @@ McciBootloaderPlatform_startApp(
 	const void *pAppBase
 	)
 	{
-	const uint32_t * const pAppVectors = pAppBase;
-	const uint32_t stack = pAppVectors[0];
-	const uint32_t pc = pAppVectors[2];
+	const Mcci_CortexAppEntryContents_t * const pAppVectors = pAppBase;
+	const uint32_t stack = pAppVectors->stack;
+	const uint32_t pc = pAppVectors->entry;
 
 	// set the stack pointer
 	McciArm_setMSP(stack);

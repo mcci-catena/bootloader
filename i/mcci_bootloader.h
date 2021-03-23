@@ -50,10 +50,22 @@ enum McciBootloaderError_e
 	{
 	McciBootloaderError_OK = 0,		///< successful
 	McciBootloaderError_BootloaderNotValid,	///< bootloader image isn't valid
-	McciBootloaderError_AppNotValid,	///< application image isn't vliad
 	McciBootloaderError_ResetClockNotValid,	///< post-reset clock not valid
+	McciBootloaderError_NoAppImage,		///< app image not valid, no fallback avialable.
 	};
 // typedef uint32_t McciBootloaderError_t; -- in mcci_bootloader_types.h.
+
+enum McciBootloaderState_e
+	{
+	McciBootloaderState_Initial = 0,	///< initial state when annunciator launched
+	McciBootloaderState_CheckingPrimaryStorageHash,
+	McciBootloaderState_CheckingPrimaryStorageSignature,
+	McciBootloaderState_CheckingFallbackStorageHash,
+	McciBootloaderState_CheckingFallbackStorageSignature,
+	McciBootloaderState_ErasingApp,
+	McciBootloaderState_WritingApp,
+	McciBootloaderState_CheckingApp,
+	};
 
 /****************************************************************************\
 |
@@ -131,20 +143,14 @@ McciBootloader_checkCodeValid(
 	size_t numBytes
 	);
 
-void
-McciBootloaderPlatform_entry(void);
+bool
+McciBootloader_checkStorageImage(
+	McciBootloaderStorageAddress_t address
+	);
 
-MCCI_BOOTLOADER_NORETURN_PFX
-void
-McciBootloaderPlatform_fail(
-	McciBootloaderError_t error
-	) MCCI_BOOTLOADER_NORETURN_SFX;
-
-MCCI_BOOTLOADER_NORETURN_PFX
-void
-McciBootloaderPlatform_startApp(
-	const void *pAppBase
-	) MCCI_BOOTLOADER_NORETURN_SFX;
+bool McciBootloader_programAndCheckFlash(
+	McciBootloaderStorageAddress_t address
+	);
 
 MCCI_BOOTLOADER_END_DECLS
 #endif /* _MCCI_BOOTLOADER_H_ */
