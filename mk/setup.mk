@@ -145,6 +145,7 @@ LDFLAGS	?=					\
 	--unresolved-symbols=report-all 	\
 	--warn-common 				\
 	--warn-section-align			\
+	--print-memory-usage			\
 ### end LDFLAGS ###
 
 LDADD	?=					\
