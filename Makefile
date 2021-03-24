@@ -133,6 +133,7 @@ INCLUDES_libmcci_bootloader_catena_abz :=				\
 # end INCLUDES_libmcci_bootloader_catena_abz
 
 SOURCES_libmcci_bootloader_catena_abz :=				\
+	$_/src/mccibootloaderboard_catenaabz_eeprom.c			\
 	$_/src/mccibootloaderboard_catenaabz_prepareforlaunch.c		\
 	$_/src/mccibootloaderboard_catenaabz_spi.c			\
 	$_/src/mccibootloaderboard_catenaabz_systeminit.c		\

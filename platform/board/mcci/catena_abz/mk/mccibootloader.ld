@@ -28,6 +28,8 @@ g_McciBootloader_RamBase        = 0x20000000;
 gk_McciBootloader_RamSize       = 20K;
 gk_McciBootloader_FlashBase     = 0x08000000;
 gk_McciBootloader_FlashSize     = 192K;
+g_McciBootloader_SocEepromBase  = 0x08080000;
+gk_McciBootloader_SocEepromSize  = 6K;
 
 /* size of boot loader */
 gk_McciBootloader_BootSize      = 20K;
@@ -35,6 +37,13 @@ gk_McciBootloader_BootSize      = 20K;
 gk_McciBootloader_MfgSize       = 4K;
 /* size of app */
 gk_McciBootloader_AppSize       = gk_McciBootloader_FlashSize - (gk_McciBootloader_BootSize + gk_McciBootloader_MfgSize);
+/* bootloader Eeprom */
+gk_McciBootloader_BootEepromSize  = 256;
+g_McciBootloader_BootEepromBase  = g_McciBootloader_SocEepromBase
+                                 + gk_McciBootloader_SocEepromSize
+                                 - gk_McciBootloader_BootEepromSize
+                                 ;
+g_McciBootloader_BootEepromTop   = g_McciBootloader_BootEepromBase + gk_McciBootloader_BootEepromSize;
 
 /* initial stack pointer: top of RAM */
 g_McciBootloader_StackTop       = g_McciBootloader_RamBase + gk_McciBootloader_RamSize;
@@ -50,8 +59,12 @@ gk_McciBootloader_MfgTop        = gk_McciBootloader_MfgBase + gk_McciBootloader_
 /* the memory areas */
 MEMORY
         {
-        FLASH (rx)      : ORIGIN = gk_McciBootloader_BootBase, LENGTH = gk_McciBootloader_BootSize
-        RAM (xrw)       : ORIGIN = g_McciBootloader_RamBase, LENGTH = gk_McciBootloader_RamSize
+        FLASH (rx)      : ORIGIN = gk_McciBootloader_BootBase,
+                          LENGTH = gk_McciBootloader_BootSize
+        EEPROM (rw)     : ORIGIN = g_McciBootloader_BootEepromBase,
+                          LENGTH = gk_McciBootloader_BootEepromSize
+        RAM (xrw)       : ORIGIN = g_McciBootloader_RamBase,
+                          LENGTH = gk_McciBootloader_RamSize
         }
 
 /* declare how the output sections should be construted and mapped to memory */
@@ -77,6 +90,14 @@ SECTIONS
 
                 /* no constructors, destructors, etc. The reset handler is responsible for everything */
                 } > FLASH
+
+        /* the EEPROM (if any) */
+        .eeprom :
+                {
+                . = ALIGN(4);   /* dword align */
+                *(.eeprom*)     /* all the EEPROM sections */
+                . = ALIGN(4);   /* dword-align the tail */
+                } > EEPROM
 
         /* capture all the .data segments. */
         gk_McciBootloader_DataImageBase = LOADADDR(.data);
