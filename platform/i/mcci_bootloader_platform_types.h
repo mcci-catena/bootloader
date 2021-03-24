@@ -43,7 +43,7 @@ typedef	void (McciBootloaderPlatform_SystemInitFn_t)(void);
 /// \brief function type for preparing to launch an application
 ///
 /// \details The bootloader calls this function just before jumping
-///	to the application. The function is required to return the 
+///	to the application. The function is required to return the
 ///	platform to a reset-like state (making the bootloader
 ///	maximally transparent).
 ///
@@ -64,9 +64,54 @@ typedef	void (McciBootloaderPlatform_PrepareForLaunchFn_t)(void);
 ///	calls this as no-return, and then use __builtin_notreached()
 ///	in that function.
 ///
-typedef void 
+typedef void
 (McciBootloaderPlatform_FailFn_t)(
 	McciBootloaderError_t errorCode
+	);
+
+///
+/// \brief delay execution
+///
+/// \param [in] ms number of milliseconds to delay
+///
+/// \details The bootloader calls this function in order to delay
+///	execution by the specified number of milliseconds. The implementation
+///	may delay longer, but apart errors due to clock inaccuracies, it
+///	should not return appreciably before the specified number of
+///	milliseconds has elapsed.
+///
+typedef void
+(McciBootloaderPlatform_DelayMsFn_t)(
+	uint32_t ms
+	);
+
+///
+/// \brief Get the "update flag"
+///
+/// The bootloader needs to know if an update has been requested; no
+/// point in scanning storage if we have not been asked to do so.
+///
+/// \returns \c true if we should attempt to update flash from storage, \c false
+///	otherwise.
+///
+typedef bool
+(McciBootloaderPlatform_GetUpdateFlagFn_t)(
+	void
+	);
+
+///
+/// \brief Set the "update flag"
+///
+/// Set the value of the "update flag"
+///
+/// \param [in] state \c true if next boot should attempt to update flash from
+///		storage, \c false otherwise.
+///
+/// \see McciBootloaderPlatform_getUpdateFlagFn_t
+///
+typedef void
+(McciBootloaderPlatform_SetUpdateFlagFn_t)(
+	bool
 	);
 
 ///
@@ -150,7 +195,7 @@ typedef void
 ///	the SPI bus, and at the same time are received from the SPI bus to
 ///	the buffer at \p pRx.
 ///
-///	The parameters \p pRx and \p pTx are optional. If \c NULL, bytes are 
+///	The parameters \p pRx and \p pTx are optional. If \c NULL, bytes are
 ///	discarded or zeroes inserted, respectively.
 ///
 ///	This API is provided so we can write portable storage chip drivers
@@ -176,35 +221,6 @@ typedef void
 typedef void
 (McciBootloaderPlatform_AnnunciatorInitFn_t)(
 	void
-	);
-
-///
-/// \brief Get the "update flag"
-///
-/// The bootloader needs to know if an update has been requested; no
-/// point in scanning storage if we have not been asked to do so.
-///
-/// \returns \c true if we should attempt to update flash from storage, \c false
-///	otherwise.
-///
-typedef bool
-(McciBootloaderPlatform_GetUpdateFlagFn_t)(
-	void
-	);
-
-///
-/// \brief Set the "update flag"
-///
-/// Set the value of the "update flag"
-///
-/// \param [in] state \c true if next boot should attempt to update flash from
-///		storage, \c false otherwise.
-///
-/// \see McciBootloaderPlatform_getUpdateFlagFn_t
-///
-typedef void
-(McciBootloaderPlatform_SetUpdateFlagFn_t)(
-	bool
 	);
 
 ///
