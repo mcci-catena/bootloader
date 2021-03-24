@@ -78,6 +78,9 @@ Notes:
 void
 McciBootloader_Stm32L0_systemInit(void)
 	{
+	// mask off interrupts, discarding prior state.
+	(void) McciArm_disableInterrupts();
+
 	// reset things to defaults
 	// make sure MSI is on
 	McciArm_putRegOr(
