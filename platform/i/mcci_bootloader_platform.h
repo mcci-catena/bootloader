@@ -57,6 +57,7 @@ struct McciBootloaderPlatform_Interface_s
 	McciBootloaderPlatform_SystemInitFn_t		*pSystemInit;		///< System init provider function
 	McciBootloaderPlatform_PrepareForLaunchFn_t	*pPrepareForLaunch;	///< Prepare to launch application
 	McciBootloaderPlatform_FailFn_t			*pFail;			///< Stop the boot, due to a failure
+	McciBootloaderPlatform_DelayMsFn_t		*pDelayMs;		///< Delay execution some number of milliseconds
 	McciBootloaderPlatform_GetUpdateFlagFn_t	*pGetUpdate;		///< Find out whether firmware update was requested
 	McciBootloaderPlatform_SetUpdateFlagFn_t	*pSetUpdate;		///< Set value of firmware-update flag
 	McciBootloaderPlatform_StorageInterface_t	Storage;
@@ -96,6 +97,14 @@ MCCI_BOOTLOADER_NORETURN_PFX
 McciBootloaderPlatform_fail(
 	McciBootloaderError_t errorCode
 	) MCCI_BOOTLOADER_NORETURN_SFX;
+
+static inline void
+McciBootloaderPlatform_delayMs(
+	uint32_t ms
+	)
+	{
+	(*gk_McciBootloaderPlatformInterface.pDelayMs)(ms);
+	}
 
 static inline void
 McciBootloaderPlatform_storageInit(void)

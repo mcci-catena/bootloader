@@ -25,7 +25,7 @@ include mk/setup.mk
 
 ##############################################################################
 #
-#	The board settings
+#	The board settings -- gives the path to the link scripts etc
 #
 ##############################################################################
 
@@ -69,6 +69,7 @@ LIBS_McciBootloader +=					\
 	${T_OBJDIR}/libmcci_bootloader_cm0plus.a	\
 	${T_OBJDIR}/libmcci_bootloader_stm32l0.a	\
 	${T_OBJDIR}/libmcci_bootloader_catena_abz.a	\
+	${T_OBJDIR}/libmcci_bootloader_catena4801.a	\
 ### end LIBS_McciBootloader
 
 ##############################################################################
@@ -132,12 +133,54 @@ INCLUDES_libmcci_bootloader_catena_abz :=				\
 # end INCLUDES_libmcci_bootloader_catena_abz
 
 SOURCES_libmcci_bootloader_catena_abz :=				\
-	$_/src/mccibootloaderboard_catenaabz_platforminterface.c	\
 	$_/src/mccibootloaderboard_catenaabz_prepareforlaunch.c		\
+	$_/src/mccibootloaderboard_catenaabz_spi.c			\
 	$_/src/mccibootloaderboard_catenaabz_systeminit.c		\
 	$_/src/mccibootloaderboard_catenaabz_vectors.c			\
 # end SOURCES_libmcci_bootloader_catena_abz
 
+##############################################################################
+#
+#	The catena4801 library
+#
+##############################################################################
+
+LIBRARIES += libmcci_bootloader_catena4801
+
+_ := platform/board/mcci/catena4801
+
+CFLAGS_OPT_libmcci_bootloader_catena4801 += -Os
+
+INCLUDES_libmcci_bootloader_catena4801 :=				\
+	$(INCLUDES_libmcci_bootloader_catena_abz)			\
+	$_/i								\
+# end INCLUDES_libmcci_bootloader_catena4801
+
+SOURCES_libmcci_bootloader_catena4801 :=				\
+	$_/src/mccibootloaderboard_catena4801_platforminterface.c	\
+	$_/src/mccibootloaderboard_catena4801_storageinit.c		\
+# end SOURCES_libmcci_bootloader_catena4801
+
+##############################################################################
+#
+#	The catena46xx library
+#
+##############################################################################
+
+LIBRARIES += libmcci_bootloader_catena46xx
+
+_ := platform/board/mcci/catena46xx
+
+CFLAGS_OPT_libmcci_bootloader_catena46xx += -Os
+
+INCLUDES_libmcci_bootloader_catena46xx :=				\
+	$(INCLUDES_libmcci_bootloader_catena_abz)			\
+	$_/i								\
+# end INCLUDES_libmcci_bootloader_catena46xx
+
+SOURCES_libmcci_bootloader_catena46xx :=				\
+	$_/src/mccibootloaderboard_catena46xx_platforminterface.c	\
+# end SOURCES_libmcci_bootloader_catena46xx
 
 ##############################################################################
 #

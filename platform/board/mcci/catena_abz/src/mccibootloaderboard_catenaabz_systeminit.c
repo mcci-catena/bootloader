@@ -34,8 +34,6 @@ Author:
 |
 \****************************************************************************/
 
-static void
-McciBootloaderBoard_CatenaAbz_delayMs(uint32_t ms);
 
 /****************************************************************************\
 |
@@ -118,7 +116,7 @@ McciBootloaderBoard_CatenaAbz_systemInit(
 		);
 	}
 
-static void
+void
 McciBootloaderBoard_CatenaAbz_delayMs(uint32_t ms)
 	{
 	for (++ms; ms > 0; --ms)
