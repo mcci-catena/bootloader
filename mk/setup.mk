@@ -146,6 +146,7 @@ LDFLAGS	?=					\
 	--warn-common 				\
 	--warn-section-align			\
 	--print-memory-usage			\
+	${LDFLAGS_USER}				\
 ### end LDFLAGS ###
 
 LDADD	?=					\
