@@ -37,6 +37,10 @@ Author:
 # include "mcci_bootloader_stm32l0.h"
 #endif
 
+#ifndef _mcci_bootloader_board_catena_abz_eeprom_h_
+# include "mcci_bootloader_board_catena_abz_eeprom.h"
+#endif
+
 MCCI_BOOTLOADER_BEGIN_DECLS
 
 /****************************************************************************\
