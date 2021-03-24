@@ -89,6 +89,8 @@ McciBootloaderBoard_CatenaAbz_annunciatorInit;
 McciBootloaderPlatform_AnnunciatorIndicateStateFn_t
 McciBootloaderBoard_CatenaAbz_annunciatorIndicateState;
 
+void McciBootloaderBoard_CatenaAbz_handleSysTick(void);
+
 MCCI_BOOTLOADER_END_DECLS
 
 #endif /* _mcci_bootloader_board_catena_abz_h_ */

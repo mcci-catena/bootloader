@@ -36,6 +36,34 @@ extern "C" {
 
 /****************************************************************************\
 |
+|	Special function register values
+|
+\****************************************************************************/
+
+/// \name CPU Special function registers
+/// @{
+#define	MCCI_CM0PLUS_SYSM_APSR		UINT32_C(0x00)	///< Flags from previous instructions
+#define	MCCI_CM0PLUS_SYSM_IAPSR		UINT32_C(0x01)	///< Composite of IPSR and APSR
+#define	MCCI_CM0PLUS_SYSM_EAPSR		UINT32_C(0x02)	///< Composite of EPSR and APSR
+#define	MCCI_CM0PLUS_SYSM_XPSR		UINT32_C(0x03)	///< Composite of EPSR, IPSR and APSR
+#define	MCCI_CM0PLUS_SYSM_IPSR		UINT32_C(0x05)	///< Interrupt status register
+#define	MCCI_CM0PLUS_SYSM_EPSR		UINT32_C(0x06)	///< Exception status register
+#define	MCCI_CM0PLUS_SYSM_IEPSR		UINT32_C(0x07)	///< Composite of IPSR and EPSR
+#define	MCCI_CM0PLUS_SYSM_MSP		UINT32_C(0x08)	///< Main stack pointer
+#define	MCCI_CM0PLUS_SYSM_PSP		UINT32_C(0x09)	///< Process stack pointer
+#define	MCCI_CM0PLUS_SYSM_PRIMASK	UINT32_C(0x10)	///< priority mask register
+#define	MCCI_CM0PLUS_SYSM_CONTROL	UINT32_C(0x14)	///< control register
+
+/// \name PRIMASK special register fields
+///	@{
+#define	MCCI_CM0PLUS_SR_PRIMASK_DISABLE	(UINT32_C(1) << 0)	///< the bit to disable interrupts
+///	@}
+
+/* end of special-function registers */
+/// @}
+
+/****************************************************************************\
+|
 |	Register addresses
 |
 \****************************************************************************/
@@ -347,7 +375,60 @@ McciArm_setMSP(
 	uint32_t stack
 	)
 	{
-	__asm volatile ("MSR msp,%0" :: "r"(stack):);
+	__asm volatile ("MSR msp,%0\n" :: "r"(stack): );
+	}
+
+///
+/// \brief get priority mask
+///
+/// \return current value of PRIMASK register
+///
+/// \note only bit 0 is implemented on CM0 Plus CPUs. If cleared, it enables
+///	interrupts; if set it enables interrupts.
+///
+__attribute__((__always_inline__)) static inline
+uint32_t
+McciArm_getPRIMASK(
+	void
+	)
+	{
+	uint32_t primask;
+
+	__asm volatile ("MRS %0,primask" : "=r"(primask));
+	return primask;
+	}
+
+///
+/// \brief set priority mask
+///
+/// \param [in] primask new value of PRIMASK register
+///
+/// \note only bit 0 is implemented on CM0 Plus CPUs. If cleared, it enables
+///	interrupts; if set it enables interrupts.
+///
+__attribute__((__always_inline__)) static inline
+void
+McciArm_setPRIMASK(
+	uint32_t primask
+	)
+	{
+	__asm volatile ("MSR primask,%0" :: "r"(primask) : "memory");
+	}
+
+///
+/// \brief Disable interrupts and return previous state
+///
+/// \return previous value of PRIMASK register.
+///
+__attribute__((__always_inline__)) static inline
+uint32_t
+McciArm_disableInterrupts(
+	void
+	)
+	{
+	uint32_t const primask = McciArm_getPRIMASK();
+	__asm volatile ("cpsid i" ::: "memory");
+	return primask;
 	}
 #else
 # error "Compiler not supported"
