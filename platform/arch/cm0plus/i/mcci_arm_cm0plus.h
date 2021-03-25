@@ -251,6 +251,7 @@ McciCm0Plus_SCB_SHPR_getMask(
 \****************************************************************************/
 
 /// \brief write a 32-bit value to a cm0plus register
+__attribute__((__always_inline__))
 static inline uint32_t
 McciArm_putReg(uint32_t reg, uint32_t val)
 	{
@@ -259,6 +260,7 @@ McciArm_putReg(uint32_t reg, uint32_t val)
 	}
 
 /// \brief read a 32-bit value from a cm0plus register
+__attribute__((__always_inline__))
 static inline uint32_t
 McciArm_getReg(uint32_t reg)
 	{
@@ -266,6 +268,7 @@ McciArm_getReg(uint32_t reg)
 	}
 
 /// \brief and/or 32-bit values to a cm0plus register
+__attribute__((__always_inline__))
 static inline uint32_t
 McciArm_putRegAndOr(uint32_t reg, uint32_t andVal, uint32_t orVal)
 	{
@@ -278,6 +281,7 @@ McciArm_putRegAndOr(uint32_t reg, uint32_t andVal, uint32_t orVal)
 	}
 
 /// \brief or 32-bit values to a cm0plus register
+__attribute__((__always_inline__))
 static inline uint32_t
 McciArm_putRegOr(uint32_t reg, uint32_t orVal)
 	{
@@ -290,6 +294,7 @@ McciArm_putRegOr(uint32_t reg, uint32_t orVal)
 	}
 
 /// \brief clear out 32-bit values to a cm0plus register
+__attribute__((__always_inline__))
 static inline uint32_t
 McciArm_putRegClear(uint32_t reg, uint32_t clearVal)
 	{
@@ -316,6 +321,7 @@ McciArm_putRegClear(uint32_t reg, uint32_t clearVal)
 ///
 /// \see McciArm_putRegMasked
 ///
+__attribute__((__always_inline__))
 static inline uint32_t
 McciArm_putRegClearSet(uint32_t reg, uint32_t clearVal, uint32_t setVal)
 	{
@@ -341,6 +347,7 @@ McciArm_putRegClearSet(uint32_t reg, uint32_t clearVal, uint32_t setVal)
 /// \see McciArm_putRegClearSet
 /// \see https://graphics.stanford.edu/~seander/bithacks.html#MaskedMerge
 ///
+__attribute__((__always_inline__))
 static inline uint32_t
 McciArm_putRegMasked(uint32_t reg, uint32_t maskVal, uint32_t modVal)
 	{
