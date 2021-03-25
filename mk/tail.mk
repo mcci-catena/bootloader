@@ -332,6 +332,74 @@ endef
 
 ##############################################################################
 #
+# Name: MCCI_DOBOOTLOADER
+#
+# Function:
+#	Macro for generating rules for building a boottloader
+#
+# Usage:
+#	$(call MCCI_DOBOTLOADER, bootloaderName)
+#
+# Input:
+#	$1		name of the executable file (without .exe suffix)
+#	SOURCES_$1 	the sources for that program
+#	INCLUDES_$1	include paths for all files in the pgrogram
+#	CC		the compiler name
+#	CFLAGS		the compilation flags
+#	LDFLAGS		the link flags (CC-form)
+#	LDADD_$1	the additional pre-existing libraries to be used for
+#			this program, but not added to dependencies
+#	LIBS_$1		the libraries to be used for this program, and added
+#			to dependencies.
+#	LDFLAGS_$1	the specific link flags for this program
+#	LDADDDEP_$1	any additional dependencies to be added.
+#	LDSCRIPT_$1	the linker script (no default)
+#
+# Output:
+#	all: is updated with $(T_OBJDIR)/$1
+#	MCCI_CLEANFILES is similarly updated.
+#	LDFLAGS_$1	updated with suitable options
+#	LDADD_$1	updated as appropriate
+#	LIBS_$1		has the common bootloader libraries appended.
+#
+##############################################################################
+
+define MCCI_DO_BOOTLOADER
+PROGRAMS += $1
+
+LDFLAGS_$1 += 						\
+	--cref 						\
+	-Map=$$(T_OBJDIR)/$1.map			\
+### end LDFLAGS_$1
+
+# since we're asking for a map, add it to the clean list
+MCCI_CLEANFILES += $$(T_OBJDIR)/$1.map
+
+# make sure there's a link script
+ifeq ($$(LDSCRIPT_$1),)
+$$(error LDSCRIPT_$1 not defined: $$(LDSCRIPT_$1))
+endif
+
+# make sure that the basic library is included
+LDADD_$1 += -lc
+
+# always require the basic library and tweetnacl.
+LIBS_$1 +=						\
+	$${T_OBJDIR}/libmcci_bootloader.a		\
+	$${T_OBJDIR}/libmcci_tweetnacl.a		\
+### end LIBS_McciBootloader
+endef
+
+##############################################################################
+#
+#	Make the rules for the bootloaders -- must be before PROGRAMS.
+#
+##############################################################################
+
+$(foreach B,$(BOOTLOADERS),$(eval $(call MCCI_DO_BOOTLOADER,$(B))))
+
+##############################################################################
+#
 #	Generate the rules for building the programs
 #
 ##############################################################################

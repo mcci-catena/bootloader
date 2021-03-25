@@ -29,11 +29,18 @@ include mk/setup.mk
 #
 ##############################################################################
 
-BOARDPATH ?= platform/board/mcci/catena_abz
+BOOTLOADER_LDSCRIPT_ABZ := $(abspath platform/board/mcci/catena_abz/mk/mccibootloader.ld)
+
+BOOTLOADER_LIBS_ABZ :=	\
+	${T_OBJDIR}/libmcci_bootloader_cm0plus.a	\
+	${T_OBJDIR}/libmcci_bootloader_stm32l0.a	\
+	${T_OBJDIR}/libmcci_bootloader_catena_abz.a	\
+	${T_OBJDIR}/libmcci_bootloader_flash_mx25v8035f.a \
+# end BOOTLOADER_LIBS_ABZ
 
 ##############################################################################
 #
-#	The bootloader per se
+#	The core bootloader library
 #
 ##############################################################################
 
@@ -62,35 +69,6 @@ CFLAGS_OPT_libmcci_bootloader ?= -Os
 
 ##############################################################################
 #
-#	Macros for creating bootloaders
-#
-##############################################################################
-
-define MCCI_DO_BOOTLOADER
-$(warning Add bootloader $1)
-PROGRAMS += $1
-
-LDFLAGS_$1 = 						\
-	--cref 						\
-	-Map=$$(T_OBJDIR)/$1.map			\
-### end LDFLAGS_$1
-
-LDSCRIPT_$1 = $$(abspath $$(BOARDPATH)/mk/mccibootloader.ld)
-
-LDADD_$1 += -lc
-
-LIBS_$1 +=						\
-	$${T_OBJDIR}/libmcci_bootloader.a		\
-	$${T_OBJDIR}/libmcci_tweetnacl.a		\
-	$${T_OBJDIR}/libmcci_bootloader_cm0plus.a	\
-	$${T_OBJDIR}/libmcci_bootloader_stm32l0.a	\
-	$${T_OBJDIR}/libmcci_bootloader_catena_abz.a	\
-	$${T_OBJDIR}/libmcci_bootloader_flash_mx25v8035f.a \
-### end LIBS_McciBootloader
-endef
-
-##############################################################################
-#
 #	The 4801 bootloader
 #
 ##############################################################################
@@ -98,22 +76,26 @@ endef
 BOOTLOADERS += McciBootloader_4801
 
 LIBS_McciBootloader_4801 :=				\
+	${BOOTLOADER_LIBS_ABZ}				\
 	${T_OBJDIR}/libmcci_bootloader_catena4801.a	\
 ### end LIBS_McciBootloader_4801
+
+LDSCRIPT_McciBootloader_4801	:=	$(BOOTLOADER_LDSCRIPT_ABZ)
+
+##############################################################################
+#
+#	The 46xx bootloader
+#
+##############################################################################
 
 BOOTLOADERS += McciBootloader_46xx
 
 LIBS_McciBootloader_46xx :=				\
+	${BOOTLOADER_LIBS_ABZ}				\
 	${T_OBJDIR}/libmcci_bootloader_catena46xx.a	\
 ### end LIBS_McciBootloader_46xx
 
-##############################################################################
-#
-#	Make the rules for the bootloaders.
-#
-##############################################################################
-
-$(foreach B,$(BOOTLOADERS),$(eval $(call MCCI_DO_BOOTLOADER,$(B))))
+LDSCRIPT_McciBootloader_46xx	:=	$(BOOTLOADER_LDSCRIPT_ABZ)
 
 ##############################################################################
 #
