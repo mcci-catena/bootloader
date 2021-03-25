@@ -98,6 +98,10 @@ typedef uint32_t	McciBootloaderStorageAddress_t;
 ///
 typedef uint32_t McciBootloaderState_t;
 
+///
+/// \brief The (ostensibly) architecture-neutral application header
+///
+typedef struct McciBootloader_AppInfo_s McciBootloader_AppInfo_t;
 
 MCCI_BOOTLOADER_END_DECLS
 #endif /* _MCCI_BOOTLOADER_TYPES_H_ */

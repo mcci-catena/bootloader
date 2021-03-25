@@ -20,6 +20,8 @@ Author:
 */
 
 #include "mcci_bootloader_board_catena4801.h"
+
+#include "mcci_bootloader_flash_mx25v8035f.h"
 
 /****************************************************************************\
 |
@@ -47,7 +49,7 @@ gk_McciBootloaderPlatformInterface =
 	.Storage =
 		{
 		.pInit = McciBootloaderBoard_Catena4801_storageInit,
-		.pRead = McciBootloaderBoard_CatenaAbz_storageRead,
+		.pRead = McciBootloaderFlash_Mx25v8035f_storageRead,
 		.pGetPrimaryAddress = McciBootloaderBoard_CatenaAbz_getPrimaryStorageAddress,
 		.pGetFallbackAddress = McciBootloaderBoard_CatenaAbz_getFallbackStorageAddress,
 		},

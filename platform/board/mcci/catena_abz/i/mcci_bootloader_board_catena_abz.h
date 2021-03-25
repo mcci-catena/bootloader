@@ -45,6 +45,34 @@ MCCI_BOOTLOADER_BEGIN_DECLS
 
 /****************************************************************************\
 |
+|	SPI Flash layout
+|
+\****************************************************************************/
+
+/// \brief the maximum image size is 168k bytes (192k - 20k for the bootloader
+///	and 4k for the mfg page).
+#define	MCCI_BOOTLOADER_BOARD_CATENA_ABZ_STORAGE_IMAGE_SIZE	\
+		(UINT32_C(168) * 1024)
+
+/// \brief we put the fallback image at 64k to 232k, in case anyone needs
+///	special things in page zero. This also lets you set the WP bit,
+///	clear the TP bit, and set BP bits to 0x03; this will protect the
+///	first 256k against accidental change.
+#define	MCCI_BOOTLOADER_BOARD_CATENA_ABZ_STORAGE_FALLBACK_BASE	\
+		(UINT32_C(65536))
+
+///
+/// \brief base address of the update image
+///
+/// \details The update block begins at a multiple of 64k to allow use
+///	of 64k erase if desired. We put it at 256k so we can easily 
+///	write-protect the fallback image if needed.
+///
+#define	MCCI_BOOTLOADER_BOARD_CATENA_ABZ_STORAGE_UPDATE_BASE	\
+		(UINT32_C(256) * 1024)
+
+/****************************************************************************\
+|
 |	API functions.
 |
 \****************************************************************************/
@@ -89,7 +117,9 @@ McciBootloaderBoard_CatenaAbz_annunciatorInit;
 McciBootloaderPlatform_AnnunciatorIndicateStateFn_t
 McciBootloaderBoard_CatenaAbz_annunciatorIndicateState;
 
+void McciBootloaderBoard_CatenaAbz_clearLed(void);
 void McciBootloaderBoard_CatenaAbz_handleSysTick(void);
+void McciBootloaderBoard_CatenaAbz_setLed(void);
 
 MCCI_BOOTLOADER_END_DECLS
 

@@ -22,6 +22,7 @@ Author:
 #include "mcci_bootloader_board_catena4801.h"
 
 #include "mcci_bootloader_board_catena_abz.h"
+#include "mcci_bootloader_flash_mx25v8035f.h"
 #include "mcci_stm32l0xx.h"
 #include <stdbool.h>
 #include <stdint.h>
@@ -83,7 +84,8 @@ McciBootloaderBoard_Catena4801_storageInit(
 	)
 	{
 	storagePowerOn();
-	McciBootloaderBoard_CatenaAbz_spiInit();
+	McciBootloaderPlatform_spiInit();
+	McciBootloaderFlash_Mx25v8035f_storageInit();
 	}
 
 

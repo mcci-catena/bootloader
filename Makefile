@@ -41,6 +41,7 @@ PROGRAMS += McciBootloader
 
 SOURCES_McciBootloader =				\
 	src/mccibootloader_checkcodevalid.c		\
+	src/mccibootloader_checkstorageimage.c		\
 	src/mccibootloader_main.c			\
 	src/mccibootloaderplatform_entry.c		\
 	src/mccibootloaderplatform_fail.c		\
@@ -70,6 +71,7 @@ LIBS_McciBootloader +=					\
 	${T_OBJDIR}/libmcci_bootloader_stm32l0.a	\
 	${T_OBJDIR}/libmcci_bootloader_catena_abz.a	\
 	${T_OBJDIR}/libmcci_bootloader_catena4801.a	\
+	${T_OBJDIR}/libmcci_bootloader_flash_mx25v8035f.a \
 ### end LIBS_McciBootloader
 
 ##############################################################################
@@ -90,6 +92,8 @@ INCLUDES_libmcci_bootloader_cm0plus :=					\
 # end INCLUDES_libmcci_bootloader_cm0plus
 
 SOURCES_libmcci_bootloader_cm0plus :=					\
+	$_/src/mccibootloaderplatform_checkimagevalid.c			\
+	$_/src/mccibootloaderplatform_getappinfo.c			\
 	$_/src/mccibootloaderplatform_startapp.c			\
 # end SOURCES_libmcci_bootloader_cm0plus
 
@@ -117,6 +121,27 @@ SOURCES_libmcci_bootloader_stm32l0 :=					\
 
 ##############################################################################
 #
+#	The MX25V8035F flash library
+#
+##############################################################################
+
+LIBRARIES += libmcci_bootloader_flash_mx25v8035f
+
+_ := platform/driver/flash_mx25v8035f
+
+CFLAGS_OPT_libmcci_bootloader_flash_mx25v8035f += -Os
+
+INCLUDES_libmcci_bootloader_flash_mx25v8035f :=				\
+	$(INCLUDES_McciBootloader)					\
+	$_/i								\
+# end INCLUDES_libmcci_bootloader_flash_mx25v8035f
+
+SOURCES_libmcci_bootloader_flash_mx25v8035f :=				\
+	$_/src/mccibootloaderflash_mx25v8035f.c				\
+# end SOURCES_libmcci_bootloader_flash_mx25v8035f
+
+##############################################################################
+#
 #	The catena-abz library
 #
 ##############################################################################
@@ -133,9 +158,11 @@ INCLUDES_libmcci_bootloader_catena_abz :=				\
 # end INCLUDES_libmcci_bootloader_catena_abz
 
 SOURCES_libmcci_bootloader_catena_abz :=				\
+	$_/src/mccibootloaderboard_catenaabz_annunciator.c		\
 	$_/src/mccibootloaderboard_catenaabz_eeprom.c			\
 	$_/src/mccibootloaderboard_catenaabz_prepareforlaunch.c		\
 	$_/src/mccibootloaderboard_catenaabz_spi.c			\
+	$_/src/mccibootloaderboard_catenaabz_storage.c			\
 	$_/src/mccibootloaderboard_catenaabz_systeminit.c		\
 	$_/src/mccibootloaderboard_catenaabz_vectors.c			\
 # end SOURCES_libmcci_bootloader_catena_abz
@@ -154,6 +181,7 @@ CFLAGS_OPT_libmcci_bootloader_catena4801 += -Os
 
 INCLUDES_libmcci_bootloader_catena4801 :=				\
 	$(INCLUDES_libmcci_bootloader_catena_abz)			\
+	platform/driver/flash_mx25v8035f/i				\
 	$_/i								\
 # end INCLUDES_libmcci_bootloader_catena4801
 
@@ -176,6 +204,7 @@ CFLAGS_OPT_libmcci_bootloader_catena46xx += -Os
 
 INCLUDES_libmcci_bootloader_catena46xx :=				\
 	$(INCLUDES_libmcci_bootloader_catena_abz)			\
+	platform/driver/flash_mx25v8035f/i				\
 	$_/i								\
 # end INCLUDES_libmcci_bootloader_catena46xx
 

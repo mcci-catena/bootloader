@@ -80,6 +80,9 @@ extern const void *gk_McciBootloader_AppTop;
 extern const void *gk_McciBootloader_MfgBase;
 extern const void *gk_McciBootloader_MfgTop;
 
+extern void *g_McciBootloader_RamBase;
+extern void *g_McciBootloader_RamTop;
+
 extern const void *gk_McciBootloader_DataImageBase;
 extern void *g_McciBootloader_DataBase;
 extern void *g_McciBootloader_DataTop;
@@ -151,6 +154,8 @@ McciBootloader_checkStorageImage(
 bool McciBootloader_programAndCheckFlash(
 	McciBootloaderStorageAddress_t address
 	);
+
+extern uint8_t g_McciBootloader_imageBlock[4096];
 
 MCCI_BOOTLOADER_END_DECLS
 #endif /* _MCCI_BOOTLOADER_H_ */
