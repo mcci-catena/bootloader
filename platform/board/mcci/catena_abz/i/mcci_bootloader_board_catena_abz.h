@@ -65,7 +65,7 @@ MCCI_BOOTLOADER_BEGIN_DECLS
 /// \brief base address of the update image
 ///
 /// \details The update block begins at a multiple of 64k to allow use
-///	of 64k erase if desired. We put it at 256k so we can easily 
+///	of 64k erase if desired. We put it at 256k so we can easily
 ///	write-protect the fallback image if needed.
 ///
 #define	MCCI_BOOTLOADER_BOARD_CATENA_ABZ_STORAGE_UPDATE_BASE	\
@@ -77,14 +77,14 @@ MCCI_BOOTLOADER_BEGIN_DECLS
 |
 \****************************************************************************/
 
-McciBootloaderPlatform_SystemInitFn_t 
+McciBootloaderPlatform_SystemInitFn_t
 McciBootloaderBoard_CatenaAbz_systemInit;
 
 McciBootloaderPlatform_PrepareForLaunchFn_t
 McciBootloaderBoard_CatenaAbz_prepareForLaunch;
 
 McciBootloaderPlatform_FailFn_t MCCI_BOOTLOADER_NORETURN_PFX
-McciBootloaderBoard_CatenaAbz_fail 
+McciBootloaderBoard_CatenaAbz_fail
 MCCI_BOOTLOADER_NORETURN_SFX;
 
 McciBootloaderPlatform_DelayMsFn_t

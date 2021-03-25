@@ -53,16 +53,16 @@ typedef struct McciBootloaderFlashBucketEntryLongWire_s McciBootloaderFlashBucke
 typedef struct McciBootloaderFlashBucketEntryShortWire_s McciBootloaderFlashBucketEntryShortWire_t;
 
 /*
-|| An LSL medium is identified via a header in each sheaf that 
+|| An LSL medium is identified via a header in each sheaf that
 || identifies:
 ||
 || 1) itself
-|| 2) the logical layout of the medium (sheaf [cylinder] size, 
+|| 2) the logical layout of the medium (sheaf [cylinder] size,
 ||    sheet [track] size, total size -- this must match the
 ||    overall size of the medium, which we assume the lower-level
 ||    driver can tell us.
 || 3) a pointer to the BTREE root as of the time the header was written.
-|| 
+||
 || Any LSL sheaf (cylinder) without a valid header is assumed to be
 || invalid and partially erased; the scavenger will attempt to erase
 || and reuse it.
@@ -87,7 +87,7 @@ typedef struct McciBootloaderFlashBucketEntryShortWire_s McciBootloaderFlashBuck
 #define MCCI_BOOTLOADER_LSLUINT64_SIZE	        UINT32_C(64 / 8)	/* 8 bytes for 64 bits */
 #define	MCCI_BOOTLOADER_LSLROOTGEN_SIZE	        MCCI_BOOTLOADER_LSLUINT64_SIZE		/* root generation -- 2^64
                                                                                         || is so large that it
-                                                                                        || cannot conceivably 
+                                                                                        || cannot conceivably
                                                                                         || roll over.
                                                                                         */
 
@@ -109,7 +109,7 @@ typedef struct McciBootloaderFlashBucketEntryShortWire_s McciBootloaderFlashBuck
 |
 \****************************************************************************/
 
-struct McciBootloaderFlashHeaderWire_s 
+struct McciBootloaderFlashHeaderWire_s
 	{
 	uint8_t	lslsheaf_ulSig[MCCI_BOOTLOADER_LSLUINT32_SIZE];		/* 0: the signature of a sheaf header */
 	uint8_t	lslsheaf_ulLslid[MCCI_BOOTLOADER_LSLUINT32_SIZE];	/* 4: the signature of this lsl instance */
@@ -185,7 +185,7 @@ struct	McciBootloaderFlashBucketEntryLongWire_s
 	uint8_t	lslrec_len[MCCI_BOOTLOADER_LSLTAG_SIZE];	/* the number of blocks */
 	uint8_t	lslrec_phys[MCCI_BOOTLOADER_LSLTAG_SIZE];	/* the base physical addr */
 	};
-         
+
 /* a Btree entry using short tags */
 struct	__LSLBTBUCKET_RECORD_SHORT
 	{

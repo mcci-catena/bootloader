@@ -53,7 +53,7 @@ McciBootloaderError_t g_McciBootloader_failureCode;
 Name:	McciBootloaderPlatform_fail()
 
 Function:
-	
+
 
 Definition:
 	void McciBootloaderPlatform_fail(

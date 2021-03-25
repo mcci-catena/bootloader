@@ -232,7 +232,7 @@ $$(T_OBJDIR)/$1.a: $$(OBJECTS_$1)
 	$${MAKEHUSH}$$(AR) cr $$@ $$(OBJECTS_$1)
 
 all $1.a:	$$(T_OBJDIR)/$1.a
-.PHONY:		$1.a		
+.PHONY:		$1.a
 
 _MCCI_INSTALLDIR_LIB_EXPAND_$1 := $${subst *,$1,$${MCCI_INSTALLDIR_LIB}}
 _install_libraries: 	_install_libraries_$1

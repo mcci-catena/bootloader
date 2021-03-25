@@ -160,7 +160,7 @@ McciBootloader_Stm32L0_prepareForLaunch(
 		MCCI_STM32L0_REG_RCC_CR,
 		 MCCI_STM32L0_REG_RCC_CR_HSEBYP
 		);
-	
+
 	// clear out the PLL stuff
 	McciArm_putRegClear(
 		MCCI_STM32L0_REG_RCC_CFGR,

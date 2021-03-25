@@ -120,7 +120,7 @@ McciBootloader_Stm32L0_systemInit(void)
 		MCCI_STM32L0_REG_RCC_CR,
 		 MCCI_STM32L0_REG_RCC_CR_HSEBYP
 		);
-	
+
 	// clear out the PLL stuff
 	McciArm_putRegClear(
 		MCCI_STM32L0_REG_RCC_CFGR,
@@ -180,7 +180,7 @@ McciBootloader_Stm32L0_systemInit(void)
 		MCCI_STM32L0_REG_PWR_CR_VOS,
 		MCCI_STM32L0_REG_PWR_CR_VOS_1V8
 		);
-	
+
 	// turn on HSI
 	McciArm_putRegOr(
 		MCCI_STM32L0_REG_RCC_CR,
@@ -234,7 +234,7 @@ McciBootloader_Stm32L0_systemInit(void)
 		 MCCI_STM32L0_REG_RCC_CFGR_PLLMUL_4 |
 		 MCCI_STM32L0_REG_RCC_CFGR_PLLSRC_HSI16)
 		);
-	
+
 	// enable the PLL
 	McciArm_putRegOr(
 		MCCI_STM32L0_REG_RCC_CR,

@@ -1,4 +1,4 @@
-void 
+void
 McciBootloaderBoard_Catena46xx_storageInit(
 	void
 	)

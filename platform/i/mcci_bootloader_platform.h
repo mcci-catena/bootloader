@@ -101,7 +101,7 @@ McciBootloaderPlatform_systemFlashErase(
 	)
 	{
 	return (*gk_McciBootloaderPlatformInterface.pSystemFlashErase)(
-		targetAddress, 
+		targetAddress,
 		targetSize
 		);
 	}
