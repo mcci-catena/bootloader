@@ -3,7 +3,7 @@
 Module:	mccibootloader_stm32l0_systemflash.c
 
 Function:
-	McciBootloader_Stm32L0_systemFlashErase() and 
+	McciBootloader_Stm32L0_systemFlashErase() and
 	McciBootloader_Stm32L0_systemFlashWrite()
 
 Copyright and License:
@@ -72,12 +72,12 @@ McciBootloader_Stm32L0_systemFlashErase(
 	// loop throgh each page, erasing
 	uint32_t p;
 	size_t nPages;
-	
+
 	p = (uint32_t)pBase;
 	nPages = nBytes / MCCI_STM32L0_FLASH_PAGE_SIZE;
 
 	McciArm_putRegOr(
-		MCCI_STM32L0_REG_FLASH_PECR, 
+		MCCI_STM32L0_REG_FLASH_PECR,
 		MCCI_STM32L0_REG_FLASH_PECR_ERASE | MCCI_STM32L0_REG_FLASH_PECR_DATA
 		);
 
@@ -100,7 +100,7 @@ McciBootloader_Stm32L0_systemFlashErase(
 
 	// turn off PECR bits
 	McciArm_putRegClear(
-		MCCI_STM32L0_REG_FLASH_PECR, 
+		MCCI_STM32L0_REG_FLASH_PECR,
 		MCCI_STM32L0_REG_FLASH_PECR_ERASE | MCCI_STM32L0_REG_FLASH_PECR_DATA
 		);
 
@@ -117,11 +117,11 @@ McciBootloader_Stm32L0_programHalfPage(
 	)
 	{
 	McciArm_putRegOr(
-		MCCI_STM32L0_REG_FLASH_PECR, 
+		MCCI_STM32L0_REG_FLASH_PECR,
 		(MCCI_STM32L0_REG_FLASH_PECR_PROG |
 		 MCCI_STM32L0_REG_FLASH_PECR_FPRG)
 		);
-	
+
 	unsigned i;
 	for (i = 0; i < MCCI_STM32L0_FLASH_HALF_PAGE_SIZE; i += sizeof(uint32_t), ++pData)
 		{
@@ -141,7 +141,7 @@ McciBootloader_Stm32L0_programHalfPage(
 
 	// turn off PECR bits
 	McciArm_putRegClear(
-		MCCI_STM32L0_REG_FLASH_PECR, 
+		MCCI_STM32L0_REG_FLASH_PECR,
 		(MCCI_STM32L0_REG_FLASH_PECR_PROG |
 		 MCCI_STM32L0_REG_FLASH_PECR_FPRG)
 		);

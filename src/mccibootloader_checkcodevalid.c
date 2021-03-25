@@ -82,7 +82,7 @@ Description:
 	  of 256).
 	* The first dword in the image (the stack pointer)
 	  must be DWORD aligned and must point into system RAM.
-	* There must be a valid header at the beginning of the 
+	* There must be a valid header at the beginning of the
 	  region -- the first 64+128 bytes are the vector image
 	  image; the next 4 bytes specify the size of the image,
 	  in bytes. This size must be less then or equal to
@@ -114,7 +114,7 @@ McciBootloader_checkCodeValid(
 	mcci_tweetnacl_sha512_t expectedHash;
 	const size_t nsig = mcci_tweetnacl_sign_signature_size();
 	mcci_tweetnacl_result_t invalid;
-	
+
 	// check whether the image is valid.
 	if (! McciBootloaderPlatform_checkImageValid(pBase, nBytes, (uintptr_t)pBase, nBytes))
 		return false;

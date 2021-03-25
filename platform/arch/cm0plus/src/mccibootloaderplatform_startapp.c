@@ -98,7 +98,7 @@ McciBootloaderPlatform_startApp(
 
 	// set the vector address
 	McciArm_putReg(
-		MCCI_CM0PLUS_SCB_VTOR, 
+		MCCI_CM0PLUS_SCB_VTOR,
 		(uint32_t) pAppVectors & MCCI_CM0PLUS_SCB_VTOR_TBLOFF
 		);
 

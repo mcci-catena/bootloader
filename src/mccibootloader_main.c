@@ -118,7 +118,7 @@ Implementation notes:
            is valid, we reset the update flag and launch the application.
         6. If the flash image is valid, we erase the flash, clear the update
            flag, then program the new image into the app flash. When done,
-           we check the hash. If not valid, we continue to the next step. 
+           we check the hash. If not valid, we continue to the next step.
         7. If the flash app image is not valid, and the application image is
            not valid, we repeat step 4 using the "safety app" image. If the
            "safety app" is valid, we repeat step 6 with the safety app. If

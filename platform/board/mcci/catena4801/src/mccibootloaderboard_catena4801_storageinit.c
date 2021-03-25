@@ -59,7 +59,7 @@ storagePowerOn(void)
 		MCCI_STM32L0_REG_RCC_IOPENR,
 		MCCI_STM32L0_REG_RCC_IOPENR_IOPHEN
 		);
-	
+
 	// turn on power to the storage chip (4801) by making PH1 an output and
 	// driving it to a one.
 	McciArm_putRegMasked(
@@ -78,7 +78,7 @@ storagePowerOn(void)
 	}
 
 
-void 
+void
 McciBootloaderBoard_Catena4801_storageInit(
 	void
 	)

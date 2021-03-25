@@ -61,7 +61,7 @@ Definition:
 		);
 
 Description:
-	Copy the selected image to internal flash in the following 
+	Copy the selected image to internal flash in the following
 	sequence.
 
 	1. Erase the current contents of internal flash
@@ -74,7 +74,7 @@ Returns:
 	the hash matches; otherwise a failure code.
 
 Notes:
-	
+
 
 */
 
@@ -91,10 +91,10 @@ McciBootloader_programAndCheckFlash(
 		targetAddress, overallSize
 		))
 		return McciBootloaderError_EraseFailed;
-	
+
 	// program in 4k chunks, up to the blcok that includes the
 	// last byte of the signature
-	McciBootloaderStorageAddress_t const addressEnd = 
+	McciBootloaderStorageAddress_t const addressEnd =
 		storageAddress + overallSize;
 	const size_t blockSize = sizeof(g_McciBootloader_imageBlock);
 
@@ -102,7 +102,7 @@ McciBootloader_programAndCheckFlash(
 	volatile const uint8_t *targetCurrent;
 
 	for (addressCurrent = storageAddress, targetCurrent = targetAddress;
-	     addressCurrent < addressEnd; 
+	     addressCurrent < addressEnd;
 	     addressCurrent += blockSize, targetCurrent += blockSize)
 		{
 		/* read a block */
@@ -114,7 +114,7 @@ McciBootloader_programAndCheckFlash(
 			{
 			return McciBootloaderError_ReadFailed;
 			}
-	
+
 		/* program this block */
 		if (! McciBootloaderPlatform_systemFlashWrite(
 			targetCurrent,

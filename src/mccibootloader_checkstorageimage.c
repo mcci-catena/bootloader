@@ -121,7 +121,7 @@ McciBootloader_checkStorageImage(
 	// read up to, but not including, the signature
 	McciBootloaderStorageAddress_t addressCurrent;
 	McciBootloaderStorageAddress_t const addressEnd = address + pAppInfo->imagesize;
-	
+
 	for (addressCurrent = address; addressCurrent < addressEnd; )
 		{
 		uint32_t nThisTime = addressEnd - addressCurrent;

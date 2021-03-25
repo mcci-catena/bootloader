@@ -137,7 +137,7 @@ typedef bool
 /// \param [in] pDestination	base address of region to program
 /// \param [in] pSource		base address of data to write (in RAM,
 ///				for maximum portability)
-/// \param [in] nBytes		number of bytes to copy 
+/// \param [in] nBytes		number of bytes to copy
 ///
 /// \p pDestination and \b nBytes must match the alignment
 /// restritctons of the platform hardware. 4k is normally a good

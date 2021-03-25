@@ -70,7 +70,7 @@ Returns:
 	NULL otherwise.
 
 Notes:
-	
+
 
 */
 

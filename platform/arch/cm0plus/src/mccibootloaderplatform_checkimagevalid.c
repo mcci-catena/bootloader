@@ -75,7 +75,7 @@ Returns:
 	true if the image passes all the checks, false if it fails any.
 
 Notes:
-	
+
 
 */
 
@@ -98,7 +98,7 @@ McciBootloaderPlatform_checkImageValid(
 
 		if (pStack & 3)
 			return false;
-		
+
 		/* stack pointer must be reasonable */
 		if (pStack < (uint32_t) &g_McciBootloader_RamBase + 16)
 			return false;
@@ -130,7 +130,7 @@ McciBootloaderPlatform_checkImageValid(
 	if ((uint32_t) &gk_McciBootloader_AppTop - targetAddress > targetSize)
 		return false;
 
-	const McciBootloader_AppInfo_t * const pAppInfo = 
+	const McciBootloader_AppInfo_t * const pAppInfo =
 		McciBootloaderPlatform_getAppInfo(
 			pPageZero, sizeof(*pPageZero)
 			);
@@ -141,7 +141,7 @@ McciBootloaderPlatform_checkImageValid(
 	if (pAppInfo->targetAddress != targetAddress)
 		return false;
 
-	if (pAppInfo->authsize != mcci_tweetnacl_sign_signature_size() + 
+	if (pAppInfo->authsize != mcci_tweetnacl_sign_signature_size() +
 					sizeof(mcci_tweetnacl_sha512_t))
 		return false;
 

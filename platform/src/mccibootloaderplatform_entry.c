@@ -68,7 +68,7 @@ Returns:
 	No explicit result.
 
 Notes:
-	
+
 
 */
 

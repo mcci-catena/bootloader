@@ -35,7 +35,7 @@ getEepromPointer()
 	extern void *g_McciBootloader_BootEepromBase;
 
 	/* convert to a pointer to the eeprom */
-	return (McciBootloaderBoard_CatenaAbz_Eeprom_t *) 
+	return (McciBootloaderBoard_CatenaAbz_Eeprom_t *)
 			&g_McciBootloader_BootEepromBase;
 	}
 
@@ -84,7 +84,7 @@ McciBootloaderBoard_CatenaAbz_setUpdate(bool fRequest)
 
 	// the EEPROM should erase first, if needed; select the data EEPROM.
 	McciArm_putRegOr(
-		MCCI_STM32L0_REG_FLASH_PECR, 
+		MCCI_STM32L0_REG_FLASH_PECR,
 		MCCI_STM32L0_REG_FLASH_PECR_DATA
 		);
 
@@ -97,7 +97,7 @@ McciBootloaderBoard_CatenaAbz_setUpdate(bool fRequest)
 
 	// re-lock
 	McciArm_putRegOr(
-		MCCI_STM32L0_REG_FLASH_PECR, 
+		MCCI_STM32L0_REG_FLASH_PECR,
 		MCCI_STM32L0_REG_FLASH_PECR_PELOCK
 		);
 	}

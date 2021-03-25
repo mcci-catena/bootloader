@@ -158,7 +158,7 @@ McciBootloaderBoard_CatenaAbz_handleSysTick(
 				annunciator.timer = now + 2 * annunciator.bittime;
 				}
 			}
-	
+
 	case stByteGap:
 		if ((int32_t)(now - annunciator.timer) >= 0)
 			{

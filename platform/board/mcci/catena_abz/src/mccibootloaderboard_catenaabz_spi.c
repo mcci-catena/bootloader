@@ -63,7 +63,7 @@ Definition:
 		);
 
 Description:
-	SPI2 is initialized. We assume the following:	
+	SPI2 is initialized. We assume the following:
 
 	SPI connections:
 		PB12: nss	AF0
@@ -79,7 +79,7 @@ Returns:
 	No explicit result.
 
 Notes:
-	
+
 
 */
 
@@ -99,7 +99,7 @@ McciBootloaderBoard_CatenaAbz_spiInit(void)
 		 MCCI_BOOTLOADER_FIELD_SET_VALUE(MCCI_STM32L0_GPIO_MODE_P(13), MCCI_STM32L0_GPIO_MODE_AF) |
 		 MCCI_BOOTLOADER_FIELD_SET_VALUE(MCCI_STM32L0_GPIO_MODE_P(12), MCCI_STM32L0_GPIO_MODE_AF))
 		);
-	
+
 	McciArm_putRegMasked(
 		MCCI_STM32L0_REG_GPIOB + MCCI_STM32L0_GPIO_OSPEEDR,
 		(MCCI_STM32L0_GPIO_OSPEED_P(15) |
@@ -198,7 +198,7 @@ Returns:
 	No explicit result.
 
 Notes:
-	
+
 
 */
 

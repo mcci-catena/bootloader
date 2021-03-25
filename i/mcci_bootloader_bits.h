@@ -33,7 +33,7 @@ extern "C" {
 ///
 /// This can be used at compile time or run time.
 ///
-/// \see Knuth V4 7.1.3 (49). 
+/// \see Knuth V4 7.1.3 (49).
 ///
 #define MCCI_BOOTLOADER_LOG2_POW2(x)			\
     ((x) == 0 ? -1 :					\
@@ -49,7 +49,7 @@ extern "C" {
 ///
 /// \param[in] x	field mask; bitmask should be of form 0*11*0*
 ///
-/// \details 
+/// \details
 ///	We might have some 64-bit fields, so...
 /// 	this goes through through bit 63. We use `~(x)+1` to form the unsigned twos-
 /// 	complement of \c x without trying to negate an unsigned or doing
