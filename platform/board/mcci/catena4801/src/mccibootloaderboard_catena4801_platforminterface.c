@@ -46,6 +46,8 @@ gk_McciBootloaderPlatformInterface =
 	.pDelayMs = McciBootloaderBoard_CatenaAbz_delayMs,
 	.pGetUpdate = McciBootloaderBoard_CatenaAbz_getUpdate,
 	.pSetUpdate = McciBootloaderBoard_CatenaAbz_setUpdate,
+	.pSystemFlashErase = McciBootloader_Stm32L0_systemFlashErase,
+	.pSystemFlashWrite = McciBootloader_Stm32L0_systemFlashWrite,
 	.Storage =
 		{
 		.pInit = McciBootloaderBoard_Catena4801_storageInit,

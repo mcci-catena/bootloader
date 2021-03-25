@@ -116,8 +116,9 @@ INCLUDES_libmcci_bootloader_stm32l0 :=					\
 # end INCLUDES_libmcci_bootloader_stm32l0
 
 SOURCES_libmcci_bootloader_stm32l0 :=					\
-	$_/src/mccibootloader_stm32l0_systeminit.c			\
 	$_/src/mccibootloader_stm32l0_prepareforlaunch.c		\
+	$_/src/mccibootloader_stm32l0_systemflash.c			\
+	$_/src/mccibootloader_stm32l0_systeminit.c			\
 # end SOURCES_libmcci_bootloader_stm32l0
 
 ##############################################################################

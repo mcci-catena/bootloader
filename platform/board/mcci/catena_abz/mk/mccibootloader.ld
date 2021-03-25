@@ -83,7 +83,7 @@ SECTIONS
                 } > FLASH
 
         /* then comes the code */
-        .text ALIGN(4) :
+        .text :
                 {
                 . = ALIGN(4);
                 *(.text*)       /* code sections that haven't been per-function-ized */
@@ -95,7 +95,7 @@ SECTIONS
                 } > FLASH
 
         /* the EEPROM (if any) */
-        .eeprom ALIGN(4):
+        .eeprom :
                 {
                 . = ALIGN(4);   /* dword align */
                 *(.eeprom*)     /* all the EEPROM sections */
@@ -103,8 +103,9 @@ SECTIONS
                 } > EEPROM
 
         /* capture all the .data segments. */
+        . = ALIGN(4);
         gk_McciBootloader_DataImageBase = LOADADDR(.data);
-        .data ALIGN(4) :
+        .data  :
                 {
                 . = ALIGN(4);   /* dword-align */
                 g_McciBootloader_DataBase = .;
@@ -115,7 +116,8 @@ SECTIONS
                 } >RAM AT> FLASH
 
         /* The RAM data (if any) */
-        .bss :
+         . = ALIGN(4);
+       .bss :
                 {
                 . = ALIGN(4);
                 g_McciBootloader_BssBase = .;
