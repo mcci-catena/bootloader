@@ -43,6 +43,7 @@ SOURCES_McciBootloader =				\
 	src/mccibootloader_checkcodevalid.c		\
 	src/mccibootloader_checkstorageimage.c		\
 	src/mccibootloader_main.c			\
+	src/mccibootloader_programandcheckflash.c	\
 	src/mccibootloaderplatform_entry.c		\
 	src/mccibootloaderplatform_fail.c		\
 ### end SOURCES_McciBootloader

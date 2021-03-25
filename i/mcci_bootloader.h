@@ -52,6 +52,10 @@ enum McciBootloaderError_e
 	McciBootloaderError_BootloaderNotValid,	///< bootloader image isn't valid
 	McciBootloaderError_ResetClockNotValid,	///< post-reset clock not valid
 	McciBootloaderError_NoAppImage,		///< app image not valid, no fallback avialable.
+	McciBootloaderError_EraseFailed,	///< erase failed
+	McciBootloaderError_ReadFailed,		///< storage read failed during program
+	McciBootloaderError_FlashWriteFailed,	///< flash write failed during programming
+	McciBootloaderError_FlashVerifyFailed,	///< flash verify failed after programming
 	};
 // typedef uint32_t McciBootloaderError_t; -- in mcci_bootloader_types.h.
 
@@ -148,11 +152,14 @@ McciBootloader_checkCodeValid(
 
 bool
 McciBootloader_checkStorageImage(
-	McciBootloaderStorageAddress_t address
+	McciBootloaderStorageAddress_t address,
+	McciBootloader_AppInfo_t *pAppInfo
 	);
 
-bool McciBootloader_programAndCheckFlash(
-	McciBootloaderStorageAddress_t address
+McciBootloaderError_t
+McciBootloader_programAndCheckFlash(
+	McciBootloaderStorageAddress_t address,
+	const McciBootloader_AppInfo_t *pAppInfo
 	);
 
 extern uint8_t g_McciBootloader_imageBlock[4096];

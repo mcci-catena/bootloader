@@ -88,7 +88,8 @@ Notes:
 
 bool
 McciBootloader_checkStorageImage(
-	McciBootloaderStorageAddress_t address
+	McciBootloaderStorageAddress_t address,
+	McciBootloader_AppInfo_t *pAppInfo
 	)
 	{
 	/* read the header */
@@ -98,15 +99,13 @@ McciBootloader_checkStorageImage(
 		))
 		return false;
 
-	const McciBootloader_AppInfo_t * const pAppInfo =
+	const McciBootloader_AppInfo_t * const pAppInfoIn =
 		McciBootloaderPlatform_getAppInfo(g_McciBootloader_imageBlock, sizeof(g_McciBootloader_imageBlock));
 
-	if (pAppInfo == NULL)
+	if (pAppInfoIn == NULL)
 		return false;
 
-	McciBootloader_AppInfo_t appInfo;
-
-	appInfo = *pAppInfo;
+	*pAppInfo = *pAppInfoIn;
 
 	uint32_t targetAddress = pAppInfo->targetAddress;
 	uint32_t targetSize = pAppInfo->imagesize + pAppInfo->authsize;
@@ -121,7 +120,7 @@ McciBootloader_checkStorageImage(
 
 	// read up to, but not including, the signature
 	McciBootloaderStorageAddress_t addressCurrent;
-	McciBootloaderStorageAddress_t const addressEnd = address + appInfo.imagesize;
+	McciBootloaderStorageAddress_t const addressEnd = address + pAppInfo->imagesize;
 	
 	for (addressCurrent = address; addressCurrent < addressEnd; )
 		{

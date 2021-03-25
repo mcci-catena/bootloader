@@ -33,6 +33,7 @@ Revision history:
 
 #include "mcci_bootloader.h"
 
+#include "mcci_bootloader_appinfo.h"
 #include "mcci_bootloader_platform.h"
 
 /****************************************************************************\
@@ -55,6 +56,7 @@ Revision history:
 |
 \****************************************************************************/
 
+McciBootloader_AppInfo_t g_McciBootloader_appInfo;
 
 /*
 
@@ -185,7 +187,10 @@ McciBootloader_main(void)
                         McciBootloaderState_CheckingPrimaryStorageHash
                         );
 
-                const bool fImageOk = McciBootloader_checkStorageImage(hPrimary);
+                const bool fImageOk = McciBootloader_checkStorageImage(
+                                                hPrimary,
+                                                &g_McciBootloader_appInfo
+                                                );
 
                 /* check for Case (3) */
                 if (appOk && !fImageOk)
@@ -197,14 +202,21 @@ McciBootloader_main(void)
                         }
 
                 /* case (4) or (5), maybe */
-                bool programOk;
+                McciBootloaderError_t programResult;
 
                 /* as soon as we've erased the app, we'll reset the storage flag inside the routine below */
-                programOk = McciBootloader_programAndCheckFlash(hPrimary);
-                if (programOk)
+                programResult = McciBootloader_programAndCheckFlash(
+                                        hPrimary,
+                                        &g_McciBootloader_appInfo
+                                        );
+                if (programResult == McciBootloaderError_OK)
                         {
                         /* definitely (4) or (5): launch the application */
                         McciBootloaderPlatform_startApp(&gk_McciBootloader_AppBase);
+                        }
+                else
+                        {
+                        McciBootloaderPlatform_fail(programResult);
                         }
 
                 /* otherwise app is invalid so try the fallback image */
@@ -214,8 +226,24 @@ McciBootloader_main(void)
         do      {
                 McciBootloaderStorageAddress_t const hFallback = McciBootloaderPlatform_getFallbackStorageAddress();
 
-                const bool fImageOk = McciBootloader_checkStorageImage(hFallback);
-                if (fImageOk && McciBootloader_programAndCheckFlash(hFallback))
+                McciBootloaderError_t fImageOk;
+
+                fImageOk = McciBootloaderError_OK;
+                if (! McciBootloader_checkStorageImage(
+                        hFallback,
+                        &g_McciBootloader_appInfo
+                        ))
+                        fImageOk = McciBootloaderError_NoAppImage;
+
+                if (fImageOk == McciBootloaderError_OK)
+                        {
+                        fImageOk = McciBootloader_programAndCheckFlash(
+                                                hFallback,
+                                                &g_McciBootloader_appInfo
+                                                );
+                        }
+
+                if (fImageOk == McciBootloaderError_OK)
                         {
                         /* case (6) */
                         McciBootloaderPlatform_startApp(&gk_McciBootloader_AppBase);
