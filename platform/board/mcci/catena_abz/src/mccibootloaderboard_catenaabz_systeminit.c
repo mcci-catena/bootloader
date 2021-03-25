@@ -117,6 +117,24 @@ McciBootloaderBoard_CatenaAbz_systemInit(
 	}
 
 void
+McciBootloaderBoard_CatenaAbz_setLed(void)
+	{
+	McciArm_putReg(
+		MCCI_STM32L0_REG_GPIOB + MCCI_STM32L0_GPIO_BSRR,
+		UINT32_C(1) << 2
+		);
+	}
+
+void
+McciBootloaderBoard_CatenaAbz_clearLed(void)
+	{
+	McciArm_putReg(
+		MCCI_STM32L0_REG_GPIOB + MCCI_STM32L0_GPIO_BRR,
+		UINT32_C(1) << 2
+		);
+	}
+
+void
 McciBootloaderBoard_CatenaAbz_delayMs(uint32_t ms)
 	{
 	for (++ms; ms > 0; --ms)

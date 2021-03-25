@@ -47,6 +47,7 @@ g_McciBootloader_BootEepromTop   = g_McciBootloader_BootEepromBase + gk_McciBoot
 
 /* initial stack pointer: top of RAM */
 g_McciBootloader_StackTop       = g_McciBootloader_RamBase + gk_McciBootloader_RamSize;
+g_McciBootloader_RamTop         = g_McciBootloader_RamBase + gk_McciBootloader_RamSize;
 
 /* where things are */
 gk_McciBootloader_BootBase      = gk_McciBootloader_FlashBase;
@@ -86,13 +87,15 @@ SECTIONS
                 {
                 . = ALIGN(4);
                 *(.text*)       /* code sections that haven't been per-function-ized */
+                . = ALIGN(4);
                 *(.rodata*)     /* read-only data */
+                . = ALIGN(4);
 
                 /* no constructors, destructors, etc. The reset handler is responsible for everything */
                 } > FLASH
 
         /* the EEPROM (if any) */
-        .eeprom :
+        .eeprom ALIGN(4):
                 {
                 . = ALIGN(4);   /* dword align */
                 *(.eeprom*)     /* all the EEPROM sections */
@@ -101,7 +104,7 @@ SECTIONS
 
         /* capture all the .data segments. */
         gk_McciBootloader_DataImageBase = LOADADDR(.data);
-        .data :
+        .data ALIGN(4) :
                 {
                 . = ALIGN(4);   /* dword-align */
                 g_McciBootloader_DataBase = .;

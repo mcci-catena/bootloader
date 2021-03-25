@@ -29,6 +29,7 @@
 		- [Action table if Program Flash is bad](#action-table-if-program-flash-is-bad)
 	- [SPI flash initialization](#spi-flash-initialization)
 - [Practical Details](#practical-details)
+	- [Generating public/private key pairs](#generating-publicprivate-key-pairs)
 	- [Building](#building)
 - [Meta](#meta)
 	- [License](#license)
@@ -289,6 +290,24 @@ We will need tools for loading the recovery image and setting the write-protect 
 The recovery image could be small, in which case we could save room by making it smaller. The recovery image should at least flash the LED in a distinctive pattern.
 
 ## Practical Details
+
+### Generating public/private key pairs
+
+We recommend using pynacl:
+
+```console
+$ pip install pynacl
+$ python
+>>> from nacl.signing import SigningKey
+>>> signing_key = SigningKey.generate()
+>>> verify_key = signing_key.verify_key
+>>> signing_key.encode().hex
+'123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0'
+>>> verify_key.encode().hex
+'0fedcba9876543210fedcba9876543210fedcba9876543210fedcba987654321'
+```
+
+Save the signing key in a password vault. The verify key gets embedded into the bootloader, and is not a secret.
 
 ### Building
 

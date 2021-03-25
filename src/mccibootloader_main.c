@@ -132,8 +132,8 @@ Implementation notes:
                                                          (Power failure during flash will
                                                           bring us up in some App NG state)
          (5)    OK      NG      -       OK      -       Load flash, clear flag & reevaluate
-         (6)    OK      NG      -       NG      OK      Load safe flash, clear flag & and reevaluate
-         (7)    OK      NG      -       NG      OK      Halt with indication
+         (6)    OK      NG      -       NG      OK      Load fallback flash, clear flag & and reevaluate
+         (7)    OK      NG      -       NG      NG      Halt with indication
 
 */
 

@@ -33,6 +33,7 @@ Revision history:
 
 #include "mcci_bootloader.h"
 
+#include "mcci_bootloader_platform.h"
 #include "mcci_tweetnacl_hash.h"
 #include "mcci_tweetnacl_sign.h"
 
@@ -48,12 +49,6 @@ Revision history:
 |	Read-only data.
 |
 \****************************************************************************/
-
-const mcci_tweetnacl_sign_publickey_t
-gk_McciBootloader_PublicKey =
-	{
-	.bytes = { 0x1, }
-	};
 
 /****************************************************************************\
 |
@@ -118,13 +113,11 @@ McciBootloader_checkCodeValid(
 	mcci_tweetnacl_sha512_t hash;
 	mcci_tweetnacl_sha512_t expectedHash;
 	const size_t nsig = mcci_tweetnacl_sign_signature_size();
-	const size_t nsigned = sizeof(expectedHash) + nsig;
-	size_t nActual;
-	int invalid;
+	mcci_tweetnacl_result_t invalid;
 	
 	// check whether the image is valid.
-//	if (! McciBootloader_checkImageValid(pBase, nBytes))
-//		return false;
+	if (! McciBootloaderPlatform_checkImageValid(pBase, nBytes, (uintptr_t)pBase, nBytes))
+		return false;
 
 	// compute the hash
 	mcci_tweetnacl_hash_sha512(
@@ -132,21 +125,17 @@ McciBootloader_checkCodeValid(
 		pBase,
 		nBytes
 		);
-	
-	// invalid = non-zero or zero. 
-	invalid = mcci_tweetnacl_sign_open(
+
+	// the hash is always at pBase + nBytes + the signature bytes
+	const uint8_t * pCheckHash = (const uint8_t *)pBase + nBytes
+				   + nsig
+				   - sizeof(expectedHash)
+				   ;
+
+	invalid = mcci_tweetnacl_verify_64(
 				expectedHash.bytes,
-				&nActual,
-				(const uint8_t *)pBase + nBytes,
-				nsigned,
-				&gk_McciBootloader_PublicKey
+				pCheckHash
 				);
 
-	// constant time compare.
-	invalid |= nActual ^ sizeof(expectedHash);
-	invalid |= mcci_tweetnacl_verify_64(
-				hash.bytes,
-				expectedHash.bytes
-				);
-	return invalid == 0;
+	return mcci_tweetnacl_result_is_success(invalid);
 	}
