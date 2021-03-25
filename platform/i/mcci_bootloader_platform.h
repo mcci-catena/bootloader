@@ -60,6 +60,8 @@ struct McciBootloaderPlatform_Interface_s
 	McciBootloaderPlatform_DelayMsFn_t		*pDelayMs;		///< Delay execution some number of milliseconds
 	McciBootloaderPlatform_GetUpdateFlagFn_t	*pGetUpdate;		///< Find out whether firmware update was requested
 	McciBootloaderPlatform_SetUpdateFlagFn_t	*pSetUpdate;		///< Set value of firmware-update flag
+	McciBootloaderPlatform_SystemFlashEraseFn_t	*pSystemFlashErase;	///< Erase flash
+	McciBootloaderPlatform_SystemFlashWriteFn_t	*pSystemFlashWrite;	///< Write block to flash
 	McciBootloaderPlatform_StorageInterface_t	Storage;
 	McciBootloaderPlatform_SpiInterface_t		Spi;
 	McciBootloaderPlatform_AnnunciatorInterface_t	Annunciator;
@@ -90,6 +92,32 @@ static inline void
 McciBootloaderPlatform_setUpdateFlag(bool fUpdate)
 	{
 	(*gk_McciBootloaderPlatformInterface.pSetUpdate)(fUpdate);
+	}
+
+static inline bool
+McciBootloaderPlatform_systemFlashErase(
+	volatile const void *targetAddress,
+	size_t targetSize
+	)
+	{
+	return (*gk_McciBootloaderPlatformInterface.pSystemFlashErase)(
+		targetAddress, 
+		targetSize
+		);
+	}
+
+static inline bool
+McciBootloaderPlatform_systemFlashWrite(
+	volatile const void *pDestination,
+	const void *pSource,
+	size_t nBytes
+	)
+	{
+	return (*gk_McciBootloaderPlatformInterface.pSystemFlashWrite)(
+		pDestination,
+		pSource,
+		nBytes
+		);
 	}
 
 void

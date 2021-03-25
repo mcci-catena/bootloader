@@ -115,6 +115,44 @@ typedef void
 	);
 
 ///
+/// \brief Erase a region of internal flash
+///
+/// \param [in] targetAddress	base address of region to erase
+/// \param [in] targetSize	number of bytes to erase
+///
+/// \p targetAddress and \b targetSize must match the alignment
+/// restritctons of the platform hardware.
+///
+/// \return \c true if region was successfully erased.
+///
+typedef bool
+(McciBootloaderPlatform_SystemFlashEraseFn_t)(
+	volatile const void *targetAddress,
+	size_t targetSize
+	);
+
+///
+/// \brief Program a chunk of internal flash
+///
+/// \param [in] pDestination	base address of region to program
+/// \param [in] pSource		base address of data to write (in RAM,
+///				for maximum portability)
+/// \param [in] nBytes		number of bytes to copy 
+///
+/// \p pDestination and \b nBytes must match the alignment
+/// restritctons of the platform hardware. 4k is normally a good
+/// block size.
+///
+/// \return \c true if region was successfully programmed.
+///
+typedef bool
+(McciBootloaderPlatform_SystemFlashWriteFn_t)(
+	volatile const void *pDestination,
+	const void *pSource,
+	size_t nBytes
+	);
+
+///
 /// \brief Initialize the storage driver.
 ///
 /// The bootloader calls this prior to doing the first storage access.
