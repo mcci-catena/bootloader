@@ -37,43 +37,83 @@ BOARDPATH ?= platform/board/mcci/catena_abz
 #
 ##############################################################################
 
-PROGRAMS += McciBootloader
+#
+# common library
+#
+LIBRARIES += libmcci_bootloader
 
-SOURCES_McciBootloader =				\
+SOURCES_libmcci_bootloader =				\
 	src/mccibootloader_checkcodevalid.c		\
 	src/mccibootloader_checkstorageimage.c		\
 	src/mccibootloader_main.c			\
 	src/mccibootloader_programandcheckflash.c	\
 	platform/src/mccibootloaderplatform_entry.c	\
 	platform/src/mccibootloaderplatform_fail.c	\
-### end SOURCES_McciBootloader
+### end SOURCES_libmcci_bootloader
 
-INCLUDES_McciBootloader =				\
+INCLUDES_libmcci_bootloader =				\
 	i						\
 	platform/i					\
 	pkgsrc/mcci_arduino_development_kit_adk/src	\
 	pkgsrc/mcci_tweetnacl/src			\
-### end INCLUDES_McciBootloader
+### end INCLUDES_libmcci_bootloader
 
-CFLAGS_OPT_McciBootloader ?= -Os
+CFLAGS_OPT_libmcci_bootloader ?= -Os
 
-LDFLAGS_McciBootloader = 				\
+##############################################################################
+#
+#	Macros for creating bootloaders
+#
+##############################################################################
+
+define MCCI_DO_BOOTLOADER
+$(warning Add bootloader $1)
+PROGRAMS += $1
+
+LDFLAGS_$1 = 						\
 	--cref 						\
-	-Map=$(T_OBJDIR)/McciBootloader.map		\
-### end LDFLAGS_McciBootloader
+	-Map=$$(T_OBJDIR)/$1.map			\
+### end LDFLAGS_$1
 
-LDSCRIPT_McciBootloader = $(abspath $(BOARDPATH)/mk/mccibootloader.ld)
+LDSCRIPT_$1 = $$(abspath $$(BOARDPATH)/mk/mccibootloader.ld)
 
-LDADD_McciBootloader += -lc
+LDADD_$1 += -lc
 
-LIBS_McciBootloader +=					\
-	${T_OBJDIR}/libmcci_tweetnacl.a			\
-	${T_OBJDIR}/libmcci_bootloader_cm0plus.a	\
-	${T_OBJDIR}/libmcci_bootloader_stm32l0.a	\
-	${T_OBJDIR}/libmcci_bootloader_catena_abz.a	\
-	${T_OBJDIR}/libmcci_bootloader_catena4801.a	\
-	${T_OBJDIR}/libmcci_bootloader_flash_mx25v8035f.a \
+LIBS_$1 +=						\
+	$${T_OBJDIR}/libmcci_bootloader.a		\
+	$${T_OBJDIR}/libmcci_tweetnacl.a		\
+	$${T_OBJDIR}/libmcci_bootloader_cm0plus.a	\
+	$${T_OBJDIR}/libmcci_bootloader_stm32l0.a	\
+	$${T_OBJDIR}/libmcci_bootloader_catena_abz.a	\
+	$${T_OBJDIR}/libmcci_bootloader_flash_mx25v8035f.a \
 ### end LIBS_McciBootloader
+endef
+
+##############################################################################
+#
+#	The 4801 bootloader
+#
+##############################################################################
+
+BOOTLOADERS += McciBootloader_4801
+
+LIBS_McciBootloader_4801 :=				\
+	${T_OBJDIR}/libmcci_bootloader_catena4801.a	\
+### end LIBS_McciBootloader_4801
+
+BOOTLOADERS += McciBootloader_46xx
+
+LIBS_McciBootloader_46xx :=				\
+	${T_OBJDIR}/libmcci_bootloader_catena46xx.a	\
+### end LIBS_McciBootloader_46xx
+
+##############################################################################
+#
+#	Make the rules for the bootloaders.
+#
+##############################################################################
+
+$(foreach B,$(BOOTLOADERS),$(eval $(call MCCI_DO_BOOTLOADER,$(B))))
 
 ##############################################################################
 #
@@ -88,7 +128,7 @@ _ := platform/arch/cm0plus
 CFLAGS_OPT_libmcci_bootloader_cm0plus += -Os
 
 INCLUDES_libmcci_bootloader_cm0plus :=					\
-	$(INCLUDES_McciBootloader)					\
+	$(INCLUDES_libmcci_bootloader)					\
 	$_/i								\
 # end INCLUDES_libmcci_bootloader_cm0plus
 
@@ -134,7 +174,7 @@ _ := platform/driver/flash_mx25v8035f
 CFLAGS_OPT_libmcci_bootloader_flash_mx25v8035f += -Os
 
 INCLUDES_libmcci_bootloader_flash_mx25v8035f :=				\
-	$(INCLUDES_McciBootloader)					\
+	$(INCLUDES_libmcci_bootloader)					\
 	$_/i								\
 # end INCLUDES_libmcci_bootloader_flash_mx25v8035f
 
@@ -212,6 +252,7 @@ INCLUDES_libmcci_bootloader_catena46xx :=				\
 
 SOURCES_libmcci_bootloader_catena46xx :=				\
 	$_/src/mccibootloaderboard_catena46xx_platforminterface.c	\
+	$_/src/mccibootloaderboard_catena46xx_storageinit.c		\
 # end SOURCES_libmcci_bootloader_catena46xx
 
 ##############################################################################
