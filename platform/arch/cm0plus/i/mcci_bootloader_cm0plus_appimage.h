@@ -44,7 +44,7 @@ extern "C" {
 typedef struct McciBootloader_CortexPageZeroContents_s
 	{
 	Mcci_CortexVectorsContents_t	Hdr;
-	McciBootloader_AppInfo_t	AppEntry;
+	McciBootloader_AppInfo_t	AppInfo;
 	} McciBootloader_CortexPageZeroContents_t;
 
 typedef union McciBootloader_CortexPageZero_u

@@ -86,7 +86,7 @@ McciBootloaderPlatform_getAppInfo(
 		return NULL;
 
 	const McciBootloader_AppInfo_t * const pAppInfo =
-			&pPageZero->PageZero.AppEntry;
+			&pPageZero->PageZero.AppInfo;
 
 	if (pAppInfo->magic != MCCI_BOOTLOADER_APP_INFO_MAGIC)
 		return NULL;
