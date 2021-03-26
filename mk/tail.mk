@@ -388,6 +388,14 @@ LIBS_$1 +=						\
 	$${T_OBJDIR}/libmcci_bootloader.a		\
 	$${T_OBJDIR}/libmcci_tweetnacl.a		\
 ### end LIBS_McciBootloader
+
+all: $$(T_OBJDIR)/$1.rawbin
+
+$$(T_OBJDIR)/$1.rawbin: $$(T_OBJDIR)/$1
+	$$(CROSS_COMPILE)objcopy -O binary $$< $$@
+
+# $$(T_OBJDIR)/$1.bin: $$(T_OBJDIR)/$1
+# 	$$(MCCI_PREP_BOOTLOADER) $$< $$@
 endef
 
 ##############################################################################
