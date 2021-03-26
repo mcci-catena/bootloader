@@ -49,7 +49,10 @@ CC_MULTIARCH := $(notdir $(CROSS_COMPILE:%-=%))
 # if CC_MULTIARCH is empty, it's not a cross-compile, so ask CC what
 # arch to to use
 ifeq ($(CC_MULTIARCH),)
-CC_MULTIARCH :=	$(shell $(CC) --print-multiarch)
+ CC_MULTIARCH :=	$(shell $(CC) --print-multiarch)
+ ifeq ($(CC_MULTIARCH),)
+  $(error No CROSS_COMPILE= and CC[$(CC)] doesn't point to a known compiler.)
+ endif
 endif
 
 #
