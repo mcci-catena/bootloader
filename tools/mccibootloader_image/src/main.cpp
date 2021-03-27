@@ -303,13 +303,14 @@ void dumpAppInfo(
 	McciBootloader_AppInfo_Wire_t const &appInfo
 	)
 	{
-	std::cout << s << "\n" << std::hex;
-	std::cout << "        magic: " << std::setw(8) << std::setfill('0') << appInfo.magic.get() << "\n";
-	std::cout << "         size: " << std::setw(8) << std::setfill('0') << appInfo.size.get() << "\n";
-	std::cout << "targetAddress: " << std::setw(8) << std::setfill('0') << appInfo.targetAddress.get() << "\n";
-	std::cout << "    imageSize: " << std::setw(8) << std::setfill('0') << appInfo.imagesize.get() << "\n";
-	std::cout << "     authSize: " << std::setw(8) << std::setfill('0') << appInfo.authsize.get() << "\n";
-	std::cout << " gpsTimestamp: " << std::setw(8) << std::setfill('0') << appInfo.gpsTimestamp.get() << "\n";
+	std::cout << s << ":\n" << std::hex
+	          << "        magic: " << std::setw(8) << std::setfill('0') << appInfo.magic.get() << "\n"
+	          << "         size: " << std::setw(8) << std::setfill('0') << appInfo.size.get() << "\n"
+	          << "targetAddress: " << std::setw(8) << std::setfill('0') << appInfo.targetAddress.get() << "\n"
+	          << "    imageSize: " << std::setw(8) << std::setfill('0') << appInfo.imagesize.get() << "\n"
+	          << "     authSize: " << std::setw(8) << std::setfill('0') << appInfo.authsize.get() << "\n"
+	          << " gpsTimestamp: " << std::setw(8) << std::setfill('0') << appInfo.gpsTimestamp.get() << "\n"
+		  ;
 	auto version = appInfo.version.get();
 	std::cout << "      version: " << std::dec
 				<< unsigned(McciVersion::getMajor(version)) << "."
@@ -318,6 +319,7 @@ void dumpAppInfo(
 	if (McciVersion::getLocal(version) != 0)
 		std::cout       << "."
 				<< unsigned(McciVersion::getLocal(version));
+	std::cout << "\n";
 	std::cout << "\n";
 	}
 
@@ -329,7 +331,7 @@ void App_t::addHeader()
 	
 	// dump header if verbose
 	if (this->fVerbose)
-		dumpAppInfo("AppInfo from input:", fileAppInfo);
+		dumpAppInfo("AppInfo from input", fileAppInfo);
 
 	// an appinfo with defaults.
 	McciBootloader_AppInfo_Wire_t appInfo;
@@ -359,12 +361,12 @@ void App_t::addHeader()
 		{
 		uint32_t now = (uint32_t) time(nullptr);
 		if (this->fVerbose)
-			std::cout << "GPS time: " << now << "\n";
+			std::cout << "Posix time: " << now << "\n";
 		appInfo.gpsTimestamp.put(now - 315964800 + 18);
 		}
 
 	if (this->fVerbose)
-		dumpAppInfo("AppInfo after update:", appInfo);
+		dumpAppInfo("AppInfo after update", appInfo);
 
 	memcpy(pFileAppInfo, &appInfo, sizeof(appInfo));
 	}
@@ -392,20 +394,28 @@ void App_t::dump(
 		}
 	if (n != 0)
 		std::cout << "\n";
+
+	std::cout << "\n";
 	}
 
 void
 App_t::addHash()
 	{
+	if (this->fVerbose)
+		{
+		this->dump("App page 0", &this->fileimage[0], &this->fileimage[256]);
+		}
+
 	mcci_tweetnacl_hash_sha512(
 		&this->fileHash,
-		&this->fileimage.at(0),
+		&this->fileimage[0],
 		this->fSize
 		);
 
-	/* file is positioned at the place for the hash */
+	/* truncate the image prior to appending the hash */
 	this->fileimage.resize(this->fSize);
 
+	/* append the hash */
 	auto pEnd = this->fileimage.end();
 
 	this->fileimage.insert(
@@ -414,6 +424,7 @@ App_t::addHash()
 		this->fileHash.bytes + sizeof(this->fileHash.bytes)
 		);
 
+	/* display the hash */
 	if (this->fVerbose)
 		this->dump(
 			"Appended Hash",
