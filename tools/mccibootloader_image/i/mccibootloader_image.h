@@ -29,7 +29,6 @@ Author:
 #include <vector>
 #include <cstdio>
 #include <cstdlib>
-#include "mcciadk_guid.h"
 #include "mcci_tweetnacl_hash.h"
 #include "mcci_tweetnacl_sign.h"
 #include <chrono>
@@ -42,6 +41,27 @@ Author:
 #include "keyfile_ed25519.h"
 
 using namespace std;
+
+// guids
+struct GuidWire_t
+	{
+	uint8_t		time_low[4];
+	uint8_t		time_mid[2];
+	uint8_t		time_hi_and_version[2];
+	uint8_t		clock_seq_hi_and_reserved;
+	uint8_t		clock_seq_low;
+	uint8_t		node[6];
+	};
+
+constexpr size_t GuidWire_t_SIZE = 16;
+
+/* validate the layout */
+static_assert(offsetof(GuidWire_t, time_mid) == 4, "GUID layout mismatch");
+static_assert(offsetof(GuidWire_t, time_hi_and_version) == 6, "GUID layout mismatch");
+static_assert(offsetof(GuidWire_t, clock_seq_hi_and_reserved) == 8, "GUID layout mismatch");
+static_assert(offsetof(GuidWire_t, clock_seq_low) == 9, "GUID layout mismatch");
+static_assert(offsetof(GuidWire_t, node) == 10, "GUID layout mismatch");
+static_assert(sizeof(GuidWire_t) == GuidWire_t_SIZE, "GUID layout mismatch");
 
 // the application structure
 struct App_t
@@ -202,7 +222,7 @@ struct McciBootloader_AppInfo_Wire_t
 					// Overall image size is imagesize
 					//   + authsize
 	uint32_le_t	gpsTimestamp { 0 };	//< GPS timestamp of image
-	MCCIADK_GUID	appGuid { 0 };	//< application ID
+	GuidWire_t	appGuid {{ 0  }};	//< application ID
 	uint32_le_t	version { 0 };	//< version of the image (semantic version)
 	};
 
