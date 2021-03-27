@@ -74,6 +74,8 @@ private:
 	void addHeader();
 	void addHash();
 	void addSignature();
+	void testNaCl();
+	void dump(const string &message, const uint8_t *pBegin, const uint8_t *pEnd);
 
 	Keyfile_ed25519_t keyfile;
 	};

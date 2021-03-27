@@ -1,0 +1,43 @@
+/*
+
+Module:	salt_test.cpp
+
+Function:
+	Sanity checks for the tweetnacl integration
+
+Copyright and License:
+	This file copyright (C) 2021 by
+
+		MCCI Corporation
+		3520 Krums Corners Road
+		Ithaca, NY  14850
+
+	See accompanying LICENSE file for copyright and license information.
+
+Author:
+	Terry Moore, MCCI Corporation	March 2021
+
+*/
+
+#include "mccibootloader_image.h"
+
+void App_t::testNaCl(void)
+	{
+	static const uint8_t input[] = "I am a duck";
+	mcci_tweetnacl_sha512_t output;
+	static const mcci_tweetnacl_sha512_t expected =
+		{
+		0xb3, 0xb5, 0xc6, 0xb4, 0xb3, 0x5c, 0x40, 0x93, 0xf6, 0x5f, 0xc6, 0x39, 0xa4, 0x06, 0x39, 0x35, 0x47, 0xca, 0x60, 0x04, 0x62, 0xe2, 0x5b, 0x83, 0x69, 0xd5, 0xbd, 0x76, 0x54, 0xf5, 0xd9, 0xe7, 0x6c, 0xf8, 0xc1, 0x08, 0xa0, 0xcb, 0xb7, 0x69, 0x63, 0x41, 0x7f, 0xe6, 0xa5, 0x3f, 0x6b, 0x68, 0x1a, 0x3b, 0xda, 0xdc, 0x65, 0x8d, 0x3e, 0x80, 0x46, 0x97, 0x68, 0xef, 0x02, 0x6c, 0x59, 0x00,
+		};
+
+	mcci_tweetnacl_hash_sha512(&output, input, sizeof(input) - 1);
+
+	if (! mcci_tweetnacl_result_is_success(mcci_tweetnacl_verify_64(output.bytes, expected.bytes)))
+		{
+		if (this->fVerbose)
+			{
+			this->dump("expected", &expected.bytes[0], expected.bytes + sizeof(expected.bytes));
+			}
+		this->fatal("SHA-512 test 1 failed:");
+		}
+	}
