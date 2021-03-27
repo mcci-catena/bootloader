@@ -262,16 +262,20 @@ void App_t::scanArgs(int argc, char **argv)
 	if (this->fVerbose)
 		{
 		std::cout << std::boolalpha;
-		std::cout << this->progname << ":\n";
-		std::cout << "--verbose: " << this->fVerbose << "\n";
-		std::cout << "--hash:    " << this->fHash << "\n";
-		std::cout << "--sign:    " << this->fSign << "\n";
-		std::cout << "--dry-run: " << this->fDryRun << "\n";
-		std::cout << "--keyfile: " << this->keyfilename << "\n";
-		std::cout << "input:     " << this->infilename << "\n";
-		std::cout << "output:    "
+		std::cout << "Program settings:\n"
+		          << "    --verbose: " << this->fVerbose << "\n"
+		          << "       --hash: " << this->fHash << "\n"
+		          << "       --sign: " << this->fSign << "\n"
+		          << "    --add-gps: " << this->fAddGps << "\n"
+		          << "    --dry-run: " << this->fDryRun << "\n"
+		          << "    --keyfile: " << this->keyfilename << "\n"
+			  << "\n"
+		          << "input:     " << this->infilename << "\n"
+		          << "output:    "
 		          << (!this->fUpdate ? "none" : !this->fPatch ? this->outfilename : "{update}")
 			  << "\n";
+		std::cout << "\n";
+		std::cout << std::flush;
 		}
 	}
 
