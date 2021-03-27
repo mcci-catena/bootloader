@@ -64,6 +64,10 @@ int App_t::begin(int argc, char **argv)
 
 	this->scanArgs(argc, argv);
 
+	// do the pre-tests
+	this->testNaCl();
+
+	// do the work.
 	std::ifstream infile {this->infilename, ios::binary | ios::ate};
 
 	if (! infile.is_open())
@@ -365,7 +369,7 @@ void App_t::addHeader()
 	memcpy(pFileAppInfo, &appInfo, sizeof(appInfo));
 	}
 
-void dump(
+void App_t::dump(
 	const string &label,
 	std::uint8_t const *begin,
 	std::uint8_t const *end
@@ -411,8 +415,8 @@ App_t::addHash()
 		);
 
 	if (this->fVerbose)
-		dump(
-			"Computed Hash",
+		this->dump(
+			"Appended Hash",
 			&this->fileimage.at(this->fSize),
 			this->fileimage.data() + this->fileimage.size()
 			);
@@ -451,7 +455,7 @@ App_t::addSignature()
 
 	if (this->fVerbose)
 		{
-		dump(
+		this->dump(
 			"signature",
 			buffer,
 			buffer + sizeOut
