@@ -65,6 +65,8 @@ struct App_t
 	mcci_tweetnacl_sha512_t fileHash;
 
 	int begin(int argc, char **argv);
+
+private:
 	void scanArgs(int argc, char **argv);
 	[[noreturn]] void usage(const string &message);
 	[[noreturn]] void fatal(const string &message);
@@ -72,7 +74,7 @@ struct App_t
 	void addHeader();
 	void addHash();
 	void addSignature();
-private:
+
 	Keyfile_ed25519_t keyfile;
 	};
 
