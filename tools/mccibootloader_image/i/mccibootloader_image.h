@@ -35,6 +35,11 @@ Author:
 #include <chrono>
 #include <ctime>
 #include <cstring>
+#include <ios>
+#include <iostream>
+#include <fstream>
+
+#include "keyfile_ed25519.h"
 
 using namespace std;
 
@@ -44,21 +49,30 @@ struct App_t
 	bool		fVerbose;
 	bool		fSign;
 	bool		fHash;
-	std::string	filename;
+	bool		fPatch;
+	bool		fUpdate;
+	bool		fDryRun;
+	std::string	infilename;
+	std::string	outfilename;
 	std::string	progname;
+	std::string	keyfilename;
+	std::vector<uint8_t>	fileimage;
 	int		argc;
 	char		**argv;
-	FILE		*hFile;
 	size_t		fSize;
+	size_t		authSize;
 	mcci_tweetnacl_sha512_t fileHash;
 
 	int begin(int argc, char **argv);
 	void scanArgs(int argc, char **argv);
 	[[noreturn]] void usage(const string &message);
 	[[noreturn]] void fatal(const string &message);
+	void verbose(const string &message);
 	void addHeader();
 	void addHash();
 	void addSignature();
+private:
+	Keyfile_ed25519_t keyfile;
 	};
 
 static constexpr const char *filebasename(const char *s)
@@ -74,42 +88,44 @@ static constexpr const char *filebasename(const char *s)
     }
 
 namespace McciVersion {
+	typedef std::uint32_t Version_t;
+
 	// create a version number for comparison
 	constexpr std::uint32_t
 	makeVersion(
-	std::uint8_t major, std::uint8_t minor, std::uint8_t patch, std::uint8_t local = 0
-	)
-	{
-	return ((std::uint32_t)major << 24u) | ((std::uint32_t)minor << 16u) | ((std::uint32_t)patch << 8u) | (std::uint32_t)local;
-	}
+		std::uint8_t major, std::uint8_t minor, std::uint8_t patch, std::uint8_t local = 0
+		)
+		{
+		return ((std::uint32_t)major << 24u) | ((std::uint32_t)minor << 16u) | ((std::uint32_t)patch << 8u) | (std::uint32_t)local;
+		}
 
 	// extract major number from version
 	constexpr std::uint8_t
 	getMajor(std::uint32_t v)
-	{
-	return std::uint8_t(v >> 24u);
-	}
+		{
+		return std::uint8_t(v >> 24u);
+		}
 
 	// extract minor number from version
 	constexpr std::uint8_t
 	getMinor(std::uint32_t v)
-	{
-	return std::uint8_t(v >> 16u);
-	}
+		{
+		return std::uint8_t(v >> 16u);
+		}
 
 	// extract patch number from version
 	constexpr std::uint8_t
-	getPatch(std::uint32_t v)
-	{
-	return std::uint8_t(v >> 8u);
-	}
+		getPatch(std::uint32_t v)
+		{
+		return std::uint8_t(v >> 8u);
+		}
 
 	// extract local number from version
 	constexpr std::uint8_t
 	getLocal(std::uint32_t v)
-	{
-	return std::uint8_t(v);
-	}
+		{
+		return std::uint8_t(v);
+		}
 } // namespace McciVersion
 
 // the layout of the image
@@ -126,10 +142,10 @@ public:
 		{}
 	void put(uint32_t v)
 		{
-		this->m_v[0] = v & 0xFF;
-		this->m_v[1] = (v & 0xFF) >> 8;
-		this->m_v[2] = (v & 0xFF) >> 16;
-		this->m_v[3] = (v & 0xFF) >> 24;
+		this->m_v[0] = std::uint8_t(v >>  0);
+		this->m_v[1] = std::uint8_t(v >>  8);
+		this->m_v[2] = std::uint8_t(v >> 16);
+		this->m_v[3] = std::uint8_t(v >> 24);
 		}
 	uint32_t get(void) const
 		{
