@@ -51,6 +51,7 @@ struct App_t
 	bool		fHash;
 	bool		fPatch;
 	bool		fUpdate;
+	bool		fAddGps;
 	bool		fDryRun;
 	std::string	infilename;
 	std::string	outfilename;
