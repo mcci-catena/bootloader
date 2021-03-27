@@ -148,6 +148,7 @@ void App_t::scanArgs(int argc, char **argv)
 	vector<string> posArgs;
 
 	bool fOptOk = true;
+	this->fAddGps = true;
 	for (;;)
 		{
 		auto const pThisarg = *argv++;
@@ -189,6 +190,10 @@ void App_t::scanArgs(int argc, char **argv)
 			{
 			this->fHash = fBool;
 			this->fUpdate |= fBool;
+			}
+		else if (boolArg == "-g" || boolArg == "--add-gps")
+			{
+			this->fAddGps = fBool;
 			}
 		else if (boolArg == "-s" || boolArg == "--sign")
 			{
@@ -341,10 +346,14 @@ void App_t::addHeader()
 	appInfo.authsize.put(
 		this->authSize
 		);
-	uint32_t now = (uint32_t) time(nullptr);
-	if (this->fVerbose)
-		std::cout << "GPS time: " << now << "\n";
-	appInfo.gpsTimestamp.put(now - 315964800 + 18);
+
+	if (this->fAddGps)
+		{
+		uint32_t now = (uint32_t) time(nullptr);
+		if (this->fVerbose)
+			std::cout << "GPS time: " << now << "\n";
+		appInfo.gpsTimestamp.put(now - 315964800 + 18);
+		}
 
 	if (this->fVerbose)
 		dumpAppInfo("AppInfo after update:", appInfo);
@@ -412,6 +421,9 @@ App_t::addSignature()
 
 	if (! this->keyfile.read())
 		this->fatal("can't read key file");
+
+	if (this->fVerbose)
+		std::cout << "Keyfile comment: " << this->keyfile.m_comment << "\n";
 
 	// here's our buffer:
 	uint8_t buffer[sizeof(this->fileHash.bytes) + mcci_tweetnacl_sign_signature_size()];
