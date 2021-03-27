@@ -3,24 +3,19 @@
 # Module:  tail.mk
 #
 # Function:
-#	GNU make tail for builds in the bootloader project
+#	GNU make tail for tool builds in the bootloader project
 #
 # Copyright notice:
-#	This file copyright (C) 2020 by
+#	This file copyright (C) 2021 by
 #
 #		MCCI Corporation
 #		3520 Krums Corners Road
 #		Ithaca, NY  14850
 #
-#	An unpublished work.  All rights reserved.
-#
-#	This file is proprietary information, and may not be disclosed
-#	or copied without the prior permission of MCCI Corporation.
-#
 #	See accompanying LICENSE file for license information.
 #
 # Author:
-#	Terry Moore, MCCI Corporation	July 2020
+#	Terry Moore, MCCI Corporation	March 2021
 #
 ##############################################################################
 
@@ -57,6 +52,7 @@ MCCI_POSTCOMPILE = mv -f $(@:.o=.td) $(@:.o=.d)
 #	T_OBJDIR	where to build the .o and .d files
 #	OUTPUT_OPTION	options needed for building dependencies.
 #	COMPILE.c	rule for C compilations
+#	COMPILE.cpp
 #
 # Variables:
 #	_TOBJ_$1	used to remember the object file
@@ -65,19 +61,19 @@ MCCI_POSTCOMPILE = mv -f $(@:.o=.td) $(@:.o=.d)
 ##############################################################################
 
 define MCCI_DOCOMPILE_C
-_TOBJ_$1 := $$(patsubst %.c,$$(T_OBJDIR)/%.o,$$(notdir $1))
-_TDEP_$1 := $$(patsubst %.c,$$(T_OBJDIR)/%.d,$$(notdir $1))
+_TOBJ_$1 := $$(T_OBJDIR)/$$(notdir $$(patsubst %.c,%.o,$1))
+_TDEP_$1 := $$(T_OBJDIR)/$$(notdir $$(patsubst %.c,%.d,$1))
 _TCPPFLAGS_$1 := $$(CPPFLAGS_$2) $$(CPPFLAGS_$1) \
 	$${foreach includedir, $${INCLUDES_$2} $${INCLUDES_$1}, -I $$(includedir)}
 _TCFLAGS_$1 := $$(CFLAGS_$2) $$(CFLAGS_$1) $$(CFLAGS_OPT_$2) $$(CFLAGS_OPT_$1) $$(_TCPPFLAGS_$1)
 
-$$(_TOBJ_$1): $1 $(_TDEP_$1)
+$$(_TOBJ_$1): $1 $$(_TDEP_$1)
 	@echo $1
 	$${MAKEHUSH}$$(COMPILE.c) $$(OUTPUT_OPTION) $$(CFLAGS) $$(_TCFLAGS_$1) $1
 	$${MAKEHUSH}mv -f $$(@:.o=.td) $$(@:.o=.d)
 
-$(_TDEP_$1) : ;
-.PRECIOUS: $(_TDEP_$1)
+$$(_TDEP_$1) : ;
+.PRECIOUS: $$(_TDEP_$1)
 endef
 
 # rules for C++
@@ -88,12 +84,13 @@ _TCPPFLAGS_$1 := $$(CPPFLAGS_$2) $$(CPPFLAGS_$1) \
 	$${foreach includedir, $${INCLUDES_$2} $${INCLUDES_$1}, -I $$(includedir)}
 _TCXXFLAGS_$1 := $$(CXXFLAGS_$2) $$(CXXFLAGS_$1) $$(_TCPPFLAGS_$1)
 
-$$(_TOBJ_$1): $1 $(_TDEP_$1)
-	$$(COMPILE.cpp) $$(OUTPUT_OPTION) $$(CXXFLAGS) $$(_TCXXFLAGS_$1) $1
-	mv -f $$(@:.o=.td) $$(@:.o=.d)
+$$(_TOBJ_$1): $1 $$(_TDEP_$$1)
+	@echo $1
+	$${MAKEHUSH}$$(COMPILE.cpp) $$(OUTPUT_OPTION) $$(CXXFLAGS) $$(_TCXXFLAGS_$1) $1
+	$${MAKEHUSH}mv -f $$(@:.o=.td) $$(@:.o=.d)
 
-$(_TDEP_$1) : ;
-.PRECIOUS: $(_TDEP_$1)
+$$(_TDEP_$1) : ;
+.PRECIOUS: $$(_TDEP_$1)
 endef
 
 define MCCI_DOCOMPILE
@@ -168,8 +165,6 @@ endif
 #	MCCI_INSTALLDIR_LIB	Where to put libraries
 #	MCCI_INSTALLDIR_SCRIPTS	Where to put scripts
 #	MCCI_INSTALLDIR_INCLUDES Where to put include files
-#
-#	Install is controlled by:
 #
 ##############################################################################
 
@@ -255,7 +250,6 @@ endif
 
 ### rules for udev rules
 ifneq ($$(INSTALL_UDEVRULES_$1),)
-$$(info generating rules for INSTALL_UDEVRULES_$1)
 _install_rules: _install_rules_$1
 .PHONY:		_install_rules_$1
 _install_rules_$1:	$$(INSTALL_UDEVRULES_$1)
@@ -298,7 +292,6 @@ $(foreach L,$(LIBRARIES),$(eval $(call MCCI_DOLIBRARY,$(L))))
 #			to dependencies.
 #	LDFLAGS_$1	the specific link flags for this program
 #	LDADDDEP_$1	any additional dependencies to be added.
-#	LDSCRIPT_$1	the linker script
 #
 # Output:
 #	all: is updated with $(T_OBJDIR)/$1
@@ -307,106 +300,27 @@ $(foreach L,$(LIBRARIES),$(eval $(call MCCI_DOLIBRARY,$(L))))
 ##############################################################################
 
 define MCCI_DOPROGRAM
-MCCI_CLEANFILES += $$(T_OBJDIR)/$1
+MCCI_CLEANFILES += $$(T_OBJDIR)/$1$${T_EXE_SUFFIX}
 
-ifeq ($$(LDSCRIPT_$1),)
-$$(error Not provided: LDSCRIPT_$1)
-endif
-
-$$(T_OBJDIR)/$1: $$(OBJECTS_$1) $$(LIBS_$1) $${LDADDDEP_$1} ${LDSCRIPT_$1}
+$$(T_OBJDIR)/$1$${T_EXE_SUFFIX}: $$(OBJECTS_$1) $$(LIBS_$1) $${LDADDDEP_$1}
 	@echo $1
-	$${MAKEHUSH}$$(CC) $$(CFLAGS) $${foreach ldflag, $$(LDFLAGS) $$(LDFLAGS_$1), -Wl,$$(ldflag)} -o $$@ $$(OBJECTS_$1) -Wl,--start-group $$(LIBS) $$(LIBS_$1) $$(LDADD) $$(LDADD_$1) -Wl,--end-group -T $$(LDSCRIPT_$1)
+	$${MAKEHUSH}$$(CC) $$(CFLAGS) $${foreach ldflag, $$(LDFLAGS) $$(LDFLAGS_$1), -Wl,$$(ldflag)} -o $$@ $$(OBJECTS_$1) \
+		$${foreach ldflag, $${T_LDFLAG_STARTGROUP}, -Wl,$$(ldflag)} \
+		$$(LIBS) $$(LIBS_$1) $$(LDADD) $$(LDADD_$1) \
+		$${foreach ldflag, $${T_LDFLAG_ENDGROUP}, -Wl,$$(ldflag)}
 
-all:	$$(T_OBJDIR)/$1
+all:	$$(T_OBJDIR)/$1$${T_EXE_SUFFIX}
 
 ### rules for installing
 _install_programs:	_install_programs_$1
 .PHONY:			_install_programs_$1
-_install_programs_$1:	$$(T_OBJDIR)/$1
+_install_programs_$1:	$$(T_OBJDIR)/$1$${T_EXE_SUFFIX}
 	$${MAKEHUSH}$${MCCI_INSTALLDIR_CMD}  $${MCCI_INSTALLDIR_BIN}.
-	$${MAKEHUSH}$${MCCI_INSTALL_CMD} -m 555 $$(T_OBJDIR)/$1 $${MCCI_INSTALLDIR_BIN}.
+	$${MAKEHUSH}$${MCCI_INSTALL_CMD} -m 555 $$(T_OBJDIR)/$1$${T_EXE_SUFFIX} $${MCCI_INSTALLDIR_BIN}.
 
 ### rules for compiling
 $$(foreach S,$$(SOURCES_$1),$$(eval $$(call MCCI_DOCOMPILE,$$(S),$1)))
 endef
-
-##############################################################################
-#
-# Name: MCCI_DOBOOTLOADER
-#
-# Function:
-#	Macro for generating rules for building a boottloader
-#
-# Usage:
-#	$(call MCCI_DOBOTLOADER, bootloaderName)
-#
-# Input:
-#	$1		name of the executable file (without .exe suffix)
-#	SOURCES_$1 	the sources for that program
-#	INCLUDES_$1	include paths for all files in the pgrogram
-#	CC		the compiler name
-#	CFLAGS		the compilation flags
-#	LDFLAGS		the link flags (CC-form)
-#	LDADD_$1	the additional pre-existing libraries to be used for
-#			this program, but not added to dependencies
-#	LIBS_$1		the libraries to be used for this program, and added
-#			to dependencies.
-#	LDFLAGS_$1	the specific link flags for this program
-#	LDADDDEP_$1	any additional dependencies to be added.
-#	LDSCRIPT_$1	the linker script (no default)
-#
-# Output:
-#	all: is updated with $(T_OBJDIR)/$1
-#	MCCI_CLEANFILES is similarly updated.
-#	LDFLAGS_$1	updated with suitable options
-#	LDADD_$1	updated as appropriate
-#	LIBS_$1		has the common bootloader libraries appended.
-#
-##############################################################################
-
-define MCCI_DO_BOOTLOADER
-PROGRAMS += $1
-
-LDFLAGS_$1 += 						\
-	--cref 						\
-	-Map=$$(T_OBJDIR)/$1.map			\
-### end LDFLAGS_$1
-
-# since we're asking for a map, add it to the clean list
-MCCI_CLEANFILES += $$(T_OBJDIR)/$1.map
-
-# make sure there's a link script
-ifeq ($$(LDSCRIPT_$1),)
-$$(error LDSCRIPT_$1 not defined: $$(LDSCRIPT_$1))
-endif
-
-# make sure that the basic library is included
-LDADD_$1 += -lc
-
-# always require the basic library and tweetnacl.
-LIBS_$1 +=						\
-	$${T_OBJDIR}/libmcci_bootloader.a		\
-	$${T_OBJDIR}/libmcci_tweetnacl.a		\
-### end LIBS_McciBootloader
-
-all: $$(T_OBJDIR)/$1.rawbin
-
-MCCI_CLEANFILES += $$(T_OBJDIR)/$1.rawbin
-
-$$(T_OBJDIR)/$1.rawbin: $$(T_OBJDIR)/$1
-	$$(CROSS_COMPILE)objcopy -O binary $$< $$@
-
-# $$(T_OBJDIR)/$1.bin: $$(T_OBJDIR)/$1
-# 	$$(MCCI_PREP_BOOTLOADER) $$< $$@
-endef
-
-##############################################################################
-#
-#	Make the rules for the bootloaders -- must be before PROGRAMS.
-#
-##############################################################################
-
-$(foreach B,$(BOOTLOADERS),$(eval $(call MCCI_DO_BOOTLOADER,$(B))))
 
 ##############################################################################
 #

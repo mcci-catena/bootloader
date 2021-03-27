@@ -29,7 +29,10 @@ Author:
 |
 \****************************************************************************/
 
-
+static void dumpAppInfo(
+	std::string const &s,
+	McciBootloader_AppInfo_Wire_t const &appInfo
+	);
 
 /****************************************************************************\
 |
@@ -99,10 +102,10 @@ int App_t::begin(int argc, char **argv)
 
 	// write image
 	std::ofstream outfile;
-
+	std::string successMessage;
 	if (this->fDryRun)
 		this->verbose("dry run, skipping write");
-	if (this->fPatch)
+	else if (this->fPatch)
 		{
 		outfile.open(this->infilename, ios::binary);
 		if (! outfile.is_open())
@@ -111,6 +114,7 @@ int App_t::begin(int argc, char **argv)
 			std::perror(msg.c_str());
 			std::exit(EXIT_FAILURE);
 			}
+		successMessage = string("successfully patched: ") + this->infilename;
 		}
 	else if (this->outfilename != "")
 		{
@@ -121,6 +125,7 @@ int App_t::begin(int argc, char **argv)
 			std::perror(msg.c_str());
 			std::exit(EXIT_FAILURE);
 			}
+		successMessage = string("output file successfully written: ") + this->outfilename;
 		}
 	else
 		{
@@ -133,6 +138,7 @@ int App_t::begin(int argc, char **argv)
 		outfile.exceptions(ios::badbit | ios::failbit);
 		outfile.write((char *)&this->fileimage.at(0), this->fileimage.size());
 		outfile.close();
+		this->verbose(successMessage);
 		}
 
 	return EXIT_SUCCESS;
@@ -416,8 +422,6 @@ App_t::addHash()
 	this->fileimage.resize(this->fSize);
 
 	/* append the hash */
-	auto pEnd = this->fileimage.end();
-
 	this->fileimage.insert(
 		this->fileimage.end(), 
 		&this->fileHash.bytes[0], 
@@ -442,7 +446,7 @@ App_t::addSignature()
 		this->fatal("can't read key file");
 
 	if (this->fVerbose)
-		std::cout << "Keyfile comment: " << this->keyfile.m_comment << "\n";
+		std::cout << "Keyfile comment: " << this->keyfile.m_comment << "\n\n";
 
 	// here's our buffer:
 	uint8_t buffer[sizeof(this->fileHash.bytes) + mcci_tweetnacl_sign_signature_size()];
