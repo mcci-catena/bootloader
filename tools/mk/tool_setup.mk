@@ -69,8 +69,10 @@ endif
 # CROSS_COMPILE to the compiler prefix
 ifeq ($(MCCI_CC),gcc)
   CC := $(CROSS_COMPILE)gcc
+  CCLINK := $(CROSS_COMPILE)g++
 else ifeq ($(MCCI_CC),clang)
   CC := $(CROSS_COMPILE)clang
+  CCLINK := $(CC)
 else
   $(error Unknown compiler MCCI_CC($(MCCI_CC)))
 endif
@@ -209,7 +211,9 @@ CFLAGS  +=	-Werror=missing-prototypes
 CFLAGS  +=	${CFLAGS_BUILDTYPE_${T_BUILDTYPE}}
 CFLAGS 	+=	${CFLAGS_PROGRAM} ${CFLAGS_USER}
 
-CXXFLAGS = $(CFLAGS)
+CXXFLAGS  =	-Wall -Werror ${CFLAGS_OPT}
+CXXFLAGS  +=	${CFLAGS_BUILDTYPE_${T_BUILDTYPE}}
+CXXFLAGS  +=	${CXXFLAGS_PROGRAM} ${CXXFLAGS_USER}
 
 INCLUDES_GLOBAL += ${MCCIBOOTLOADER_ROOT}i
 
