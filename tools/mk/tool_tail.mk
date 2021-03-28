@@ -106,7 +106,7 @@ endef
 # 	For each of the targets, define OBJECTS_{target} and DEPENDS_{target}
 #
 # Usage:
-#	1 = specific target (library or program)
+#	$1 = specific target (name of library or program)
 #	$(eval $(MCCI_SETOBJECTS))
 #
 # Input:
@@ -118,6 +118,7 @@ endef
 #	OBJECTS_$1	list of object files
 #	OBJECTS		updated to append the objects for this target
 #	DEPENDS		updated to append the dependency files for this target
+#	LINK_$1		set to the link command to be used, based on sources
 #
 # Notes:
 #	We strip directory info off the SOURCES files and force the objects
@@ -133,6 +134,11 @@ OBJECTS_$1 := $$(addsuffix .o,$$(addprefix $$(T_OBJDIR)/,$$(basename $$(filter %
 DEPENDS_$1 := $$(addsuffix .d,$$(addprefix $$(T_OBJDIR)/,$$(basename $$(filter %.c %.cpp,$$(notdir $$(SOURCES_$1))))))
 OBJECTS += $$(OBJECTS_$1)
 DEPENDS += $$(DEPENDS_$1)
+ ifneq ($$(filter %.cpp,_SRCS_$1),)
+  LINK_$1 ?= $(CXXLINK) $(CXXFLAGS)
+ else
+  LINK_$1 ?= $(CCLINK) $(CCFLAGS)
+ endif
 endef
 
 ##############################################################################
@@ -304,7 +310,7 @@ MCCI_CLEANFILES += $$(T_OBJDIR)/$1$${T_EXE_SUFFIX}
 
 $$(T_OBJDIR)/$1$${T_EXE_SUFFIX}: $$(OBJECTS_$1) $$(LIBS_$1) $${LDADDDEP_$1}
 	@echo $1
-	$${MAKEHUSH}$$(CC) $$(CFLAGS) $${foreach ldflag, $$(LDFLAGS) $$(LDFLAGS_$1), -Wl,$$(ldflag)} -o $$@ $$(OBJECTS_$1) \
+	$${MAKEHUSH}$$(LINK_$1) $${foreach ldflag, $$(LDFLAGS) $$(LDFLAGS_$1), -Wl,$$(ldflag)} -o $$@ $$(OBJECTS_$1) \
 		$${foreach ldflag, $${T_LDFLAG_STARTGROUP}, -Wl,$$(ldflag)} \
 		$$(LIBS) $$(LIBS_$1) $$(LDADD) $$(LDADD_$1) \
 		$${foreach ldflag, $${T_LDFLAG_ENDGROUP}, -Wl,$$(ldflag)}
