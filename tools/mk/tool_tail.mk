@@ -134,7 +134,7 @@ OBJECTS_$1 := $$(addsuffix .o,$$(addprefix $$(T_OBJDIR)/,$$(basename $$(filter %
 DEPENDS_$1 := $$(addsuffix .d,$$(addprefix $$(T_OBJDIR)/,$$(basename $$(filter %.c %.cpp,$$(notdir $$(SOURCES_$1))))))
 OBJECTS += $$(OBJECTS_$1)
 DEPENDS += $$(DEPENDS_$1)
- ifneq ($$(filter %.cpp,_SRCS_$1),)
+ ifneq ($$(filter %.cpp,$$(_SRCS_$1)),)
   LINK_$1 ?= $(CXXLINK) $(CXXFLAGS)
  else
   LINK_$1 ?= $(CCLINK) $(CCFLAGS)
