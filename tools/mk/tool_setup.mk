@@ -64,15 +64,19 @@ else
   MCCI_CC := gcc
 endif
 
-# post-condition: CC and CC_MULTIARCH are set up
-# post-condition: CC is set up. For a cross compile, caller has set
-# CROSS_COMPILE to the compiler prefix
+# post-condition: CC, CCLINK and CXXLINK are set up
+#
+# CCLINK is set to the comand to be used for linking programs without C++ support.
+# CXXLINK is set to the comand to be use for linking programs with C++ support.
+#
 ifeq ($(MCCI_CC),gcc)
   CC := $(CROSS_COMPILE)gcc
-  CCLINK := $(CROSS_COMPILE)g++
+  CCLINK := $(CROSS_COMPILE)gcc
+  CXXLINK := $(CROSS_COMPILE)g++
 else ifeq ($(MCCI_CC),clang)
   CC := $(CROSS_COMPILE)clang
-  CCLINK := $(CC)
+  CCLINK := $(CROSS_COMPILE)clang
+  CXXLINK := $(CROSS_COMPILE)clang
 else
   $(error Unknown compiler MCCI_CC($(MCCI_CC)))
 endif
