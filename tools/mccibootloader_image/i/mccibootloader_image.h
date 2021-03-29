@@ -158,11 +158,11 @@ class uint32_le_t
 	{
 public:
 	uint32_le_t(uint32_t v = 0)
-		: m_v 	{ 
-			std::uint8_t(v & 0xFF), 
-		        std::uint8_t((v >> 8) & 0xFF), 
+		: m_v 	{
+			std::uint8_t(v & 0xFF),
+		        std::uint8_t((v >> 8) & 0xFF),
 			std::uint8_t((v >> 16) & 0xFF),
-			std::uint8_t(v >> 24) 
+			std::uint8_t(v >> 24)
 			}
 		{}
 	void put(uint32_t v)
