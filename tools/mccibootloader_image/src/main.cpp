@@ -61,7 +61,7 @@ int main(
 int App_t::begin(int argc, char **argv)
 	{
 	// make sure the authsize is right.
-	this->authSize = 
+	this->authSize =
 		sizeof(mcci_tweetnacl_sha512_t) +
 		mcci_tweetnacl_sign_signature_size();
 
@@ -335,7 +335,7 @@ void App_t::addHeader()
 	static const uint8_t zeros[sizeof(fileAppInfo)] = { 0 };
 	auto const pFileAppInfo = &this->fileimage.at(offsetof(McciBootloader_CortexPageZero_Wire_t, PageZero.AppInfo));
 	memcpy(&fileAppInfo, pFileAppInfo, sizeof(fileAppInfo));
-	
+
 	// dump header if verbose
 	if (this->fVerbose)
 		dumpAppInfo("AppInfo from input", fileAppInfo);
@@ -433,8 +433,8 @@ App_t::addHash()
 
 	/* append the hash */
 	this->fileimage.insert(
-		this->fileimage.end(), 
-		&this->fileHash.bytes[0], 
+		this->fileimage.end(),
+		&this->fileHash.bytes[0],
 		this->fileHash.bytes + sizeof(this->fileHash.bytes)
 		);
 
@@ -447,7 +447,7 @@ App_t::addHash()
 			);
 	}
 
-void 
+void
 App_t::addSignature()
 	{
 	this->keyfile.begin(this->keyfilename);

@@ -115,7 +115,7 @@ Keyfile_ed25519_t::read()
 	if (getInt(dm) != 1)
 		// wrong number of keys
 		return false;
-	
+
 	auto pubm_string = getByteString(dm);
 	std::istringstream pubm (pubm_string, std::ios::binary);
 	if (getByteString(pubm) != "ssh-ed25519")
@@ -141,7 +141,7 @@ Keyfile_ed25519_t::read()
 	auto privkey_string = getByteString(privm);
 	if (privkey_string.size() != sizeof(this->m_private.bytes))
 		return false;
-	
+
 	for (unsigned i = 0; i < sizeof(this->m_private.bytes); ++i)
 		this->m_private.bytes[i] = uint8_t(privkey_string[i]);
 
@@ -149,7 +149,7 @@ Keyfile_ed25519_t::read()
 	//memset(privkey_string.data(), 0, privkey_string.size());
 	//memset(privm_string.data(), 0, privm_string.size());
 
-	// finally the comment 
+	// finally the comment
 	this->m_comment = getByteString(privm);
 	return true;
 	}
@@ -158,7 +158,7 @@ static uint32_t getInt(std::istringstream &s)
 	{
 	uint8_t buf[4];
 	s.read((char *)&buf, 4);
-	return (uint32_t(buf[0]) << 24) | 
+	return (uint32_t(buf[0]) << 24) |
 	       (uint32_t(buf[1]) << 16) |
 	       (uint32_t(buf[2]) <<  8) |
 	       (uint32_t(buf[3]) <<  0);
