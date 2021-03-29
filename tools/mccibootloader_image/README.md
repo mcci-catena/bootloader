@@ -46,6 +46,40 @@ The following options are defined.
 
 The bootloader itself must be hashed, but it does not check its own signature. However, it gets its public key from the signature block. So the bootloader image should be hashed and signed either with the user-supplied private key or with the test signing key. Apps to be loaded into flash by the bootloader therefore should be signed either by the test key or by the user-supplied private key that was used to sign the target bootloader.
 
+## Generating a key pair
+
+Use ssk-keygen to generate a key as follows:
+
+```bash
+ssh-keygen -t ed25519 -C "key comment" -f outputfile.pem
+```
+
+For example:
+
+```console
+$ ssh-keygen -t ed25519 -C "key desciptive comment" -f outputfile.pem
+Generating public/private ed25519 key pair.
+Enter passphrase (empty for no passphrase): 
+Enter same passphrase again: 
+Your identification has been saved in outputfile.pem
+Your public key has been saved in outputfile.pem.pub
+The key fingerprint is:
+SHA256:Dyk+fVgizYB24hPRIPATBmxFDRh4gy8j2wxrurIbGTI key desciptive comment
+The key's randomart image is:
++--[ED25519 256]--+
+|==O+=o           |
+|o*oo +.          |
+|.oo.= o          |
+|= .+ + + .       |
+|EO  o o S .      |
+|+=o  o + *       |
+|=     o o o      |
+|o.     . .       |
+|=+               |
++----[SHA256]-----+
+$
+```
+
 ## Build instructions
 
 On Windows, we use git bash and use [scoop](https://scoop.io) to install GNU make and clang. (At time of writing, there was no working gcc available via scoop, although that may have been fixed.) Use `make -j3 -O` to build.
