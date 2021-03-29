@@ -25,6 +25,7 @@ Author:
 #pragma once
 
 #include "mcci_arm_cm0plus.h"
+#include "mcci_bootloader_cm0plus_appimage.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,7 +46,7 @@ extern "C" {
 ///
 /// \see mccibootloader.ld
 ///
-extern const Mcci_CortexVectors_t
+extern const McciBootloader_CortexPageZero_t
 gk_McciBootloader_CortexVectors
 __attribute__((__section__(".McciBootloader_Vectors")));
 

@@ -25,7 +25,7 @@ Author:
 
 #pragma once
 
-#include "mcci_bootloader_cm0plus.h"
+#include "mcci_arm_cm0plus.h"
 #include <stdint.h>
 #include "mcci_bootloader_appinfo.h"
 
@@ -43,7 +43,7 @@ extern "C" {
 /// \brief the Cortex M0 App header
 typedef struct McciBootloader_CortexPageZeroContents_s
 	{
-	Mcci_CortexVectorsContents_t	Hdr;
+	Mcci_CortexVectorsContents_t	CortexVectors;
 	McciBootloader_AppInfo_t	AppInfo;
 	} McciBootloader_CortexPageZeroContents_t;
 
@@ -55,7 +55,8 @@ typedef union McciBootloader_CortexPageZero_u
 	Mcci_CortexVectors_t	 		CortexVectorsCast;	//< Downcast to a CortexVectors_t without explicit casting
 	McciBootloader_CortexPageZeroContents_t PageZero;		//< View instance as a PageZero.
 	uint8_t					Bytes[256];		//< padding to force size
-	} McciBootloader_CortexPageZero_t;
+	} __attribute__((__aligned__(256)))
+	McciBootloader_CortexPageZero_t;
 
 /****************************************************************************\
 |

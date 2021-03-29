@@ -32,6 +32,10 @@ Author:
 # include "mcci_arm_cm0plus.h"
 #endif
 
+#ifndef _mcci_bootloader_cm0plus_appimage_h_
+# include "mcci_bootloader_cm0plus_appimage.h"
+#endif
+
 #ifndef _mcci_bootloader_platform_types_h_
 # include "mcci_bootloader_platform_types.h"
 #endif
@@ -54,7 +58,7 @@ McciBootloader_Stm32L0_prepareForLaunch(
 	void
 	);
 
-extern const Mcci_CortexVectors_t
+extern const McciBootloader_CortexPageZero_t
 gk_McciBootloader_CortexVectors;
 
 McciBootloaderPlatform_SystemFlashEraseFn_t

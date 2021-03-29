@@ -22,6 +22,7 @@ Author:
 #include "mcci_bootloader_cm0plus.h"
 #include "mcci_bootloader.h"
 #include "mcci_bootloader_board_catena_abz.h"
+#include "mcci_bootloader_cm0plus_appimage.h"
 
 /****************************************************************************\
 |
@@ -37,10 +38,12 @@ static void McciBootloaderBoard_CatenaAbz_NotHandled(void);
 |
 \****************************************************************************/
 
-const Mcci_CortexVectors_t
+const McciBootloader_CortexPageZero_t
 gk_McciBootloader_CortexVectors =
 	{
-	.CortexVectors.vectors =
+	.PageZero =
+	    {
+	    .CortexVectors.vectors =
 		{
 		[0] = /* stack pointer */	(uint32_t) &g_McciBootloader_StackTop,
 		[1] = /* entry point */		(uint32_t) McciBootloader_main,
@@ -90,7 +93,16 @@ gk_McciBootloader_CortexVectors =
 		[45] = /* ExtInt(29) */		(uint32_t) McciBootloaderBoard_CatenaAbz_NotHandled,
 		[46] = /* ExtInt(30) */		(uint32_t) McciBootloaderBoard_CatenaAbz_NotHandled,
 		[47] = /* ExtInt(31) */		(uint32_t) McciBootloaderBoard_CatenaAbz_NotHandled,
+		},
+	    .AppInfo =
+		{
+		.magic = MCCI_BOOTLOADER_APP_INFO_MAGIC,
+		.size = sizeof(McciBootloader_AppInfo_t),
+		.targetAddress = (uint32_t) &gk_McciBootloader_CortexVectors,
+		.imagesize = 0, /* filled in by mccibootloader_image */
+		.authsize = 0,  /* filled in by mccibootloader_image */
 		}
+	    }
 	};
 
 /****************************************************************************\
