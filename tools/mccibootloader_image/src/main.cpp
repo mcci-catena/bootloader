@@ -90,6 +90,16 @@ int App_t::begin(int argc, char **argv)
 	infile.read((char *)&this->fileimage[0], this->fSize);
 	infile.close();
 
+	if (this->fHash)
+		{
+		this->keyfile.begin(this->keyfilename);
+
+		if (! this->keyfile.read())
+			this->fatal(string("can't read key file: ") + this->keyfilename);
+
+		if (this->fVerbose)
+			std::cout << "Keyfile comment: " << this->keyfile.m_comment << "\n\n";
+		}
 
 	if (this->fHash || this->fSign)
 		this->addHeader();
@@ -391,6 +401,12 @@ void App_t::addHeader()
 		appInfo.gpsTimestamp.put(now - 315964800 + 18);
 		}
 
+	// add key
+	if (this->fSign)
+		{
+		appInfo.publicKey = keyfile.m_public;
+		}
+
 	if (this->fVerbose)
 		dumpAppInfo("AppInfo after update", appInfo);
 
@@ -461,14 +477,6 @@ App_t::addHash()
 void
 App_t::addSignature()
 	{
-	this->keyfile.begin(this->keyfilename);
-
-	if (! this->keyfile.read())
-		this->fatal("can't read key file");
-
-	if (this->fVerbose)
-		std::cout << "Keyfile comment: " << this->keyfile.m_comment << "\n\n";
-
 	// here's our buffer:
 	uint8_t buffer[sizeof(this->fileHash.bytes) + mcci_tweetnacl_sign_signature_size()];
 	size_t sizeOut;

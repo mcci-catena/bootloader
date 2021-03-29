@@ -40,16 +40,6 @@ Author:
 |
 \****************************************************************************/
 
-const mcci_tweetnacl_sign_publickey_t
-gk_McciBootloader_PublicKey =
-	{
-	.bytes = {
-		0x76, 0x87, 0x02, 0x14, 0x00, 0x42, 0xe7, 0x2d,
-		0xe6, 0xa7, 0xab, 0x82, 0x45, 0x4b, 0xc2, 0x63,
-		0xa8, 0xb1, 0x8b, 0xe0, 0xcc, 0xef, 0xd3, 0xae,
-		0x6c, 0x4f, 0xea, 0xb2, 0xe1, 0x1a, 0x4f, 0x1f,
-		}
-	};
 
 /****************************************************************************\
 |
@@ -69,7 +59,9 @@ Function:
 
 Definition:
 	bool McciBootloader_checkStorageImage(
-		McciBootloaderStorageAddress_t address
+		McciBootloaderStorageAddress_t address,
+		McciBootloader_AppInfo_t *pAppInfo,
+		const mcci_tweetnacl_sign_publickey_t *pPublicKey
 		);
 
 Description:
@@ -89,7 +81,8 @@ Notes:
 bool
 McciBootloader_checkStorageImage(
 	McciBootloaderStorageAddress_t address,
-	McciBootloader_AppInfo_t *pAppInfo
+	McciBootloader_AppInfo_t *pAppInfo,
+	const mcci_tweetnacl_sign_publickey_t *pPublicKey
 	)
 	{
 	/* read the header */
@@ -163,21 +156,27 @@ McciBootloader_checkStorageImage(
 		return false;
 
 	// result = non-zero for failure or zero for success.
-	mcci_tweetnacl_result_t result;
+	volatile mcci_tweetnacl_result_t result;
 
 	result = mcci_tweetnacl_sign_open(
 				signedHash.bytes,
 				&nActual,
 				g_McciBootloader_imageBlock,
 				nsigned,
-				&gk_McciBootloader_PublicKey
+				pPublicKey
 				);
 
-	// constant time compare.
+	// constant time compares and checks.
 	result |= nActual ^ sizeof(signedHash);
+
 	result |= mcci_tweetnacl_verify_64(
 				imageHash.bytes,
 				signedHash.bytes
+				);
+
+	result |= mcci_tweetnacl_verify_32(
+				pPublicKey->bytes,
+				pAppInfo->publicKey.bytes
 				);
 
 	return mcci_tweetnacl_result_is_success(result);

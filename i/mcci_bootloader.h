@@ -38,6 +38,10 @@ Revision history:
 # include "mcci_bootloader_types.h"
 #endif
 
+#ifndef _mcci_tweetnacl_sign_h_
+# include "mcci_tweetnacl_sign.h"
+#endif
+
 MCCI_BOOTLOADER_BEGIN_DECLS
 
 /****************************************************************************\
@@ -153,7 +157,8 @@ McciBootloader_checkCodeValid(
 bool
 McciBootloader_checkStorageImage(
 	McciBootloaderStorageAddress_t address,
-	McciBootloader_AppInfo_t *pAppInfo
+	McciBootloader_AppInfo_t *pAppInfo,
+	const mcci_tweetnacl_sign_publickey_t *pPublicKey
 	);
 
 McciBootloaderError_t
