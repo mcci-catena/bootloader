@@ -479,14 +479,11 @@ typedef union Mcci_CortexAppEntry_u
 ///
 /// This structure represents the vectors page as an aray of 96 32-bit vectors.
 /// It's used mostly for initialization and for building up larger structures.
-/// It's marked "align(256)" so that it will be properly aligned for the
-/// interrupt vector page register.
 ///
 typedef struct Mcci_CortexVectorsContents_s
 	{
 	uint32_t	vectors[192/4];
-	} __attribute__((__aligned__(256)))
-	Mcci_CortexVectorsContents_t;
+	} Mcci_CortexVectorsContents_t;
 
 ///
 /// \brief Cortex M0 interrupt vector object
