@@ -142,13 +142,14 @@ Implementation notes:
 void
 McciBootloader_main(void)
         {
+        const uint32_t bootloaderSize = McciBootloader_codeSize(&gk_McciBootloader_BootBase, &gk_McciBootloader_BootTop);
         /* run the platform entry code. This must be minimal, if it exists at all */
         McciBootloaderPlatform_entry();
 
         /* our first job is to check the hash of the boot loader */
         if (! McciBootloader_checkCodeValid(
                         &gk_McciBootloader_BootBase,
-                        McciBootloader_codeSize(&gk_McciBootloader_BootBase, &gk_McciBootloader_BootTop)
+                        bootloaderSize
                         ))
                 {
                 /* Case (1): boot loader isn't valid */
@@ -189,7 +190,8 @@ McciBootloader_main(void)
 
                 const bool fImageOk = McciBootloader_checkStorageImage(
                                                 hPrimary,
-                                                &g_McciBootloader_appInfo
+                                                &g_McciBootloader_appInfo,
+                                                &McciBootloaderPlatform_getAppInfo(&gk_McciBootloader_BootBase, bootloaderSize)->publicKey
                                                 );
 
                 /* check for Case (3) */
@@ -231,9 +233,13 @@ McciBootloader_main(void)
                 fImageOk = McciBootloaderError_OK;
                 if (! McciBootloader_checkStorageImage(
                         hFallback,
-                        &g_McciBootloader_appInfo
-                        ))
+                        &g_McciBootloader_appInfo,
+                        &McciBootloaderPlatform_getAppInfo(&gk_McciBootloader_BootBase, bootloaderSize)->publicKey
+                        )
+                    )
+                        {
                         fImageOk = McciBootloaderError_NoAppImage;
+                        }
 
                 if (fImageOk == McciBootloaderError_OK)
                         {

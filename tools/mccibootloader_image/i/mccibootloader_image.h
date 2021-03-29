@@ -223,7 +223,8 @@ struct McciBootloader_AppInfo_Wire_t
 						///   + authsize
 	uint32_le_t	version { 0 };		///< version of the image (semantic version)
 	uint32_le_t	gpsTimestamp { 0 };	///< GPS timestamp of image
-	GuidWire_t	appGuid {{ 0  }};	///< application ID
+	uint32_le_t	reserved1C { 0 };	///< reserved (zero)
+	mcci_tweetnacl_sign_publickey_t	publicKey {{ 0  }};	///< the public key
 	};
 
 struct McciBootloader_CortexPageZeroContents_t
