@@ -258,11 +258,16 @@ void App_t::scanArgs(int argc, char **argv)
 		}
 	this->infilename = posArgs[0];
 
-	if (posArgs.size() == 1 && ! this->fPatch && this->fUpdate)
+	if (posArgs.size() == 1)
 		{
-		this->usage("--patch needed for in-place update");
+		if (! this->fPatch && this->fUpdate)
+			{
+			this->usage("--patch needed for in-place update");
+			}
+		this->outfilename = "";
 		}
-	this->outfilename = posArgs[1];
+	else
+		this->outfilename = posArgs[1];
 
 	if (posArgs.size() > 2)
 		{
