@@ -58,9 +58,19 @@ else
 endif
 
 # post-condition: MCCI_CC is set to clang or gcc
-ifeq ($(MCCI_MAKEHOST),Windows)
-  MCCI_CC := clang
+ifeq (${CROSS_COMPILE},)
+  # this is not a cross compile.
+  ifeq ($(MCCI_MAKEHOST),Windows)
+    MCCI_CC := clang
+  else ifeq (${MCCI_MAKEHOST},Darwin)
+    MCCI_CC := clang
+    # XCode's clang V10 on my system doesn't support print-target-triple:
+    CC_MULTIARCH := x86_64-Apple-Darwin
+  else
+    MCCI_CC := gcc
+  endif
 else
+  # this is a cross compile, assume gcc
   MCCI_CC := gcc
 endif
 
@@ -69,14 +79,14 @@ endif
 # CCLINK is set to the comand to be used for linking programs without C++ support.
 # CXXLINK is set to the comand to be use for linking programs with C++ support.
 #
-ifeq ($(MCCI_CC),gcc)
-  CC := $(CROSS_COMPILE)gcc
-  CCLINK := $(CROSS_COMPILE)gcc
-  CXXLINK := $(CROSS_COMPILE)g++
+ifeq ($(patsubst gcc%,gcc,$(MCCI_CC)),gcc)
+  CC := $(CROSS_COMPILE)$(MCCI_CC)
+  CCLINK := $(CROSS_COMPILE)$(MCCI_CC)
+  CXXLINK := $(CROSS_COMPILE)$(patsubst gcc%,g++%,$(MCCI_CC))
 else ifeq ($(MCCI_CC),clang)
   CC := $(CROSS_COMPILE)clang
   CCLINK := $(CROSS_COMPILE)clang
-  CXXLINK := $(CROSS_COMPILE)clang
+  CXXLINK := $(CROSS_COMPILE)clang++
 else
   $(error Unknown compiler MCCI_CC($(MCCI_CC)))
 endif
@@ -85,7 +95,9 @@ endif
 # start by guessing that we can use CROSS_COMPILE
 
 # strip the final '-' off CROSS_COMPILE, if any
-CC_MULTIARCH := $(notdir $(CROSS_COMPILE:%-=%))
+ifeq ($(CC_MULTIARCH),)
+ CC_MULTIARCH := $(notdir $(CROSS_COMPILE:%-=%))
+endif
 
 # if CC_MULTIARCH is empty, it's not a cross-compile, so ask compiler what
 # arch to to use
@@ -110,14 +122,42 @@ else
 endif
 
 #
+# figure out what we're doing for the archiver
+#
+ifeq ($(MCCI_CC),clang)
+  ifeq ($(MCCI_MAKEHOST),Windows)
+    AR  :=  $(CROSS_COMPILE)llvm-ar
+  else
+    AR  :=  $(CROSS_COMPILE)ar
+  endif
+else ifneq ($(filter %-Darwin,$(CC_MULTIARCH)),)
+  AR := $(CROSS_COMPILE)ar
+else
+  AR :=	$(CROSS_COMPILE)$(patsubst gcc%,ar%,$(MCCI_CC))
+endif
+
+#
 # figure out the situation for --start-group and --end-group
 #
 ifneq ($(filter %-windows-msvc,$(CC_MULTIARCH)),)
   T_LDFLAG_STARTGROUP=
   T_LDFLAG_ENDGROUP=
+else ifneq ($(filter %-Darwin,$(CC_MULTIARCH)),)
+  T_LDFLAG_STARTGROUP=
+  T_LDFLAG_ENDGROUP=
 else
   T_LDFLAG_STARTGROUP=--start-group
   T_LDFLAG_ENDGROUP=--end-group
+endif
+
+ifneq ($(filter %-Darwin,$(CC_MULTIARCH)),)
+ ifeq ($(MCCI_CC),clang)
+  CXXFLAGS_STDLIB=-std=c++17 -stdlib=libc++
+ else
+  CXXFLAGS_STDLIB=
+ endif
+else
+  CXXFLAGS_STDLIB=
 endif
 
 #
@@ -218,17 +258,12 @@ CFLAGS 	+=	${CFLAGS_PROGRAM} ${CFLAGS_USER}
 CXXFLAGS  =	-Wall -Werror ${CFLAGS_OPT}
 CXXFLAGS  +=	${CFLAGS_BUILDTYPE_${T_BUILDTYPE}}
 CXXFLAGS  +=	${CXXFLAGS_PROGRAM} ${CXXFLAGS_USER}
+CXXFLAGS  +=	${CXXFLAGS_STDLIB}
 
 INCLUDES_GLOBAL += ${MCCIBOOTLOADER_ROOT}i
 
 CPPFLAGS +=	${CPPFLAGS_PROGRAM} ${CPPFLAGS_USER}
 CPPFLAGS +=	${foreach includedir, ${INCLUDES_GLOBAL} ${INCLUDES_PROGRAM}, -I $(includedir)}
-
-ifeq ($(MCCI_CC),clang)
-AR  :=  $(CROSS_COMPILE)llvm-ar
-else
-AR	:=	$(CROSS_COMPILE)ar
-endif
 
 ##############################################################################
 #
