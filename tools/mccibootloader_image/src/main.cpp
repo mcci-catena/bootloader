@@ -332,6 +332,7 @@ void dumpAppInfo(
 void App_t::addHeader()
 	{
 	McciBootloader_AppInfo_Wire_t fileAppInfo;
+	static const uint8_t zeros[sizeof(fileAppInfo)] = { 0 };
 	auto const pFileAppInfo = &this->fileimage.at(offsetof(McciBootloader_CortexPageZero_Wire_t, PageZero.AppInfo));
 	memcpy(&fileAppInfo, pFileAppInfo, sizeof(fileAppInfo));
 	
@@ -353,16 +354,24 @@ void App_t::addHeader()
 			appInfo.targetAddress.put(appInfo.kBootloaderAddress);
 		}
 	// otherwise make a new one
-	else
+	else if (memcmp(pFileAppInfo, zeros, sizeof(zeros)) == 0)
 		{
+		this->verbose("AppInfo is zero, creating new one");
 		appInfo.targetAddress.put(appInfo.kBootloaderAddress);
 		appInfo.imagesize.put(this->fSize);
 		}
+	// looks fishy: refuse to operate on the file
+	else
+		{
+		this->fatal("AppInfo in input file is improperly formatted");
+		}
 
+	// set the authsize field according to how we work.
 	appInfo.authsize.put(
 		this->authSize
 		);
 
+	// add GPS
 	if (this->fAddGps)
 		{
 		uint32_t now = (uint32_t) time(nullptr);
@@ -374,6 +383,7 @@ void App_t::addHeader()
 	if (this->fVerbose)
 		dumpAppInfo("AppInfo after update", appInfo);
 
+	// update the application image
 	memcpy(pFileAppInfo, &appInfo, sizeof(appInfo));
 	}
 
