@@ -346,12 +346,18 @@ void App_t::addHeader()
 	// if the file's appinfo looks good, use it
 	if (fileAppInfo.magic.get() == fileAppInfo.kMagic &&
 	    fileAppInfo.size.get() == sizeof(fileAppInfo) &&
-	    fileAppInfo.imagesize.get() != 0)
+	    fileAppInfo.targetAddress.get() != 0)
 	    	{
 		appInfo = fileAppInfo;
-		this->fSize = appInfo.imagesize.get();
-		if (appInfo.targetAddress.get() == 0)
-			appInfo.targetAddress.put(appInfo.kBootloaderAddress);
+		if (appInfo.imagesize.get() == 0)
+			{
+			this->verbose("AppInfo.imagesize == 0, change to file size");
+			appInfo.imagesize.put(this->fSize);
+			}
+		else
+			{
+			this->fSize = appInfo.imagesize.get();
+			}
 		}
 	// otherwise make a new one
 	else if (memcmp(pFileAppInfo, zeros, sizeof(zeros)) == 0)

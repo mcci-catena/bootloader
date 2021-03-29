@@ -57,9 +57,9 @@ struct McciBootloader_AppInfo_s
 	uint32_t	authsize;	//< size of authentication data.
 					// Overall image size is imagesize
 					//   + authsize
+	uint32_t	version;	//< version of the image (semantic version)
 	uint32_t	gpsTimestamp;	//< GPS timestamp of image
 	MCCIADK_GUID	appGuid;	//< application ID
-	uint32_t	version;	//< version of the image (semantic version)
 	};
 
 #define	MCCI_BOOTLOADER_APP_INFO_MAGIC	(('M' << 0) | ('A' << 8) | ('P' << 16) | ('0' << 24))

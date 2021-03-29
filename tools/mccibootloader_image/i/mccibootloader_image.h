@@ -213,17 +213,17 @@ struct McciBootloader_AppInfo_Wire_t
 	static constexpr uint32_t kBootloaderAddress = 0x08000000;
 	static constexpr uint32_t kAppAddress = kBootloaderAddress + 20 * 1024;
 
-	uint32_le_t	magic = kMagic;		//< the format identifier.
-	uint32_le_t	size = sizeof(*this);	//< size of this stucture, in bytes
-	uint32_le_t	targetAddress { 0 };	//< the target load address
-	uint32_le_t	imagesize { 0 };	//< size of the app, in bytes.
-					//   Must be multiple of 4.
-	uint32_le_t	authsize { 0 };	//< size of authentication data.
-					// Overall image size is imagesize
-					//   + authsize
-	uint32_le_t	gpsTimestamp { 0 };	//< GPS timestamp of image
-	GuidWire_t	appGuid {{ 0  }};	//< application ID
-	uint32_le_t	version { 0 };	//< version of the image (semantic version)
+	uint32_le_t	magic = kMagic;		///< the format identifier.
+	uint32_le_t	size = sizeof(*this);	///< size of this stucture, in bytes
+	uint32_le_t	targetAddress { 0 };	///< the target load address
+	uint32_le_t	imagesize { 0 };	///< size of the app, in bytes.
+						///   Must be multiple of 4.
+	uint32_le_t	authsize { 0 };		///< size of authentication data.
+						/// Overall image size is imagesize
+						///   + authsize
+	uint32_le_t	version { 0 };		///< version of the image (semantic version)
+	uint32_le_t	gpsTimestamp { 0 };	///< GPS timestamp of image
+	GuidWire_t	appGuid {{ 0  }};	///< application ID
 	};
 
 struct McciBootloader_CortexPageZeroContents_t
