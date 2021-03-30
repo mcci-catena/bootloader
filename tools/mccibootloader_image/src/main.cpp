@@ -22,6 +22,7 @@ Author:
 #include "mccibootloader_image.h"
 #include "mccibootloader_image_version.h"
 #include <iomanip>
+#include <sstream>
 
 /****************************************************************************\
 |
@@ -168,7 +169,7 @@ void App_t::scanArgs(int argc, char **argv)
 	vector<string> posArgs;
 
 	bool fOptOk = true;
-	this->fAddGps = true;
+	this->fAddTime = true;
 	for (;;)
 		{
 		auto const pThisarg = *argv++;
@@ -211,9 +212,9 @@ void App_t::scanArgs(int argc, char **argv)
 			this->fHash = fBool;
 			this->fUpdate |= fBool;
 			}
-		else if (boolArg == "-g" || boolArg == "--add-gps")
+		else if (boolArg == "-t" || boolArg == "--add-time")
 			{
-			this->fAddGps = fBool;
+			this->fAddTime = fBool;
 			}
 		else if (boolArg == "-s" || boolArg == "--sign")
 			{
@@ -291,7 +292,7 @@ void App_t::scanArgs(int argc, char **argv)
 		          << "    --verbose: " << this->fVerbose << "\n"
 		          << "       --hash: " << this->fHash << "\n"
 		          << "       --sign: " << this->fSign << "\n"
-		          << "    --add-gps: " << this->fAddGps << "\n"
+		          << "   --add-time: " << this->fAddTime << "\n"
 		          << "    --dry-run: " << this->fDryRun << "\n"
 		          << "    --keyfile: " << this->keyfilename << "\n"
 			  << "\n"
@@ -325,21 +326,28 @@ void dumpAppInfo(
 	)
 	{
 	std::cout << s << ":\n" << std::hex
-	          << "        magic: " << std::setw(8) << std::setfill('0') << appInfo.magic.get() << "\n"
-	          << "         size: " << std::setw(8) << std::setfill('0') << appInfo.size.get() << "\n"
-	          << "targetAddress: " << std::setw(8) << std::setfill('0') << appInfo.targetAddress.get() << "\n"
-	          << "    imageSize: " << std::setw(8) << std::setfill('0') << appInfo.imagesize.get() << "\n"
-	          << "     authSize: " << std::setw(8) << std::setfill('0') << appInfo.authsize.get() << "\n"
-	          << " gpsTimestamp: " << std::setw(8) << std::setfill('0') << appInfo.gpsTimestamp.get() << "\n"
+	          << "          magic:         " << std::setw(8) << std::setfill('0') << appInfo.magic.get() << "\n"
+	          << "           size:         " << std::setw(8) << std::setfill(' ') << appInfo.size.get() << "\n"
+	          << "  targetAddress:         " << std::setw(8) << std::setfill(' ') << appInfo.targetAddress.get() << "\n"
+	          << "      imageSize:         " << std::setw(8) << std::setfill(' ') << appInfo.imagesize.get() << "\n"
+	          << "       authSize:         " << std::setw(8) << std::setfill(' ') << appInfo.authsize.get() << "\n"
+	          << " posixTimestamp: " << std::setw(16) << std::setfill(' ') << appInfo.posixTimestamp.get() << "\n"
 		  ;
 	auto version = appInfo.version.get();
-	std::cout << "      version: " << std::dec
-				<< unsigned(McciVersion::getMajor(version)) << "."
-				<< unsigned(McciVersion::getMinor(version)) << "."
-				<< unsigned(McciVersion::getPatch(version));
+	ostringstream sVersion;
+	sVersion << unsigned(McciVersion::getMajor(version))
+		 << "."
+		 << unsigned(McciVersion::getMinor(version))
+		 << "."
+		 << unsigned(McciVersion::getPatch(version))
+		 ;
 	if (McciVersion::getLocal(version) != 0)
-		std::cout       << "."
-				<< unsigned(McciVersion::getLocal(version));
+		{
+		sVersion << "."
+			 << unsigned(McciVersion::getLocal(version));
+		}
+  
+	std::cout << "        version: " << std::setw(16) << std::setfill(' ') << sVersion.str();
 	std::cout << "\n";
 	std::cout << "\n";
 	}
@@ -393,12 +401,12 @@ void App_t::addHeader()
 		);
 
 	// add GPS
-	if (this->fAddGps)
+	if (this->fAddTime)
 		{
 		uint32_t now = (uint32_t) time(nullptr);
 		if (this->fVerbose)
 			std::cout << "Posix time: " << now << "\n";
-		appInfo.gpsTimestamp.put(now - 315964800 + 18);
+		appInfo.posixTimestamp.put(now);
 		}
 
 	// add key
@@ -425,7 +433,7 @@ void App_t::dump(
 	std::cout << label << ":\n" << std::hex;
 	for (auto b = begin; b != end; ++b)
 		{
-		std::cout << std::setw(2) << unsigned(b[0]);
+		std::cout << std::setw(2) << setfill('0') << unsigned(b[0]);
 		++n;
 		if (n < 16)
 			std::cout << " ";

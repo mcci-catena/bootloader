@@ -71,7 +71,7 @@ struct App_t
 	bool		fHash;
 	bool		fPatch;
 	bool		fUpdate;
-	bool		fAddGps;
+	bool		fAddTime;
 	bool		fDryRun;
 	std::string	infilename;
 	std::string	outfilename;
@@ -175,14 +175,61 @@ public:
 	uint32_t get(void) const
 		{
 		return
-			(this->m_v[0] << 0) |
-			(this->m_v[1] << 8) |
-			(this->m_v[2] << 16) |
-			(this->m_v[3] << 24);
+			(uint32_t(this->m_v[0]) << 0) |
+			(uint32_t(this->m_v[1]) << 8) |
+			(uint32_t(this->m_v[2]) << 16) |
+			(uint32_t(this->m_v[3]) << 24) |
+			0;
 		}
 private:
 	uint8_t m_v[4];
 	};
+
+// the layout of the image
+class uint64_le_t
+	{
+public:
+	uint64_le_t(uint64_t v = 0)
+		: m_v 	{
+			std::uint8_t(v & 0xFF),
+		        std::uint8_t((v >> 8) & 0xFF),
+			std::uint8_t((v >> 16) & 0xFF),
+			std::uint8_t((v >> 24) & 0xFF),
+			std::uint8_t((v >> 32) & 0xFF),
+			std::uint8_t((v >> 40) & 0xFF),
+			std::uint8_t((v >> 48) & 0xFF),
+			std::uint8_t((v >> 56) & 0xFF),
+			}
+		{}
+	void put(uint64_t v)
+		{
+		this->m_v[0] = std::uint8_t(v >>  0);
+		this->m_v[1] = std::uint8_t(v >>  8);
+		this->m_v[2] = std::uint8_t(v >> 16);
+		this->m_v[3] = std::uint8_t(v >> 24);
+		this->m_v[4] = std::uint8_t(v >> 32);
+		this->m_v[5] = std::uint8_t(v >> 40);
+		this->m_v[6] = std::uint8_t(v >> 48);
+		this->m_v[7] = std::uint8_t(v >> 56);
+		}
+	uint64_t get(void) const
+		{
+		return
+			(uint64_t(this->m_v[0]) << 0) |
+			(uint64_t(this->m_v[1]) << 8) |
+			(uint64_t(this->m_v[2]) << 16) |
+			(uint64_t(this->m_v[3]) << 24) |
+			(uint64_t(this->m_v[4]) << 32) |
+			(uint64_t(this->m_v[5]) << 40) |
+			(uint64_t(this->m_v[6]) << 48) |
+			(uint64_t(this->m_v[7]) << 56) |
+			0
+			;
+		}
+private:
+	uint8_t m_v[8];
+	};
+
 
 struct CortexAppEntryContents_t
 	{
@@ -222,8 +269,7 @@ struct McciBootloader_AppInfo_Wire_t
 						/// Overall image size is imagesize
 						///   + authsize
 	uint32_le_t	version { 0 };		///< version of the image (semantic version)
-	uint32_le_t	gpsTimestamp { 0 };	///< GPS timestamp of image
-	uint32_le_t	reserved1C { 0 };	///< reserved (zero)
+	uint64_le_t	posixTimestamp { 0 };	///< Posix timestamp of image
 	mcci_tweetnacl_sign_publickey_t	publicKey {{ 0  }};	///< the public key
 	};
 

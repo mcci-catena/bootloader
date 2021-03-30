@@ -58,8 +58,7 @@ struct McciBootloader_AppInfo_s
 							/// Overall image size is imagesize
 							///   + authsize
 	uint32_t	version;			///< version of the image (semantic version)
-	uint32_t	gpsTimestamp;			///< GPS timestamp of image
-	uint32_t	reserved1C;			///< reserved / zero
+	uint64_t	timestamp;			///< Posix timestamp of image
 	mcci_tweetnacl_sign_publickey_t	publicKey;	///< public key for app signature verification
 							///  (if you trust it)
 	};
