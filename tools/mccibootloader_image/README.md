@@ -11,7 +11,7 @@ Hash images and sign images for the MCCI bootloader.
 ## Synopsis
 
 ```bash
-mccibootloader_image [OPTION]... INPUTFILE [OUTPUTFILE]
+mccibootloader_image [OPTION]... INPUTFILE [OPTION]... [OUTPUTFILE] [OPTION]...
 ```
 
 ## Description
@@ -39,7 +39,7 @@ The following options are defined. Note that options can be mixed with the input
 <dt><code>-v</code>, <code>--verbose</code></dt>
 <dd>Print a running commentary on what's being done.</dd>
 <dt><code>--version</code></dt>
-<dd>Print program version and exit sucessfully.</dd>
+<dd>Print program version and exit successfully.</dd>
 </dl>
 
 ## Operational Notes
@@ -48,7 +48,7 @@ The bootloader itself must be hashed, but it does not check its own signature. H
 
 ## Generating a key pair
 
-Use ssk-keygen to generate a key as follows:
+Use `ssh-keygen` to generate a key as follows:
 
 ```bash
 ssh-keygen -t ed25519 -C "key comment" -f outputfile.pem
@@ -91,6 +91,6 @@ On macOS, we have used either GCC 10 (installed via homebrew) or clang (installe
 
 On Ubuntu, we used GCC 9 (installed via normal `apt-get` mechanisms). Build using `make`.
 
-Although the code is belived to be 32-bit clean (and certainly should work properly), we've not compiled for any 32-bit targets.
+Although the code is believed to be 32-bit clean (and certainly should work properly), we've not compiled for any 32-bit targets.
 
 To cross-compile, use the typical mechanism: `CROSS_COMPILE=prefix- make`. This has not been tested, however.
