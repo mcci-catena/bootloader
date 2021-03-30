@@ -20,14 +20,14 @@ This program computes hashes and signs binary images for use with the MCCI bootl
 
 It operates by reading an input image, modifying it in memory, and then writing the image to a new file. Optionally, it will update the input image in place.
 
-The following options are defined.
+The following options are defined. Note that options can be mixed with the input and output file specifications in any order.
 
 <dl>
 <dt><code>--dry-run</code></dt>
 <dd>Go through all the motions, but don't touch the output file (or patch the input file if <code>-p</code> specified).</dd>
 
-<dt><code>-g</code>, <code>--gps-time</code></dt>
-<dd>Change the GPS time in the <code>AppInfo</code> to the current GPS time. The <code>-ng</code> or <code>--no-gps-time</code> options tell mccibootloader_image not to set the GPS time. The default is <code>-g</code>.</dd>
+<dt><code>-t</code>, <code>--add-time</code></dt>
+<dd>Change the time in the <code>AppInfo</code> to the current time. The <code>-nt</code> or <code>--no-add-time</code> options tell mccibootloader_image not to set the time. The default is <code>-t</code>.</dd>
 <dt><code>-h</code>, <code>--hash</code></dt>
 <dd>Compute the application hash and place it in the output file.</dd>
 <dt><code>-p</code>, <code>--patch</code></dt>
