@@ -374,7 +374,7 @@ void App_t::addHeader()
 		appInfo = fileAppInfo;
 		if (appInfo.imagesize.get() == 0)
 			{
-			this->verbose("AppInfo.imagesize == 0, change to file size");
+			this->verbose("AppInfo.imagesize == 0, set AppInof.imagesize to file size");
 			appInfo.imagesize.put(this->fSize);
 			}
 		else
