@@ -343,7 +343,7 @@ void dumpAppInfo(
 		 ;
 	if (McciVersion::getLocal(version) != 0)
 		{
-		sVersion << "."
+		sVersion << "-"
 			 << unsigned(McciVersion::getLocal(version));
 		}
   
