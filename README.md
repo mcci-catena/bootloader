@@ -1,4 +1,4 @@
-# MCCI STM32L0 Bootloader
+# STM32L0 Robust Bootloader with Firmware Update
 
 <!--
   This TOC uses the VS Code markdown TOC extension AlanWalk.markdown-toc.
@@ -14,6 +14,7 @@
 <!-- TOC depthFrom:2 updateOnSave:true -->
 
 - [Introduction](#introduction)
+	- [Limitations](#limitations)
 - [Technical Discussion](#technical-discussion)
 	- [SPI flash layout](#spi-flash-layout)
 	- [Bootloader RAM layout](#bootloader-ram-layout)
@@ -22,12 +23,14 @@
 	- [AppInfo overview](#appinfo-overview)
 	- [Signature Verification](#signature-verification)
 	- [Programming app image from SPI](#programming-app-image-from-spi)
-	- [Invariants that the bootloader must maintain](#invariants-that-the-bootloader-must-maintain)
-	- [SPI flash initialization](#spi-flash-initialization)
+	- [Checking signatures](#checking-signatures)
+- [Bootloader States](#bootloader-states)
 - [Practical Details](#practical-details)
+	- [SPI flash initialization](#spi-flash-initialization)
 	- [Generating public/private key pairs](#generating-publicprivate-key-pairs)
 	- [Building](#building)
 	- [Installing the bootloader](#installing-the-bootloader)
+	- [Practical Issues](#practical-issues)
 - [Meta](#meta)
 	- [License](#license)
 	- [Support Open Source Hardware and Software](#support-open-source-hardware-and-software)
@@ -39,14 +42,26 @@
 
 ## Introduction
 
-The MCCI&reg; STM32L0 bootloader gets control from the ST boot loader, and handles various administrative tasks prior to transferring control to the application program.
+The MCCI&reg; STM32L0 bootloader allows robust field updating STM32L0 systems with public-key authentication of the firmware images. Although it is *not* a "secure bootloader" in the commonly accepted sense, it is a robust bootloader in the following sense:
 
+- The bootloader will atomically update firmware from one image to another, while running unattended in the field.
+- Barring physical access to the device, the bootloader will not install images that have not been signed by the trusted private key.
+- Barring physical access to the device, and provided the bootloader has been write protected in the STM32L0 option registers, the bootloader will not launch an application whose image has been corrupted.
+- The code is simple and easily audited.
+- The cryptographic code is identically the simple and auditable public-domain TweetNaCl package, without any source changes.
+- It allows the system engineer to provision a fallback image that can be used in case the application image is corrupt; this image can be write protected.
+
+Its hardware requirements are modest. Beyond an STM32L0 CPU, it requires an external storage device large enough to store the fallback image and the update image. The bootloader itself is 10k, though we allow up to 20k for future growth.
+
+The bootloader requires a 64-byte header in the application image consisting of metadata about the application; this appears in page zero of the application image, immediately after the interrupt vectors. The bootloader also requires that a hash plus a signature be appended to the image; this data requires 128 bytes.
+
+The bootloader operates by interposing itself between the ST bootloader and the application. When it gets control from the boot loader, it does the following.
+
+- The bootloader image is validated.
 - The program flash application image is validated.
 - If the application is valid and if no firmware update has been requested, it is launched.
 - If a firmware update has been requested, the update image is checked on SPI flash. If valid, and properly signed, the application image is copied to program flash. If successful, the update request is cleared, and the application is launched.
-- If the application is invalid, and the update image is invalid, the fallback image is checked. If valid and properly signed, the fallback image is copied to program flash. If successful, the application is launched.
-
-During the boot sequence, the watchdog is kept up to date (if enabled), etc.
+- If the application is invalid, and the update image is invalid, the fallback image is checked. If valid and properly signed, the fallback image is copied to program flash. If successful, the application is launched.  (See [Bootloader States](#bootloader-states) for a more complete discussion.)
 
 The boot sequence runs at the 32 MHz clock rate.
 
@@ -55,6 +70,22 @@ The bootloader enables the SPI flash, including handling external regulators on 
 The bootloader manipulates the boot LED to indicate lengthy activities and failure modes.
 
 The bootloader does not use the CMSIS include files or the ST HAL; these are large, complex and difficult to review. Instead, the ARM reference manual and STM32L0 SOC manuals were used to prepare simple header files with the required information.
+
+A simple tool is provided for signing images. For convenience, `ssh-keygen` is used to generate the key files. In development, a standard "test signing" key is used; this is not secure, but it avoids a special mode in the bootloader to disable signing (thereby making it less likely that the special mode will accidentally be left on at ship time).
+
+### Limitations
+
+Overall, we want to make it difficult for an adversary to inject an untrusted image unless they have physical access to the board. But there are certain issues that we don't address; these may be important to you.
+
+The bootloader does not provide any confidentiality at all for the application images. As the bootloader is intended for open source projects, we don't feel that this is a problem.
+
+The bootloader does not prevent someone with physical access to a device from putting arbitrary software in that device. It cannot; an STLINK can always be used and the device reset to factory.
+
+The bootloader does not check signatures of the application before launching it. It considers a valid SHA512 hash to be to good enough authority to launch the app, because it considers that the app would not be in the flash unless its signature had been verified. Remote code execution could take advantage of this to modify the application maliciously, and then update the hash.
+
+If an adversary can force a remote code execution attack, the bootloader can probably be compromised; but remote code execution also effectively takes over the system, unless the MPU is used; and that's much more intrusive. We feel that should be at a layer above the bootloader.
+
+Signature checks are slow -- about 10 seconds on an STM32L0 at 32 MHz. This is acceptable, as it only happens during a firmware update.
 
 ## Technical Discussion
 
@@ -191,13 +222,13 @@ Once the program image has been approved, we follow this procedure to load it in
     2. Program block by dividing it into "half pages" and programming using a special function that lives in RAM.
 3. Finally, verify the application image by running the application check.
 
-### Invariants that the bootloader must maintain
+### Checking signatures
 
 It takes a long time to verify a ed25519 signature on the STM32L0;
 so we only check signatures when deciding whether to update
-the flash. Otherwise we check the SHA512. The program format
-still includes the signature, but we only check this when
-deciding whether to apply it to the flash.
+the flash, after we've validated the SHA512 hash.
+
+## Bootloader States
 
 The following table summarizes the bootloader's decisions.
 
@@ -215,6 +246,8 @@ The following table summarizes the bootloader's decisions.
 
 The implementation matrix is a little crazy because it's expensive to evaluate quality of update and fallback images.
 
+## Practical Details
+
 ### SPI flash initialization
 
 The manufacturing process may need to initialize the fallback image on the flash. This is different for mass product compared to "Arduino developers". We anticipate that Arduino developers will initially leave the fallback image blank; hence row 8 in the table above may get used a lot.
@@ -222,8 +255,6 @@ The manufacturing process may need to initialize the fallback image on the flash
 Manufacturing will need tools for loading the fallback image and setting the write-protect bit.
 
 The fallback image could be small, in which case a user could save SPI flash room by rearranging the partition boundaries. However, we don't plan to support that, at least at first.
-
-## Practical Details
 
 ### Generating public/private key pairs
 
@@ -252,6 +283,10 @@ Use ST-LINK and download using the -bin option after signing, using address 0x08
 ```bash
 st-flash --format binary bootloader-image.bin 0x08000000
 ```
+
+### Practical Issues
+
+The STM32L0 has a watchdog timer that can be enabled in hardware by the option bytes. The bootloader currently does not update the watchdog timer(s) although it is architected to be able to do it.
 
 ## Meta
 
