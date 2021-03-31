@@ -2,6 +2,37 @@
 
 Hash images and sign images for the MCCI bootloader.
 
+**Contents:**
+<!--
+  This TOC uses the VS Code markdown TOC extension AlanWalk.markdown-toc.
+  We strongly recommend updating using VS Code, the markdown-toc extension and the
+  bierner.markdown-preview-github-styles extension. Note that if you are using
+  VS Code 1.29 and Markdown TOC 1.5.6, https://github.com/AlanWalk/markdown-toc/issues/65
+  applies -- you must change your line-ending to some non-auto value in Settings>
+  Text Editor>Files.  `\n` works for me.
+-->
+<!-- markdownlint-disable MD033 MD004 -->
+<!-- markdownlint-capture -->
+<!-- markdownlint-disable -->
+<!-- TOC depthFrom:2 updateOnSave:true -->
+
+- [Features](#features)
+- [Synopsis](#synopsis)
+- [Description](#description)
+- [Operational Notes](#operational-notes)
+- [Generating a key pair](#generating-a-key-pair)
+- [Build instructions](#build-instructions)
+- [Meta](#meta)
+	- [License](#license)
+	- [Support Open Source Hardware and Software](#support-open-source-hardware-and-software)
+	- [Trademarks](#trademarks)
+
+<!-- /TOC -->
+<!-- markdownlint-restore -->
+<!-- Due to a bug in Markdown TOC, the table is formatted incorrectly if tab indentation is set other than 4. Due to another bug, this comment must be *after* the TOC entry. -->
+
+## Features
+
 - Written in C++; only uses the facilities in the bootloader distribution and the C++ standard libraries.
 - Computes and inserts the hash used for image verification
 - Prepares a proper
@@ -94,3 +125,19 @@ On Ubuntu, we used GCC 9 (installed via normal `apt-get` mechanisms). Build usin
 Although the code is believed to be 32-bit clean (and certainly should work properly), we've not compiled for any 32-bit targets.
 
 To cross-compile, use the typical mechanism: `CROSS_COMPILE=prefix- make`. This has not been tested, however.
+
+## Meta
+
+### License
+
+`mccibooloader_image` and wrappers released under the [MIT license](../../LICENSE). Commercial licenses and commercial support are available from MCCI Corporation. The TweetNaCl and NaCl code is all public domain (including MCCI contributions in those directories). The collective work is MIT licensed.
+
+### Support Open Source Hardware and Software
+
+MCCI invests time and resources providing this open source code, please support MCCI and open-source hardware by purchasing products from MCCI, Adafruit and other open-source hardware/software vendors!
+
+For information about MCCI's products, please visit [store.mcci.com](https://store.mcci.com/).
+
+### Trademarks
+
+MCCI and MCCI Catena are registered trademarks of MCCI Corporation. All other marks are the property of their respective owners.
