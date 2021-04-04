@@ -56,7 +56,7 @@ Revision history:
 |
 \****************************************************************************/
 
-McciBootloader_AppInfo_t g_McciBootloader_appInfo;
+McciBootloader_AppInfo_t g_McciBootloader_incomingAppInfo;
 
 /*
 
@@ -143,6 +143,7 @@ void
 McciBootloader_main(void)
         {
         const uint32_t bootloaderSize = McciBootloader_codeSize(&gk_McciBootloader_BootBase, &gk_McciBootloader_BootTop);
+
         /* run the platform entry code. This must be minimal, if it exists at all */
         McciBootloaderPlatform_entry();
 
@@ -155,6 +156,33 @@ McciBootloader_main(void)
                 /* Case (1): boot loader isn't valid */
                 McciBootloaderPlatform_fail(McciBootloaderError_BootloaderNotValid);
                 }
+
+        const McciBootloader_AppInfo_t * const pBootloaderAppInfo =
+                McciBootloaderPlatform_getAppInfo(
+                                &gk_McciBootloader_BootBase,
+                                bootloaderSize
+                                );
+
+        if (pBootloaderAppInfo == NULL)
+                {
+                /* Case (1): boot loader isn't valid */
+                McciBootloaderPlatform_fail(McciBootloaderError_BootloaderNotValid);
+                }
+
+        /* locate the public key */
+        const McciBootloader_SignatureBlock_t * const pBootloaderSigBlock =
+                McciBootloaderPlatform_getSignatureBlock(
+                                pBootloaderAppInfo
+                                );
+
+        if (pBootloaderSigBlock == NULL)
+                {
+                /* Case (1): boot loader isn't valid */
+                McciBootloaderPlatform_fail(McciBootloaderError_BootloaderNotValid);
+                }
+
+        const mcci_tweetnacl_sign_publickey_t * const pPublicKey =
+                &pBootloaderSigBlock->publicKey;
 
         /* next, we check the hash of the application */
         bool const appOk = McciBootloader_checkCodeValid(
@@ -190,8 +218,8 @@ McciBootloader_main(void)
 
                 const bool fImageOk = McciBootloader_checkStorageImage(
                                                 hPrimary,
-                                                &g_McciBootloader_appInfo,
-                                                &McciBootloaderPlatform_getAppInfo(&gk_McciBootloader_BootBase, bootloaderSize)->publicKey
+                                                &g_McciBootloader_incomingAppInfo,
+                                                pPublicKey
                                                 );
 
                 /* check for Case (3) */
@@ -209,7 +237,7 @@ McciBootloader_main(void)
                 /* as soon as we've erased the app, we'll reset the storage flag inside the routine below */
                 programResult = McciBootloader_programAndCheckFlash(
                                         hPrimary,
-                                        &g_McciBootloader_appInfo
+                                        &g_McciBootloader_incomingAppInfo
                                         );
                 if (programResult == McciBootloaderError_OK)
                         {
@@ -233,8 +261,8 @@ McciBootloader_main(void)
                 fImageOk = McciBootloaderError_OK;
                 if (! McciBootloader_checkStorageImage(
                         hFallback,
-                        &g_McciBootloader_appInfo,
-                        &McciBootloaderPlatform_getAppInfo(&gk_McciBootloader_BootBase, bootloaderSize)->publicKey
+                        &g_McciBootloader_incomingAppInfo,
+                        pPublicKey
                         )
                     )
                         {
@@ -245,7 +273,7 @@ McciBootloader_main(void)
                         {
                         fImageOk = McciBootloader_programAndCheckFlash(
                                                 hFallback,
-                                                &g_McciBootloader_appInfo
+                                                &g_McciBootloader_incomingAppInfo
                                                 );
                         }
 

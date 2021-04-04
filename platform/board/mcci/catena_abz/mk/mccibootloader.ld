@@ -115,6 +115,13 @@ SECTIONS
                 g_McciBootloader_DataTop = .;
                 } >RAM AT> FLASH
 
+        /* insert the application signature block */
+        .McciBootloader_Signature :
+                {
+                gk_McciBootloader_ImageSize = . - gk_McciBootloader_BootBase;
+                KEEP(*(.McciBootloader_Signature))
+                } > FLASH
+
         /* The RAM data (if any) */
          . = ALIGN(4);
        .bss :

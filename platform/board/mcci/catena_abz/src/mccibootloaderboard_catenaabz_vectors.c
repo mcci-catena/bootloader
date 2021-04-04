@@ -99,11 +99,15 @@ gk_McciBootloader_CortexVectors =
 		.magic = MCCI_BOOTLOADER_APP_INFO_MAGIC,
 		.size = sizeof(McciBootloader_AppInfo_t),
 		.targetAddress = (uint32_t) &gk_McciBootloader_CortexVectors,
-		.imagesize = 0, /* filled in by mccibootloader_image */
-		.authsize = 0,  /* filled in by mccibootloader_image */
+		.imagesize = (uint32_t) &gk_McciBootloader_ImageSize,
+		.authsize = sizeof(McciBootloader_SignatureBlock_t),
 		}
 	    }
 	};
+
+// instantiate the signature block.
+const McciBootloader_SignatureBlock_t
+gk_McciBootloader_SignatureBlock; 
 
 /****************************************************************************\
 |

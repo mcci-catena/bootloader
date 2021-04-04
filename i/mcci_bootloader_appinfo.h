@@ -3,7 +3,7 @@
 Module:	mcci_bootloader_appinfo.h
 
 Function:
-	McciBootloader_AppInfo_t
+	McciBootloader_AppInfo_t and McciBootloader_SignatureBlock_t
 
 Copyright and License:
 	This file copyright (C) 2021 by
@@ -26,6 +26,7 @@ Author:
 
 #include "mcci_bootloader_types.h"
 #include <stdint.h>
+#include "mcci_tweetnacl_hash.h"
 #include "mcci_tweetnacl_sign.h"
 
 #ifdef __cplusplus
@@ -59,11 +60,26 @@ struct McciBootloader_AppInfo_s
 							///   + authsize
 	uint32_t	version;			///< version of the image (semantic version)
 	uint64_t	timestamp;			///< Posix timestamp of image
-	mcci_tweetnacl_sign_publickey_t	publicKey;	///< public key for app signature verification
-							///  (if you trust it)
+	uint8_t		comment[16];			///< optional comment (UTF-8) describing this image.
+	uint8_t		reserved56[16];			///< reserved for future use.
 	};
 
 #define	MCCI_BOOTLOADER_APP_INFO_MAGIC	(('M' << 0) | ('A' << 8) | ('P' << 16) | ('0' << 24))
+
+///
+/// \brief Application signature block
+///
+/// \details
+///	This signature block appears at the end of the flash image, and contains
+///	the public key by which it was signed, the hash of the image, and the
+///	signature for the hash.
+///
+struct McciBootloader_SignatureBlock_s
+	{
+	mcci_tweetnacl_sign_publickey_t		publicKey;	///< the public key used for the signature
+	mcci_tweetnacl_sha512_t			hash;		///< the SHA-512 hash
+	mcci_tweetnacl_sign_signature_t		signature;	///< the first 64 bytes of sign(hash, publicKey)
+	};
 
 #ifdef __cplusplus
 }

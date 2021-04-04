@@ -33,6 +33,7 @@ PROGRAMS += mccibootloader_image
 
 SOURCES_mccibootloader_image =					\
 	src/main.cpp						\
+	src/image.cpp						\
 	src/keyfile_ed25519.cpp					\
 	src/salt_test.cpp					\
 # end of SOURCES_mccibootloader_image

@@ -50,6 +50,19 @@ extern const McciBootloader_CortexPageZero_t
 gk_McciBootloader_CortexVectors
 __attribute__((__section__(".McciBootloader_Vectors")));
 
+///
+/// \brief the application signature block
+///
+/// \details
+///	The signature block is put in section \c .McciBootloader_Signature -- be
+///	sure to research the link script when making changes here.
+///
+/// \see mccibootloader.ld
+///
+extern const McciBootloader_SignatureBlock_t
+gk_McciBootloader_SignatureBlock
+__attribute__((__section__(".McciBootloader_Signature")));
+
 /****************************************************************************\
 |
 |	End of file

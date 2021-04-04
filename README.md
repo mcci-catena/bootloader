@@ -21,7 +21,8 @@
 	- [Abstraction Layer](#abstraction-layer)
 	- [Application Image Structure](#application-image-structure)
 	- [AppInfo overview](#appinfo-overview)
-	- [Signature Verification](#signature-verification)
+	- [Signature block overview](#signature-block-overview)
+	- [Signature Verification Loop](#signature-verification-loop)
 	- [Programming app image from SPI](#programming-app-image-from-spi)
 	- [Checking signatures](#checking-signatures)
 - [Bootloader States](#bootloader-states)
@@ -188,12 +189,23 @@ The bootloader and all application images contain AppInfo blocks at offset 192 t
 | 4..7  | `size` |  `0x40`  | Size of the AppInfo block.
 | 8..11 | `targetAddress` | base address | `0x08000000` for the boot loader, `0x08005000` for application images.
 | 12..15 | `imageSize` | size of image in bytes | Does not include hash and signature data.
-| 16..19 | `authSize` | `0x80` | size of authentication info at end of image |
+| 16..19 | `authSize` | `0xC0` | size of authentication info at end of image |
 | 20..23 | `version` | version | Semantic version of app. Byte 23 is major version, 22 is minor version, 21 is patch, and 20 (if non-zero) is the pre-release indictor. Note that prior to comparing semantic versions in this format, you must decrement the LSB modulo 256, so that pre-release 0x00 is greater than any non-zero pre-release value.
 | 24..31 | `posixTime` |  seconds since epoch | Normal Posix time; expressed as a 64-bit integer to avoid the year 2037 problem.
-| 32..63 | `publicKey` | public key | ed25519 public key corresponding to the private key used to sign this image.
+| 32..47 | `reserved32` | reserved, zero | Reserved for future use.
+| 48..63 | `comment` | UTF8 text, zero-padded | A comment, such as the program name.
 
-### Signature Verification
+### Signature block overview
+
+The signature block appears at address `targetAddress` plus `imageSize`.
+
+| Bytes | Name | Content | Discussion
+|-------|------|---------|-----------
+| 0..31 | `publicKey` | public key | ed25519 public key corresponding to the private key used to sign this image.
+| 32..95 | `hash` | hash of image | SHA-512 hash of image from byte 0 through and including the public key
+| 96..159 | `signature` | signature of image | TweetNaCl signature of `hash`, with the duplicated `hash` omitted. To verify, form `signature | hash` and then run the signature check.
+
+### Signature Verification Loop
 
 We validate by computing the hash, and checking it. Then we check the hash by `crypto_sign_open()` to the signature block, disclosing the signed hash. If the hash is properly signed, and the hash matches the hash of the application image, then we trust the image.
 
@@ -213,6 +225,8 @@ The loop looks like this:
 4. Compare signed hash to hash of code.
 
 ### Programming app image from SPI
+
+The SPI image itself corresponds directly to the bytes to be programmed into program flash. All Elf headers must be stripped; the approved way to prepare this image is to use `objcopy`, as is done in the bootloader Makefile to make a `.rawbin` file.
 
 Once the program image has been approved, we follow this procedure to load it into flash.
 

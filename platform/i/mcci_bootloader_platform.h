@@ -222,6 +222,11 @@ McciBootloaderPlatform_getAppInfo(
 	size_t nHeader
 	);
 
+const McciBootloader_SignatureBlock_t *
+McciBootloaderPlatform_getSignatureBlock(
+	const McciBootloader_AppInfo_t *
+	);
+
 MCCI_BOOTLOADER_END_DECLS
 
 #endif /* _mcci_bootloader_platform_h_ */

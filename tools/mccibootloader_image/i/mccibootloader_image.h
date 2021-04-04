@@ -29,6 +29,7 @@ Author:
 #include <vector>
 #include <cstdio>
 #include <cstdlib>
+#include <algorithm>
 #include "mcci_tweetnacl_hash.h"
 #include "mcci_tweetnacl_sign.h"
 #include <chrono>
@@ -38,6 +39,7 @@ Author:
 #include <iostream>
 #include <fstream>
 
+#include "mccibootloader_elf.h"
 #include "keyfile_ed25519.h"
 
 using namespace std;
@@ -63,6 +65,9 @@ static_assert(offsetof(GuidWire_t, clock_seq_low) == 9, "GUID layout mismatch");
 static_assert(offsetof(GuidWire_t, node) == 10, "GUID layout mismatch");
 static_assert(sizeof(GuidWire_t) == GuidWire_t_SIZE, "GUID layout mismatch");
 
+// a forward reference
+struct McciBootloader_AppInfo_Wire_t;
+
 // the application structure
 struct App_t
 	{
@@ -73,18 +78,32 @@ struct App_t
 	bool		fUpdate;
 	bool		fAddTime;
 	bool		fDryRun;
+	bool		fForceBinary;
+	char 		*pComment;
 	std::string	infilename;
 	std::string	outfilename;
 	std::string	progname;
 	std::string	keyfilename;
 	std::vector<uint8_t>	fileimage;
+
+	struct AppElf_t
+		{
+		std::vector<uint8_t>	image;
+		const McciBootloader_Elf::ElfIdent32_t *pIdent32;
+		std::vector<McciBootloader_Elf::ElfIdent32_t::ProgramHeader_t> vHeaders;
+		std::uint32_t	targetAddress;
+		} elf;
+
 	int		argc;
 	char		**argv;
 	size_t		fSize;
 	size_t		authSize;
 	mcci_tweetnacl_sha512_t fileHash;
+	const McciBootloader_AppInfo_Wire_t *pFileAppInfo;
 
 	int begin(int argc, char **argv);
+	bool isUsingElf() const
+		{ return this->elf.image.size() != 0; }
 
 private:
 	void scanArgs(int argc, char **argv);
@@ -96,6 +115,9 @@ private:
 	void addSignature();
 	void testNaCl();
 	void dump(const string &message, const uint8_t *pBegin, const uint8_t *pEnd);
+	void readImage();
+	void writeImage();
+	void elfImagePrep();
 
 	Keyfile_ed25519_t keyfile;
 	};
@@ -227,9 +249,39 @@ public:
 			;
 		}
 private:
-	uint8_t m_v[8];
+	std::uint8_t m_v[8];
 	};
 
+/// \brief a string type for comments
+template<std::size_t a_nch> 
+class utf8_z_t
+	{
+public:
+	utf8_z_t() {};
+
+	std::string get() const
+		{
+		size_t n = (this->m_v[a_nch - 1] == '\0') 
+				? a_nch 
+				: std::strlen(this->m_v)
+				;
+
+		return std::string(this->m_v, n);
+		}
+	void put(const char *v)
+		{
+		this->put(std::string(v));
+		}
+	void put(const std::string &s)
+		{
+		size_t n = std::min(s.size(), a_nch);
+		std::memcpy(this->m_v, s.c_str(), n);
+		std::memset(this->m_v + n, 0, a_nch - n);
+		}
+
+private:
+	char m_v[a_nch] { 0 };
+	};
 
 struct CortexAppEntryContents_t
 	{
@@ -270,8 +322,27 @@ struct McciBootloader_AppInfo_Wire_t
 						///   + authsize
 	uint32_le_t	version { 0 };		///< version of the image (semantic version)
 	uint64_le_t	posixTimestamp { 0 };	///< Posix timestamp of image
-	mcci_tweetnacl_sign_publickey_t	publicKey {{ 0  }};	///< the public key
+	utf8_z_t<16>	comment; 		///< the comment
+	std::uint8_t	reserved56[16] { 0 };	///< reserved, zero.
 	};
+
+static_assert(
+	sizeof(McciBootloader_AppInfo_Wire_t) == 64,
+	"wrong size for AppInfo_Wire_t"
+	);
+
+/// \brief The portable form of the signature block.
+struct McciBootloader_SignatureBlock_Wire_t
+	{
+	uint8_t	publicKey[32] = {0};		///< public key
+	uint8_t	hash[64] = {0};			///< sha512 hash
+	uint8_t	signature[64] = {0};		///< signature
+	};
+
+static_assert(
+	sizeof(McciBootloader_SignatureBlock_Wire_t) == 160,
+	"wrong size for McciBootloader_SignatureBlock_Wire_t"
+	);
 
 struct McciBootloader_CortexPageZeroContents_t
 	{

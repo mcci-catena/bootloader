@@ -25,6 +25,8 @@ Author:
 #include "mcci_bootloader_platform.h"
 #include "mcci_tweetnacl_hash.h"
 #include "mcci_tweetnacl_sign.h"
+
+#include <string.h>
 
 /****************************************************************************\
 |
@@ -60,7 +62,7 @@ Function:
 Definition:
 	bool McciBootloader_checkStorageImage(
 		McciBootloaderStorageAddress_t address,
-		McciBootloader_AppInfo_t *pAppInfo,
+		McciBootloader_AppInfo_t *pIncomingAppInfo, // OUT
 		const mcci_tweetnacl_sign_publickey_t *pPublicKey
 		);
 
@@ -72,6 +74,8 @@ Description:
 Returns:
 	true for success, false for failure.
 
+	If true, pIncomingAppInfo is set to the app info block read from the app.
+
 Notes:
 	This is slow, so we try to update the LED state with a progress
 	indication.
@@ -81,7 +85,7 @@ Notes:
 bool
 McciBootloader_checkStorageImage(
 	McciBootloaderStorageAddress_t address,
-	McciBootloader_AppInfo_t *pAppInfo,
+	McciBootloader_AppInfo_t *pIncomingAppInfo,
 	const mcci_tweetnacl_sign_publickey_t *pPublicKey
 	)
 	{
@@ -98,10 +102,10 @@ McciBootloader_checkStorageImage(
 	if (pAppInfoIn == NULL)
 		return false;
 
-	*pAppInfo = *pAppInfoIn;
+	*pIncomingAppInfo = *pAppInfoIn;
 
-	uint32_t targetAddress = pAppInfo->targetAddress;
-	uint32_t targetSize = pAppInfo->imagesize + pAppInfo->authsize;
+	uint32_t targetAddress = pIncomingAppInfo->targetAddress;
+	uint32_t targetSize = pIncomingAppInfo->imagesize + pIncomingAppInfo->authsize;
 	if (! McciBootloaderPlatform_checkImageValid(
 			g_McciBootloader_imageBlock, sizeof(g_McciBootloader_imageBlock), targetAddress, targetSize
 			))
@@ -111,15 +115,30 @@ McciBootloader_checkStorageImage(
 
 	mcci_tweetnacl_hashblocks_sha512_init(&imageHash);
 
-	// read up to, but not including, the signature
+	// read up to, but not including, the hash
 	McciBootloaderStorageAddress_t addressCurrent;
-	McciBootloaderStorageAddress_t const addressEnd = address + pAppInfo->imagesize;
+	McciBootloaderStorageAddress_t const addressEnd = 
+		address +
+		pIncomingAppInfo->imagesize +
+		sizeof(mcci_tweetnacl_sign_publickey_t);
+
+	/* loop post condition: nThisTime is the result of the last hash */
+	uint32_t nRemaining = 0; /* initalize to zero because addressCurrent might be >= addressEnd */
+	const uint8_t *pRemaining = g_McciBootloader_imageBlock;
 
 	for (addressCurrent = address; addressCurrent < addressEnd; )
 		{
+		/* detect bizarre failures */
+		if (nRemaining != 0)
+			return false;
+
+		/* consume one gulp */
 		uint32_t nThisTime = addressEnd - addressCurrent;
+
 		if (nThisTime > sizeof(g_McciBootloader_imageBlock))
 			nThisTime = sizeof(g_McciBootloader_imageBlock);
+
+		/* optimize: don't re-read block 0 of image */
 		if (addressCurrent != address)
 			{
 			if (! McciBootloaderPlatform_storageRead(
@@ -130,55 +149,77 @@ McciBootloader_checkStorageImage(
 				return false;
 			}
 
-		mcci_tweetnacl_hashblocks_sha512(
+		/* update the hash */
+		nRemaining = mcci_tweetnacl_hashblocks_sha512(
 			&imageHash,
 			g_McciBootloader_imageBlock,
 			nThisTime
 			);
 
-		addressCurrent += nThisTime;
+		/* advance pointer,  */
+		uint32_t const nConsumed = nThisTime - nRemaining;
+		addressCurrent += nConsumed;
+		pRemaining = g_McciBootloader_imageBlock + nConsumed;
 		}
 
-	const size_t nsig = mcci_tweetnacl_sign_signature_size();
+	mcci_tweetnacl_hashblocks_sha512_finish(
+		&imageHash,
+		pRemaining,
+		nRemaining
+		);
+
+	// read the signature block
+	if (! McciBootloaderPlatform_storageRead(
+		addressCurrent,
+		g_McciBootloader_imageBlock,
+		sizeof(McciBootloader_SignatureBlock_t)
+		))
+		return false;
+
+	const size_t nsig = sizeof(mcci_tweetnacl_sign_signature_t);
 	const size_t nsigned = sizeof(imageHash) + nsig;
 	size_t nActual;
 	mcci_tweetnacl_sha512_t signedHash;
 
-	// read the signature into the buffer
-	if (nsigned > sizeof(g_McciBootloader_imageBlock))
-		return false;
+	// set up a pointer for convenience
+	const McciBootloader_SignatureBlock_t * const pSigBlock = (const void *)g_McciBootloader_imageBlock;
 
-	if (! McciBootloaderPlatform_storageRead(
-		addressCurrent,
-		g_McciBootloader_imageBlock,
-		nsigned
-		))
-		return false;
+	// append the imageHash
+	memcpy(
+		g_McciBootloader_imageBlock + sizeof(McciBootloader_SignatureBlock_t),
+		imageHash.bytes,
+		sizeof(imageHash.bytes)
+		);
 
 	// result = non-zero for failure or zero for success.
 	volatile mcci_tweetnacl_result_t result;
 
+	// check the signature, which will update signedHash.
 	result = mcci_tweetnacl_sign_open(
-				signedHash.bytes,
-				&nActual,
-				g_McciBootloader_imageBlock,
-				nsigned,
-				pPublicKey
-				);
+			/* output */ signedHash.bytes,
+			&nActual,
+			pSigBlock->signature.bytes,
+			nsigned,
+			pPublicKey
+			);
 
 	// constant time compares and checks.
+	// make sure the size is right.
 	result |= nActual ^ sizeof(signedHash);
 
+	// make sure the hashes match
 	result |= mcci_tweetnacl_verify_64(
-				imageHash.bytes,
-				signedHash.bytes
-				);
+			imageHash.bytes,
+			signedHash.bytes
+			);
 
+	// Make sure the key in the image matches ours. It should but still...
 	result |= mcci_tweetnacl_verify_32(
-				pPublicKey->bytes,
-				pAppInfo->publicKey.bytes
-				);
+			pPublicKey->bytes,
+			pSigBlock->publicKey.bytes
+			);
 
+	// finally return the result.
 	return mcci_tweetnacl_result_is_success(result);
 	}
 

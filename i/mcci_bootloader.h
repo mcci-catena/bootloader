@@ -83,6 +83,8 @@ enum McciBootloaderState_e
 
 extern const void *gk_McciBootloader_BootBase;
 extern const void *gk_McciBootloader_BootTop;
+extern const void *gk_McciBootloader_ImageSize;
+
 extern const void *gk_McciBootloader_AppBase;
 extern const void *gk_McciBootloader_AppTop;
 extern const void *gk_McciBootloader_MfgBase;
