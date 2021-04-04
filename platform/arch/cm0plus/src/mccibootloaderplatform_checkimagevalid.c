@@ -100,9 +100,9 @@ McciBootloaderPlatform_checkImageValid(
 			return false;
 
 		/* stack pointer must be reasonable */
-		if (pStack < (uint32_t) &g_McciBootloader_RamBase + 16)
+		if (pStack < (uint32_t) &g_McciBootloader_SocRamBase + 16)
 			return false;
-		if ((uint32_t) &g_McciBootloader_RamTop < pStack)
+		if ((uint32_t) &g_McciBootloader_SocRamTop < pStack)
 			return false;
 		}
 
