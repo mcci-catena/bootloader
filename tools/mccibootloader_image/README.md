@@ -34,8 +34,9 @@ Hash images and sign images for the MCCI bootloader.
 ## Features
 
 - Written in C++; only uses the facilities in the bootloader distribution and the C++ standard libraries.
+- Operates on binary or linked ELF files.
 - Computes and inserts the hash used for image verification
-- Prepares a proper
+- Prepares a properly signed image
 - Accepts the ed25519 keys in the form of OpenSSH `.pem` files.
 - Builds with make and C++
 
@@ -50,6 +51,8 @@ mccibootloader_image [OPTION]... INPUTFILE [OPTION]... [OUTPUTFILE] [OPTION]...
 This program computes hashes and signs binary images for use with the MCCI bootloader. Conforming Cortex M-series images contain metadata in a special structure of type `McciBootloader_AppInfo_t`, located at byte offsets 0xC0 though 0xFF, called the `AppInfo` object.
 
 It operates by reading an input image, modifying it in memory, and then writing the image to a new file. Optionally, it will update the input image in place.
+
+If the input image is an ELF file, the output will also be an ELF file. Otherwise input and output are binary files.
 
 The following options are defined. Note that options can be mixed with the input and output file specifications in any order.
 

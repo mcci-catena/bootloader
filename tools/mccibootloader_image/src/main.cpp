@@ -63,6 +63,7 @@ int App_t::begin(int argc, char **argv)
 	{
 	// make sure the authsize is right.
 	this->authSize =
+		sizeof(mcci_tweetnacl_sign_publickey_t) +
 		sizeof(mcci_tweetnacl_sha512_t) +
 		mcci_tweetnacl_sign_signature_size();
 
@@ -71,26 +72,10 @@ int App_t::begin(int argc, char **argv)
 	// do the pre-tests
 	this->testNaCl();
 
-	// do the work.
-	std::ifstream infile {this->infilename, ios::binary | ios::ate};
+	// read the image
+	this->readImage();
 
-	if (! infile.is_open())
-		{
-		string msg = "can't read " + this->infilename;
-		std::perror(msg.c_str());
-		std::exit(EXIT_FAILURE);
-		}
-
-	// get length
-	infile.exceptions(std::ifstream::failbit);
-	this->fSize = size_t(infile.tellg());
-	infile.seekg(0);
-
-	// get file
-	this->fileimage.resize(this->fSize);
-	infile.read((char *)&this->fileimage[0], this->fSize);
-	infile.close();
-
+	// start processing.
 	if (this->fHash)
 		{
 		this->keyfile.begin(this->keyfilename);
@@ -112,45 +97,7 @@ int App_t::begin(int argc, char **argv)
 		this->addSignature();
 
 	// write image
-	std::ofstream outfile;
-	std::string successMessage;
-	if (this->fDryRun)
-		this->verbose("dry run, skipping write");
-	else if (this->fPatch)
-		{
-		outfile.open(this->infilename, ios::binary);
-		if (! outfile.is_open())
-			{
-			string msg = "can't write: " + this->infilename;
-			std::perror(msg.c_str());
-			std::exit(EXIT_FAILURE);
-			}
-		successMessage = string("successfully patched: ") + this->infilename;
-		}
-	else if (this->outfilename != "")
-		{
-		outfile.open(this->outfilename, ios::binary | ios::trunc);
-		if (! outfile.is_open())
-			{
-			string msg = "can't create: " + this->outfilename;
-			std::perror(msg.c_str());
-			std::exit(EXIT_FAILURE);
-			}
-		successMessage = string("output file successfully written: ") + this->outfilename;
-		}
-	else
-		{
-		/* nothing to do */
-		this->verbose("read-only mode, nothing written");
-		}
-
-	if (outfile.is_open())
-		{
-		outfile.exceptions(ios::badbit | ios::failbit);
-		outfile.write((char *)&this->fileimage.at(0), this->fileimage.size());
-		outfile.close();
-		this->verbose(successMessage);
-		}
+	this->writeImage();
 
 	return EXIT_SUCCESS;
 	}
@@ -170,6 +117,8 @@ void App_t::scanArgs(int argc, char **argv)
 
 	bool fOptOk = true;
 	this->fAddTime = true;
+	this->pComment = NULL;
+
 	for (;;)
 		{
 		auto const pThisarg = *argv++;
@@ -230,12 +179,22 @@ void App_t::scanArgs(int argc, char **argv)
 			{
 			this->fDryRun = fBool;
 			}
+		else if (boolArg == "--force-binary")
+			{
+			this->fForceBinary = fBool;
+			}
 		else if (arg == "-k" || arg == "--keyfile")
 			{
 			if (*argv == nullptr)
 				this->usage("missing keyfile name");
 
 			this->keyfilename = *argv++;
+			}
+		else if (arg == "-c" || arg == "--comment")
+			{
+			if (*argv == nullptr)
+				this->usage("missing comment value");
+			this->pComment = *argv++;
 			}
 		else if (arg == "--version")
 			{
@@ -289,15 +248,18 @@ void App_t::scanArgs(int argc, char **argv)
 		{
 		std::cout << std::boolalpha;
 		std::cout << "Program settings:\n"
-		          << "    --verbose: " << this->fVerbose << "\n"
-		          << "       --hash: " << this->fHash << "\n"
-		          << "       --sign: " << this->fSign << "\n"
-		          << "   --add-time: " << this->fAddTime << "\n"
-		          << "    --dry-run: " << this->fDryRun << "\n"
-		          << "    --keyfile: " << this->keyfilename << "\n"
+		          << "     --verbose: " << this->fVerbose << "\n"
+		          << "        --hash: " << this->fHash << "\n"
+		          << "        --sign: " << this->fSign << "\n"
+		          << "    --add-time: " << this->fAddTime << "\n"
+		          << "     --dry-run: " << this->fDryRun << "\n"
+			  << "--force-binary: " << this->fForceBinary << "\n"
+			  << "       --patch: " << this->fPatch << "\n"
+		          << "     --keyfile: " << this->keyfilename << "\n"
+			  << "     --comment: " << (pComment == NULL ? "<<none>>": pComment) << "\n"
 			  << "\n"
-		          << "input:     " << this->infilename << "\n"
-		          << "output:    "
+		          << "input:          " << this->infilename << "\n"
+		          << "output:         "
 		          << (!this->fUpdate ? "none" : !this->fPatch ? this->outfilename : "{update}")
 			  << "\n";
 		std::cout << "\n";
@@ -315,7 +277,7 @@ void App_t::usage(const string &message)
 		}
 	usage.append("usage: ");
 	usage.append(this->progname);
-	usage.append(" -[vsh k{keyfile}] --[version sign hash] infile [outfile]\n");
+	usage.append(" -[vsh k{keyfile} c{comment}] --[version sign hash comment {comment} dry-run add-time force-binary] infile [outfile]\n");
 	fprintf(stderr, "%s\n", usage.c_str());
 	exit(EXIT_FAILURE);
 	}
@@ -332,6 +294,7 @@ void dumpAppInfo(
 	          << "      imageSize:         " << std::setw(8) << std::setfill(' ') << appInfo.imagesize.get() << "\n"
 	          << "       authSize:         " << std::setw(8) << std::setfill(' ') << appInfo.authsize.get() << "\n"
 	          << " posixTimestamp: " << std::setw(16) << std::setfill(' ') << appInfo.posixTimestamp.get() << "\n"
+		  << "        comment:         " << appInfo.comment.get() << "\n";
 		  ;
 	auto version = appInfo.version.get();
 	ostringstream sVersion;
@@ -372,9 +335,30 @@ void App_t::addHeader()
 	    fileAppInfo.targetAddress.get() != 0)
 	    	{
 		appInfo = fileAppInfo;
-		if (appInfo.imagesize.get() == 0)
+
+		if (this->isUsingElf() && this->elf.targetAddress != appInfo.targetAddress.get())
+			this->fatal("ELF address doesn't match AppInfo");
+
+		if (appInfo.authsize.get() != this->authSize)
 			{
-			this->verbose("AppInfo.imagesize == 0, set AppInof.imagesize to file size");
+			this->fatal("Image authsize incorrect");
+			}
+
+		if (this->isUsingElf())
+			{
+			if (appInfo.imagesize.get() + appInfo.authsize.get() > this->fileimage.size())
+				{
+				std::ostringstream msg;
+				msg << "ELF imagesize (0x" << std::hex << this->fileimage.size()
+				    << ") smaller than appinfo imagesize + authinfo (0x"
+				    << std::hex << appInfo.imagesize.get() + appInfo.authsize.get()
+				    << ")";
+				this->fatal(msg.str());
+				}
+			}
+		else if (appInfo.imagesize.get() == 0)
+			{
+			this->verbose("AppInfo.imagesize == 0, set AppInfo.imagesize to file size");
 			appInfo.imagesize.put(this->fSize);
 			}
 		else
@@ -400,7 +384,7 @@ void App_t::addHeader()
 		this->authSize
 		);
 
-	// add GPS
+	// add posix time
 	if (this->fAddTime)
 		{
 		uint32_t now = (uint32_t) time(nullptr);
@@ -409,10 +393,10 @@ void App_t::addHeader()
 		appInfo.posixTimestamp.put(now);
 		}
 
-	// add key
-	if (this->fSign)
+	// add comment
+	if (this->pComment != NULL)
 		{
-		appInfo.publicKey = keyfile.m_public;
+		appInfo.comment.put(this->pComment);
 		}
 
 	if (this->fVerbose)
@@ -420,6 +404,9 @@ void App_t::addHeader()
 
 	// update the application image
 	memcpy(pFileAppInfo, &appInfo, sizeof(appInfo));
+
+	// set the app's idea too.
+	this->pFileAppInfo = (McciBootloader_AppInfo_Wire_t *)pFileAppInfo;
 	}
 
 void App_t::dump(
@@ -457,28 +444,42 @@ App_t::addHash()
 		this->dump("App page 0", &this->fileimage[0], &this->fileimage[256]);
 		}
 
+	/* put the public key */
+	memcpy(
+		&this->fileimage[0] + this->pFileAppInfo->imagesize.get(),
+		this->keyfile.m_public.bytes,
+		sizeof(this->keyfile.m_public.bytes)
+		);
+
+	if (this->fVerbose)
+		{
+		auto pKey = &this->fileimage[this->pFileAppInfo->imagesize.get()];
+
+		this->dump(
+			"Public key", pKey, pKey + sizeof(this->keyfile.m_public.bytes)
+			);
+		}
+	size_t const hashpos = this->pFileAppInfo->imagesize.get() + sizeof(this->keyfile.m_public.bytes);
+
 	mcci_tweetnacl_hash_sha512(
 		&this->fileHash,
 		&this->fileimage[0],
-		this->fSize
+		hashpos
 		);
 
-	/* truncate the image prior to appending the hash */
-	this->fileimage.resize(this->fSize);
-
-	/* append the hash */
-	this->fileimage.insert(
-		this->fileimage.end(),
+	/* place the hash in the image */
+	memcpy(
+		&this->fileimage[hashpos],
 		&this->fileHash.bytes[0],
-		this->fileHash.bytes + sizeof(this->fileHash.bytes)
+		sizeof(this->fileHash.bytes)
 		);
 
 	/* display the hash */
 	if (this->fVerbose)
 		this->dump(
 			"Appended Hash",
-			&this->fileimage.at(this->fSize),
-			this->fileimage.data() + this->fileimage.size()
+			&this->fileimage.at(hashpos),
+			&this->fileimage.at(hashpos + sizeof(this->fileHash.bytes))
 			);
 	}
 
@@ -498,11 +499,12 @@ App_t::addSignature()
 		);
 
 	// write the signature to the file
-	this->fileimage.resize(this->fSize + sizeof(mcci_tweetnacl_sha512_t::bytes));
-	this->fileimage.insert(
-		this->fileimage.end(),
+	const auto signaturepos = this->pFileAppInfo->imagesize.get() + offsetof(McciBootloader_SignatureBlock_Wire_t, signature);
+
+	memcpy(
+		&this->fileimage[signaturepos],
 		buffer,
-		buffer + sizeOut
+		mcci_tweetnacl_sign_signature_size()
 		);
 
 	if (this->fVerbose)
@@ -510,7 +512,7 @@ App_t::addSignature()
 		this->dump(
 			"signature",
 			buffer,
-			buffer + sizeOut
+			buffer + mcci_tweetnacl_sign_signature_size()
 			);
 		}
 	}

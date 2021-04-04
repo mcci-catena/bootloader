@@ -117,6 +117,7 @@ INCLUDES_libmcci_bootloader_cm0plus :=					\
 SOURCES_libmcci_bootloader_cm0plus :=					\
 	$_/src/mccibootloaderplatform_checkimagevalid.c			\
 	$_/src/mccibootloaderplatform_getappinfo.c			\
+	$_/src/mccibootloaderplatform_getsignatureblock.c		\
 	$_/src/mccibootloaderplatform_startapp.c			\
 # end SOURCES_libmcci_bootloader_cm0plus
 
