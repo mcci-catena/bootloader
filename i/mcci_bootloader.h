@@ -90,8 +90,8 @@ extern const void *gk_McciBootloader_AppTop;
 extern const void *gk_McciBootloader_MfgBase;
 extern const void *gk_McciBootloader_MfgTop;
 
-extern void *g_McciBootloader_RamBase;
-extern void *g_McciBootloader_RamTop;
+extern void *g_McciBootloader_SocRamBase;
+extern void *g_McciBootloader_SocRamTop;
 
 extern const void *gk_McciBootloader_DataImageBase;
 extern void *g_McciBootloader_DataBase;
