@@ -476,11 +476,18 @@ App_t::addHash()
 
 	/* display the hash */
 	if (this->fVerbose)
+		{
+		ostringstream msg;
+
+		msg << "Appended Hash @ 0x"
+		    << std::hex << hashpos
+		    ;
 		this->dump(
-			"Appended Hash",
+			msg.str(),
 			&this->fileimage.at(hashpos),
 			&this->fileimage.at(hashpos + sizeof(this->fileHash.bytes))
 			);
+		}
 	}
 
 void
