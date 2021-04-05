@@ -165,7 +165,8 @@ McciBootloader_checkStorageImage(
 	mcci_tweetnacl_hashblocks_sha512_finish(
 		&imageHash,
 		pRemaining,
-		nRemaining
+		nRemaining,
+		addressEnd - address
 		);
 
 	// read the signature block
