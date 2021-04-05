@@ -389,15 +389,20 @@ LIBS_$1 +=						\
 	$${T_OBJDIR}/libmcci_tweetnacl.a		\
 ### end LIBS_McciBootloader
 
-all: $$(T_OBJDIR)/$1.rawbin
+all: $$(T_OBJDIR)/$1.elf
+
+MCCI_CLEANFILES += $$(T_OBJDIR)/$1.elf
+
+$$(T_OBJDIR)/$1.elf: $$(T_OBJDIR)/$1 $${MCCI_BOOTLOADER_KEYFILE}
+	@echo $1.elf
+	@if [ "$${strip $${MCCI_BOOTLOADER_KEYFILE}}" = "$${strip $${MCCI_BOOTLOADER_KEYFILE_TEST}}" ]; then echo "Warning: using test-signing key" ; fi
+	$${MAKEHUSH}$$(MCCI_PREP_BOOTLOADER) $$(T_OBJDIR)/$1 $$@ --sign --add-time --keyfile "$$(MCCI_BOOTLOADER_KEYFILE)"
 
 MCCI_CLEANFILES += $$(T_OBJDIR)/$1.rawbin
 
-$$(T_OBJDIR)/$1.rawbin: $$(T_OBJDIR)/$1
-	$$(CROSS_COMPILE)objcopy -O binary $$< $$@
-
-# $$(T_OBJDIR)/$1.bin: $$(T_OBJDIR)/$1
-# 	$$(MCCI_PREP_BOOTLOADER) $$< $$@
+$$(T_OBJDIR)/$1.rawbin: $$(T_OBJDIR)/$1.elf
+	@echo $$(tail $$@)
+	$${MAKEHUSH}$$(CROSS_COMPILE)objcopy -O binary $$< $$@
 endef
 
 ##############################################################################

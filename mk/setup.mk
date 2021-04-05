@@ -175,6 +175,14 @@ MCCIBOOTLOADER_LDSCRIPT	:=	$(abspath ${MCCIBOOTLOADER_ROOT}mk/mccibootloader.ld)
 
 GIT_ARCHIVE_ALL_SH ?= $(shell D=$(GIT_ARCHIVE_ALL_SH_DIR); which "$$D$${D:+/}git-archive-all.sh")
 
+MCCI_PREP_BOOTLOADER ?=	mccibootloader_image
+MCCI_BOOTLOADER_KEYFILE_TEST :=  $(abspath ${MCCIBOOTLOADER_ROOT}/tools/mccibootloader_image/test/mcci-test.pem)
+
+ifeq ($(strip $(MCCI_BOOTLOADER_KEYFILE)),)
+ MCCI_BOOTLOADER_KEYFILE = $(MCCI_BOOTLOADER_KEYFILE_TEST)
+endif
+
+
 ##############################################################################
 #
 #	Install control
