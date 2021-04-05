@@ -121,6 +121,9 @@ void McciBootloaderBoard_CatenaAbz_clearLed(void);
 void McciBootloaderBoard_CatenaAbz_handleSysTick(void);
 void McciBootloaderBoard_CatenaAbz_setLed(void);
 
+McciBootloaderBoard_CatenaAbz_Eeprom_t *
+McciBootloaderBoard_CatenaAbz_getEepromPointer(void);
+
 MCCI_BOOTLOADER_END_DECLS
 
 #endif /* _mcci_bootloader_board_catena_abz_h_ */

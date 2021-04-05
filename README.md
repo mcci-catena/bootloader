@@ -15,9 +15,10 @@
 
 - [Introduction](#introduction)
 	- [Limitations](#limitations)
-- [Technical Discussion](#technical-discussion)
+- [MCCI / STM32L0 Deployment Details](#mcci--stm32l0-deployment-details)
 	- [SPI flash layout](#spi-flash-layout)
 	- [Bootloader RAM layout](#bootloader-ram-layout)
+	- [EEPROM usage](#eeprom-usage)
 	- [Abstraction Layer](#abstraction-layer)
 	- [Application Image Structure](#application-image-structure)
 	- [AppInfo overview](#appinfo-overview)
@@ -25,13 +26,14 @@
 	- [Signature Verification Loop](#signature-verification-loop)
 	- [Programming app image from SPI](#programming-app-image-from-spi)
 	- [Checking signatures](#checking-signatures)
+- [The bootloader query API on ARMv6-M systems](#the-bootloader-query-api-on-armv6-m-systems)
 - [Bootloader States](#bootloader-states)
 - [Practical Details](#practical-details)
 	- [SPI flash initialization](#spi-flash-initialization)
 	- [Generating public/private key pairs](#generating-publicprivate-key-pairs)
 	- [Building](#building)
 	- [Installing the bootloader](#installing-the-bootloader)
-	- [Practical Issues](#practical-issues)
+	- [STM32L0 Watchdog timer](#stm32l0-watchdog-timer)
 - [Meta](#meta)
 	- [License](#license)
 	- [Support Open Source Hardware and Software](#support-open-source-hardware-and-software)
@@ -51,10 +53,19 @@ The MCCI&reg; STM32L0 bootloader allows robust field updating STM32L0 systems wi
 - The code is simple and easily audited.
 - The cryptographic code is identically the simple and auditable public-domain TweetNaCl package, without any source changes.
 - It allows the system engineer to provision a fallback image that can be used in case the application image is corrupt; this image can be write protected.
+- The normal workflow is simple and unobtrusive.
 
 Its hardware requirements are modest. Beyond an STM32L0 CPU, it requires an external storage device large enough to store the fallback image and the update image. The bootloader itself is 10k, though we allow up to 20k for future growth.
 
-The bootloader requires a 64-byte header in the application image consisting of metadata about the application; this appears in page zero of the application image, immediately after the interrupt vectors. The bootloader also requires that a hash plus a signature be appended to the image; this data requires 128 bytes.
+We've attempted to code the boot loader for clarity and ease of understanding and review. No conditional compiles are used in the C files. The bootloader supplies its own link script. A "platform interface" structure separates the business logic of the bootloader from the low-level hardware-dependent functions.
+
+The bootloader manages firmware update from SPI flash; it is the application's job to get the data into the SPI flash.
+
+Hashing and signature-verification functions are provided by the "TweetNaCl" library, via the "MCCI TweetNaCl" library.
+
+We try to make the bootloader's operations *explicit* rather than depending on *implicit* behavior. For example, the bootloader does not use the normal C runtime startup, but is rather invoked directly from the reset vector of the bootloader. The bootloader and the linker script cooperate so that RAM variables (and RAM-based code) get initialized very early in the boot.
+
+The bootloader requires a 64-byte header in the application image consisting of metadata about the application; this appears in page zero of the application image, immediately after the interrupt vectors. The bootloader also requires that a hash plus a signature be appended to the image; this data requires 160 bytes.
 
 The bootloader operates by interposing itself between the ST bootloader and the application. When it gets control from the boot loader, it does the following.
 
@@ -72,7 +83,15 @@ The bootloader manipulates the boot LED to indicate lengthy activities and failu
 
 The bootloader does not use the CMSIS include files or the ST HAL; these are large, complex and difficult to review. Instead, the ARM reference manual and STM32L0 SOC manuals were used to prepare simple header files with the required information.
 
-A simple tool is provided for signing images. For convenience, `ssh-keygen` is used to generate the key files. In development, a standard "test signing" key is used; this is not secure, but it avoids a special mode in the bootloader to disable signing (thereby making it less likely that the special mode will accidentally be left on at ship time).
+A simple tool, [`mccibootloader_image`][1] is provided for preparing and signing images.
+
+To simplify the development workflow, `mccibootloader_image` works directly on ELF files produced by the linker, and writes ELF files compatible with other tools in the toolchain. The same tool is used for signing bootloader images and signing application images.
+
+For convenience, `mccibootloader_image` reads keyfiles prepared in OpenSSH format. Thus, `ssh-keygen` can be used used to generate the key files.
+
+In development, a standard "test signing" key is used; this is not secure, but it avoids a special mode in the bootloader to disable signing. (We feel that this makes it less likely that the special mode will accidentally be left on at ship time.)
+
+[1]: tools/mccibootloader_image/README.md
 
 ### Limitations
 
@@ -88,21 +107,20 @@ If an adversary can force a remote code execution attack, the bootloader can pro
 
 Signature checks are slow -- about 10 seconds on an STM32L0 at 32 MHz. This is acceptable, as it only happens during a firmware update.
 
-## Technical Discussion
+## MCCI / STM32L0 Deployment Details
 
-The boot loader is coded for clarity and ease of understanding and review. The bootloader manages firmware update from SPI flash; it is the application's job to get the data into the SPI flash. No conditional compiles are used in the C files. The bootloader supplies its own link script. A "platform interface" structure separates the business logic of the bootloader from the low-level hardware-dependent functions.
+This section describes how MCCI deploys the boot loader in our MCCI Catena&reg; products based on the Murata ABZ module.
 
-Hashing and signature-verification functions are provided by the "TweetNaCl" library, via the "MCCI TweetNaCl" library.
+The boot loader occupies up to 20k of flash, starting at the base of the flash region.
 
-The overall goal for review is to make the bootloader's operations *explicit* rather than depending on *implicit* behavior. For example, the bootloader does not use the normal C runtime startup, but is rather invoked directly from the reset vector of the bootloader. The bootloader and the linker script cooperate so that RAM variables (and RAM-based code) get initialized very early in the boot.
-
-The boot loader the occupies up to 20k of flash, starting at the base of the flash region. The STM32 on-chip bootloader requires that the vector table be at the beginning of flash, so it makes more sense for the boot loader to be entirely at the beginning of flash.
+- The STM32 on-chip boot loader requires that the vector table be at the beginning of flash, so it makes more sense for the boot loader to be entirely at the beginning of flash.
+- The bootloader actually take less than 0x3000 bytes, so it could fit in 12k bytes, leaving more flash for applications. We reserve 20k on MCCI systems both for future-proofing and to allow enhanced bootloaders with debugging, in-built serial download, and so forth.
 
 On the STM32L0, after programming, MCCI marks the boot loader's memory region as write-protected by default, by setting `FLASH_WRPROT1` bits 0..4 (as appropriate for the actual size of the bootloader). This protects the bootloader against erasure by anything except mass erase.
 
 The boot loader also references the MCCI manufacturing data sector, which is the 4k-byte sector located at the top of the flash region. (The manufacturing data sector is defined by the header file `Catena_FlashParam.h` in Catena-Arduino-Platform. A sector is used because that's the write-protect granularity. `FLASH_WRPROT2` bit 15 is normally set to protect this sector from erasure or accidental modification.)
 
-To summarize:
+Memory layout:
 
 |   Base     |      Top     | Size | Contents
 :-----------:|:------------:|:----:|---------
@@ -133,11 +151,26 @@ The bootloader RAM has the following layout:
 - 4k buffer for reading from SPI flash
 - Stack
 
+The STM32L082 has 20k of RAM; we put our variables at the top. Here's a breakdown.
+
+|     Base     |      Top     | Size | Contents
+|:------------:|:------------:|:----:|---------
+| `0x20000000` | `0x20002FFF` | 12k  | Unused and undisturbed by bootloader.
+| `0x20003000` | `0x20004134` | ~4k  | RAM variables, buffers, and code that must be executed from RAM.
+| `0x20004134` | `0x20004FFF` | ~4k  | Stack.
+
+### EEPROM usage
+
 The EEPROM has the following contents
 
 - Update request cell
 
-The update request cell is a 32-bit value which must be all ones (0xFFFFFFFF) to be recognized as an update request. The value 0x00000000 is recognized as a clean "no-update" value; all other values are reset to zero, and treated as "no update".
+The update request cell is a 32-bit value which must be all ones (0xFFFFFFFF) to be recognized as an update request. The value 0x00000000 is recognized as a clean "no-update" value; all other values are reset to zero, and treated as "no update". As with RAM, we position our 4 bytes at the top of EEPROM. If you add more cells, you'll have to adjust the linker script.
+
+|     Base     |      Top     |   Size  | Contents
+|:------------:|:------------:|:-------:|---------
+| `0x08080000` | `0x080817FB` | 6k - 4  | Unused and undisturbed by bootloader.
+| `0x080817FC` | `0x080817FF` | 4       | The update request cell.
 
 ### Abstraction Layer
 
@@ -242,6 +275,28 @@ It takes a long time to verify a ed25519 signature on the STM32L0;
 so we only check signatures when deciding whether to update
 the flash, after we've validated the SHA512 hash.
 
+## The bootloader query API on ARMv6-M systems
+
+Applications may need to get information from the bootloader (e.g. the address of the EEPROM flag used for requesting updates). On ARMv6-M systems using Thumb architecture, exception handling is basically a subroutine call, and the exception processor need not do any special work different than what normal C subroutines must do. The bootloader's SVC vector points to a simple subroutine for performing services for the caller. The caller loads register `r0` with the required service code, loads `r1` with a pointer to a dword to an error cell, loads `r2` and `r3` with any additional parameters, and calls the function pointed to by vector [11] in the bootloader's exception table.
+
+The SVC function has the signature:
+
+```c++
+typedef void
+(McciBootloaderPlatform_ARMv6M_SvcHandlerFn_t)(
+    McciBootloaderPlatform_ARMv6M_SvcRq_t code,
+    McciBootloaderPlatform_ARMv6M_SvcError_t *pError,
+    uint32_t a1,
+    uint32_t a2
+    );
+```
+
+`McciBootloaderPlatform_ARMv6M_SvcRq_t` and `McciBootloaderPlatform_ARMv6M_SvcError_t` are defined as enumeration types of size `uint32_t`.
+
+The error code cell will be set to zero for success, and to a non-zero error code for failure. The error code 0xFFFFFFFFu is used as the "catch-all" code if the request code is not recognized. The error code 0xFFFFFFFEu is used for "invalid parameter".
+
+Only one request code is currently defined, `McciBootloaderPlatform_ARMv6M_SvcRq_GetUpdatePointer`. This request interprets `a1` as a pointer to a `uint32_t*` cell, and delivers a pointer to the update flag to that cell. The caller must have a library that enables writing to the EEPROM. The bootloader doesn't try to export its hardware access libraries, because there's no guarantee that the caller has the hardware set up correctly for the bootloader's use.
+
 ## Bootloader States
 
 The following table summarizes the bootloader's decisions.
@@ -298,7 +353,7 @@ Use ST-LINK and download using the -bin option after signing, using address 0x08
 st-flash --format binary bootloader-image.bin 0x08000000
 ```
 
-### Practical Issues
+### STM32L0 Watchdog timer
 
 The STM32L0 has a watchdog timer that can be enabled in hardware by the option bytes. The bootloader currently does not update the watchdog timer(s) although it is architected to be able to do it.
 
