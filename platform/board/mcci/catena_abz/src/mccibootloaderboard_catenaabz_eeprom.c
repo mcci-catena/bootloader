@@ -29,15 +29,6 @@ Author:
 |
 \****************************************************************************/
 
-static McciBootloaderBoard_CatenaAbz_Eeprom_t *
-getEepromPointer()
-	{
-	extern void *g_McciBootloader_BootEepromBase;
-
-	/* convert to a pointer to the eeprom */
-	return (McciBootloaderBoard_CatenaAbz_Eeprom_t *)
-			&g_McciBootloader_BootEepromBase;
-	}
 
 /****************************************************************************\
 |
@@ -53,10 +44,20 @@ getEepromPointer()
 |
 \****************************************************************************/
 
+McciBootloaderBoard_CatenaAbz_Eeprom_t *
+McciBootloaderBoard_CatenaAbz_getEepromPointer()
+	{
+	extern void *g_McciBootloader_BootEepromBase;
+
+	/* convert to a pointer to the eeprom */
+	return (McciBootloaderBoard_CatenaAbz_Eeprom_t *)
+			&g_McciBootloader_BootEepromBase;
+	}
+
 bool
 McciBootloaderBoard_CatenaAbz_getUpdate(void)
 	{
-	const McciBootloaderBoard_CatenaAbz_Eeprom_t * const pEeprom = getEepromPointer();
+	const McciBootloaderBoard_CatenaAbz_Eeprom_t * const pEeprom = McciBootloaderBoard_CatenaAbz_getEepromPointer();
 
 	if (pEeprom->fUpdateRequest == MCCI_BOOTLOADER_CATENA_ABZ_EEPROM_UPDATE_REQUEST)
 		return true;
@@ -67,7 +68,7 @@ McciBootloaderBoard_CatenaAbz_getUpdate(void)
 void
 McciBootloaderBoard_CatenaAbz_setUpdate(bool fRequest)
 	{
-	const McciBootloaderBoard_CatenaAbz_Eeprom_t * const pEeprom = getEepromPointer();
+	const McciBootloaderBoard_CatenaAbz_Eeprom_t * const pEeprom = McciBootloaderBoard_CatenaAbz_getEepromPointer();
 	uint32_t dwValue = fRequest ? MCCI_BOOTLOADER_CATENA_ABZ_EEPROM_UPDATE_REQUEST
 				  : 0;
 

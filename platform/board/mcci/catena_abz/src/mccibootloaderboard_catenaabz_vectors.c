@@ -32,6 +32,9 @@ Author:
 
 static void McciBootloaderBoard_CatenaAbz_NotHandled(void);
 
+static McciBootloaderPlatform_ARMv6M_SvcHandlerFn_t
+McciBootloaderBoard_CatenaAbz_SvcHandler;
+
 /****************************************************************************\
 |
 |	Read-only data.
@@ -56,7 +59,7 @@ gk_McciBootloader_CortexVectors =
 		[8] = /* reserved */		(uint32_t) McciBootloaderBoard_CatenaAbz_NotHandled,
 		[9] = /* reserved */		(uint32_t) McciBootloaderBoard_CatenaAbz_NotHandled,
 		[10] = /* reserved */		(uint32_t) McciBootloaderBoard_CatenaAbz_NotHandled,
-		[11] = /* SVCall */		(uint32_t) McciBootloaderBoard_CatenaAbz_NotHandled,
+		[11] = /* SVCall */		(uint32_t) McciBootloaderBoard_CatenaAbz_SvcHandler,
 		[12] = /* reserved */		(uint32_t) McciBootloaderBoard_CatenaAbz_NotHandled,
 		[13] = /* reserved */		(uint32_t) McciBootloaderBoard_CatenaAbz_NotHandled,
 		[14] = /* PendSV */		(uint32_t) McciBootloaderBoard_CatenaAbz_NotHandled,
@@ -128,6 +131,43 @@ McciBootloaderBoard_CatenaAbz_NotHandled(void)
 	{
 	while (true)
 		;
+	}
+
+/// \brief SVC handler -- immediately returns
+static void
+McciBootloaderBoard_CatenaAbz_SvcHandler(
+	McciBootloaderPlatform_ARMv6M_SvcRq_t svcRequest,
+	McciBootloaderPlatform_ARMv6M_SvcError_t *pErrorCode,
+	uint32_t arg1,
+	uint32_t arg2
+	)
+	{
+	McciBootloaderPlatform_ARMv6M_SvcError_t err;
+
+	err = McciBootloaderPlatform_SvcError_OK;
+
+	switch (svcRequest)
+		{
+	case McciBootloaderPlatform_ARMv6M_SvcRq_GetUpdatePointer:
+		{
+		uint32_t ** const pResult = (uint32_t **)arg1;
+		McciBootloaderBoard_CatenaAbz_Eeprom_t * const pEeprom =
+			McciBootloaderBoard_CatenaAbz_getEepromPointer();
+
+		/* return pointer to user */
+		if (pResult != NULL)
+			*pResult = &pEeprom->fUpdateRequest;
+		else
+			err = McciBootloaderPlatform_SvcError_InvalidParameter;
+		}
+
+	default:
+		err = McciBootloaderPlatform_SvcError_Unclaimed;
+		break;
+		}
+
+	// return result
+	*pErrorCode = err;
 	}
 
 /**** end of mccibootloaderboard_catenaabz_vectors.c ****/

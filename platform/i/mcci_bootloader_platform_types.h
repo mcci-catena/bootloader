@@ -28,6 +28,8 @@ Author:
 # include "mcci_bootloader_types.h"
 #endif
 
+#include <stdint.h>
+
 MCCI_BOOTLOADER_BEGIN_DECLS
 
 ///
@@ -289,6 +291,54 @@ McciBootloaderPlatform_AnnunciatorInterface_t;
 /// \brief top-level interface structure
 typedef struct McciBootloaderPlatform_Interface_s
 McciBootloaderPlatform_Interface_t;
+
+/// \brief error codes from SVC handler on ARMv6-M systems & such like
+typedef enum McciBootloaderPlatform_ARMv6M_SvcError_e
+	{
+	/// successful processing
+	McciBootloaderPlatform_SvcError_OK = 0,
+	/// error: invalid parameter to SVC
+	McciBootloaderPlatform_SvcError_InvalidParameter = UINT32_C(-2),
+	/// error: SVC isn't just unimplemented, it's unkown to the bootloader
+	McciBootloaderPlatform_SvcError_Unclaimed = UINT32_C(-1),
+	} McciBootloaderPlatform_ARMv6M_SvcError_t;
+
+MCCIADK_C_ASSERT(sizeof(McciBootloaderPlatform_ARMv6M_SvcError_t) == sizeof(uint32_t));
+
+/// \brief SVC request codes for boot loader on ARMv6-M systems & such like
+typedef enum McciBootloaderPlatform_ARMv6M_SvcRq_e
+	{
+	/// Fetch pointer to \c uint32_t "update" flag in EEPROM. \c arg1 is pointer to cell to
+	/// receive pointer.
+	McciBootloaderPlatform_ARMv6M_SvcRq_GetUpdatePointer = UINT32_C(0x01000000),
+	} McciBootloaderPlatform_ARMv6M_SvcRq_t;
+
+MCCIADK_C_ASSERT(sizeof(McciBootloaderPlatform_ARMv6M_SvcRq_t) == sizeof(uint32_t));
+
+///
+/// \brief SVC function interface
+///
+/// \param [in] svcRequest is the request code.
+/// \param [in] pErrorCode points to a cell to be filled with the error code
+///		(According to the value of \p svcRequest, there may additional
+///		OUT parameters)
+/// \param [in] arg1 is an extra argument, interpreted according to \p svcRequest
+/// \param [in] arg2 is an extra argument, interpreted according to \p svcRequest
+///
+/// \details
+///	This definition lets us take advantage of the ARMv6-M and related
+///	implementations; exception handlers are just like regular subroutines
+///	(except that results have to be passed back by modifying the saved
+///	registers on the stack). We work around this by passing results back
+///	in memory.
+///
+typedef void
+(McciBootloaderPlatform_ARMv6M_SvcHandlerFn_t)(
+	McciBootloaderPlatform_ARMv6M_SvcRq_t svcRequest,
+	McciBootloaderPlatform_ARMv6M_SvcError_t *pErrorCode,
+	uint32_t arg1,
+	uint32_t arg2
+	);
 
 MCCI_BOOTLOADER_END_DECLS
 #endif /* _mcci_bootloader_platform_types_h_ */
