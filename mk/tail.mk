@@ -396,12 +396,12 @@ MCCI_CLEANFILES += $$(T_OBJDIR)/$1.elf
 $$(T_OBJDIR)/$1.elf: $$(T_OBJDIR)/$1 $${MCCI_BOOTLOADER_KEYFILE}
 	@echo $1.elf
 	@if [ "$${strip $${MCCI_BOOTLOADER_KEYFILE}}" = "$${strip $${MCCI_BOOTLOADER_KEYFILE_TEST}}" ]; then echo "Warning: using test-signing key" ; fi
-	$${MAKEHUSH}$$(MCCI_PREP_BOOTLOADER) $$(T_OBJDIR)/$1 $$@ --sign --add-time --keyfile "$$(MCCI_BOOTLOADER_KEYFILE)"
+	$${MAKEHUSH}$$(MCCI_PREP_BOOTLOADER) $$(T_OBJDIR)/$1 $$@ --sign --add-time --keyfile "$$(MCCI_BOOTLOADER_KEYFILE)" ${MCCI_PREP_BOOTLOADER_FLAGS}
 
 MCCI_CLEANFILES += $$(T_OBJDIR)/$1.rawbin
 
 $$(T_OBJDIR)/$1.rawbin: $$(T_OBJDIR)/$1.elf
-	@echo $$(tail $$@)
+	@echo $$(notdir $$@)
 	$${MAKEHUSH}$$(CROSS_COMPILE)objcopy -O binary $$< $$@
 endef
 
