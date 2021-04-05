@@ -92,8 +92,10 @@ SECTIONS
         .text :
                 {
                 . = ALIGN(4);
-                *(.text*)       /* code sections that haven't been per-function-ized */
+                *(.text)        /* code sections that haven't been per-function-ized */
+                *(.text*)       /* code sections that have been per-function-ized */
                 . = ALIGN(4);
+                *(.rodata)      /* read-only data */
                 *(.rodata*)     /* read-only data */
                 . = ALIGN(4);
 
@@ -104,6 +106,7 @@ SECTIONS
         .eeprom :
                 {
                 . = ALIGN(4);   /* dword align */
+                *(.eeprom)      /* all the EEPROM sections */
                 *(.eeprom*)     /* all the EEPROM sections */
                 . = ALIGN(4);   /* dword-align the tail */
                 } > EEPROM
@@ -115,8 +118,10 @@ SECTIONS
                 {
                 . = ALIGN(4);   /* dword-align */
                 g_McciBootloader_DataBase = .;
+                *(.data)        /* in case not compiling with -ffunction-section */
                 *(.data*)       /* all the data sections */
                 *(.RamFunc)     /* code that runs from RAM */
+                *(.RamFunc*)    /* code that runs from RAM */
                 . = ALIGN(4);   /* dword-align the tail */
                 g_McciBootloader_DataTop = .;
                 } >RAM AT> FLASH
@@ -134,7 +139,9 @@ SECTIONS
                 {
                 . = ALIGN(4);
                 g_McciBootloader_BssBase = .;
+                *(.bss)
                 *(.bss*)
+                *(COMMON)
                 . = ALIGN(4);
                 g_McciBootloader_BssTop = .;
                 } > RAM
