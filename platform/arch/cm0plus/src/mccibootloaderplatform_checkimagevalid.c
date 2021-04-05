@@ -58,12 +58,13 @@ Function:
 	Validate an image header according to the architectural rules.
 
 Definition:
-	bool McciBootloaderPlatform_checkImageValid(
-		const void *pHeader,
-		size_t nHeader,
-		uintptr_t targetAddress,
-		size_t targetSize
-		);
+	const McciBootloader_AppInfo_t *
+		McciBootloaderPlatform_checkImageValid(
+			const void *pHeader,
+			size_t nHeader,
+			uintptr_t targetAddress,
+			size_t targetSize
+			);
 
 Description:
 	Given a pointer to the header of an image (not necessarily at
@@ -72,14 +73,15 @@ Description:
 	that the image is valid for execution.
 
 Returns:
-	true if the image passes all the checks, false if it fails any.
+	non-NULL pointer to the AppInfo block if the image passes all the
+	checks, NLL if it fails any.
 
 Notes:
 
 
 */
 
-bool
+const McciBootloader_AppInfo_t *
 McciBootloaderPlatform_checkImageValid(
 	const void *pHeader,
 	size_t nHeader,
@@ -90,20 +92,20 @@ McciBootloaderPlatform_checkImageValid(
 	const McciBootloader_CortexPageZero_t * const pPageZero = pHeader;
 
 	if (nHeader < sizeof(*pPageZero))
-		return false;
+		return NULL;
 
 	/* check the stack pointer */
 		{
 		uint32_t pStack = pPageZero->CortexAppEntry.stack;
 
 		if (pStack & 3)
-			return false;
+			return NULL;
 
 		/* stack pointer must be reasonable */
 		if (pStack < (uint32_t) &g_McciBootloader_SocRamBase + 16)
-			return false;
+			return NULL;
 		if ((uint32_t) &g_McciBootloader_SocRamTop < pStack)
-			return false;
+			return NULL;
 		}
 
 	/* check the program counter */
@@ -112,15 +114,15 @@ McciBootloaderPlatform_checkImageValid(
 
 		/* must be odd-aligned indicating Thumb instructions */
 		if ((pEntry & 1) == 0)
-			return false;
+			return NULL;
 
 		/* must be in the target region */
 		pEntry &= ~UINT32_C(1);
 		if (pEntry < targetAddress + sizeof(*pPageZero))
-			return false;
+			return NULL;
 
 		if (targetAddress + targetSize <= pEntry)
-			return false;
+			return NULL;
 		}
 
 	const McciBootloader_AppInfo_t * const pAppInfo =
@@ -129,18 +131,18 @@ McciBootloaderPlatform_checkImageValid(
 			);
 
 	if (pAppInfo == NULL)
-		return false;
+		return NULL;
 
 	if (pAppInfo->targetAddress != targetAddress)
-		return false;
+		return NULL;
 
 	if (pAppInfo->authsize != sizeof(McciBootloader_SignatureBlock_t))
-		return false;
+		return NULL;
 
 	if (pAppInfo->imagesize + pAppInfo->authsize > targetSize)
-		return false;
+		return NULL;
 
-	return true;
+	return pAppInfo;
 	}
 
 /**** end of mccibootloaderplatform_checkimagevalid.c ****/
