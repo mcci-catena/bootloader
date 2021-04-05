@@ -134,8 +134,7 @@ McciBootloaderPlatform_checkImageValid(
 	if (pAppInfo->targetAddress != targetAddress)
 		return false;
 
-	if (pAppInfo->authsize != mcci_tweetnacl_sign_signature_size() +
-					sizeof(mcci_tweetnacl_sha512_t))
+	if (pAppInfo->authsize != sizeof(McciBootloader_SignatureBlock_t))
 		return false;
 
 	if (pAppInfo->imagesize + pAppInfo->authsize > targetSize)
