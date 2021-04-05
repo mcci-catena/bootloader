@@ -72,6 +72,7 @@ McciBootloaderBoard_CatenaAbz_setUpdate(bool fRequest)
 	uint32_t dwValue = fRequest ? MCCI_BOOTLOADER_CATENA_ABZ_EEPROM_UPDATE_REQUEST
 				  : 0;
 
+	// if it's already set to the right value, just return.
 	if (pEeprom->fUpdateRequest == dwValue)
 		return;
 

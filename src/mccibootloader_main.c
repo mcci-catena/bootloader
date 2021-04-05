@@ -181,6 +181,7 @@ McciBootloader_main(void)
                 McciBootloaderPlatform_fail(McciBootloaderError_BootloaderNotValid);
                 }
 
+        /* fetch the public key pointer */
         const mcci_tweetnacl_sign_publickey_t * const pPublicKey =
                 &pBootloaderSigBlock->publicKey;
 
@@ -204,12 +205,12 @@ McciBootloader_main(void)
         McciBootloaderPlatform_storageInit();
         McciBootloaderPlatform_annunciatorInit();
 
+        /* start with the primary image */
+        McciBootloaderStorageAddress_t const hPrimary = McciBootloaderPlatform_getPrimaryStorageAddress();
+
         /* check the app image */
         do      {
                 /* because of power failures, don't clear the update-image flag just yet */
-
-                /* start with the primary image */
-                McciBootloaderStorageAddress_t const hPrimary = McciBootloaderPlatform_getPrimaryStorageAddress();
 
                 /* indicate that we're checking the storage */
                 McciBootloaderPlatform_annunciatorIndicateState(
@@ -225,13 +226,23 @@ McciBootloader_main(void)
                 /* check for Case (3) */
                 if (appOk && !fImageOk)
                         {
-                        /* case (3): looks like we're good to launch the application */
+                        /* case (3): "update" but update image failed tests */
                         /* consume the storage flag; don't check again until asked */
                         McciBootloaderPlatform_setUpdateFlag(false);
+                        /* launch existing app */
                         McciBootloaderPlatform_startApp(&gk_McciBootloader_AppBase);
                         }
 
-                /* case (4) or (5), maybe */
+                /* check for case (4) */
+                if (appOk && fImageOk)
+                        /* go on */;
+                /* check for case (5) */
+                else if (! appOk && fImageOk)
+                        /* go on */;
+                else /* ! appOk && ! fImageOk */
+                        break;
+
+                /* case (4) or (5) */
                 McciBootloaderError_t programResult;
 
                 /* as soon as we've erased the app, we'll reset the storage flag inside the routine below */
@@ -252,38 +263,57 @@ McciBootloader_main(void)
                 /* otherwise app is invalid so try the fallback image */
                 } while (0);
 
-        /* case (6) or (7) */
+        /* cases (6) through (9) */
         do      {
                 McciBootloaderStorageAddress_t const hFallback = McciBootloaderPlatform_getFallbackStorageAddress();
+                McciBootloaderStorageAddress_t hStorage;
 
                 McciBootloaderError_t fImageOk;
 
                 fImageOk = McciBootloaderError_OK;
-                if (! McciBootloader_checkStorageImage(
+                if (McciBootloader_checkStorageImage(
                         hFallback,
                         &g_McciBootloader_incomingAppInfo,
                         pPublicKey
                         )
                     )
                         {
+                        hStorage = hFallback;
+                        }
+                else if (McciBootloader_checkStorageImage(
+                        hPrimary,
+                        &g_McciBootloader_incomingAppInfo,
+                        pPublicKey
+                        )
+                    )
+                        {
+                        hStorage = hPrimary;
+                        }
+                else
+                        {
                         fImageOk = McciBootloaderError_NoAppImage;
                         }
 
                 if (fImageOk == McciBootloaderError_OK)
                         {
+                        /* cases (6), (7), (8) */
                         fImageOk = McciBootloader_programAndCheckFlash(
-                                                hFallback,
+                                                hStorage,
                                                 &g_McciBootloader_incomingAppInfo
                                                 );
+
+                        if (fImageOk == McciBootloaderError_OK)
+                                {
+                                /* cases (6), (7), (8) */
+                                /* consume the storage flag; don't check again until asked */
+                                McciBootloaderPlatform_setUpdateFlag(false);
+                                McciBootloaderPlatform_startApp(&gk_McciBootloader_AppBase);
+                                }
                         }
 
-                if (fImageOk == McciBootloaderError_OK)
-                        {
-                        /* case (6) */
-                        McciBootloaderPlatform_startApp(&gk_McciBootloader_AppBase);
-                        }
-
-                /* case (7) */
-                McciBootloaderPlatform_fail(McciBootloaderError_NoAppImage);
+                /* case (9) */
+                /* consume the storage flag; don't check again until asked */
+                McciBootloaderPlatform_setUpdateFlag(false);
+                McciBootloaderPlatform_fail(fImageOk);
                 } while (0);
         }
