@@ -208,7 +208,7 @@ McciBootloaderPlatform_startApp(
 	const void *pAppBase
 	) MCCI_BOOTLOADER_NORETURN_SFX;
 
-bool
+const McciBootloader_AppInfo_t *
 McciBootloaderPlatform_checkImageValid(
 	const void *pHeader,
 	size_t nHeader,

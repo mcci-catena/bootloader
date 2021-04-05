@@ -33,6 +33,7 @@ Revision history:
 
 #include "mcci_bootloader.h"
 
+#include "mcci_bootloader_appinfo.h"
 #include "mcci_bootloader_platform.h"
 #include "mcci_tweetnacl_hash.h"
 #include "mcci_tweetnacl_sign.h"
@@ -111,30 +112,28 @@ McciBootloader_checkCodeValid(
 	{
 	// compute the hash over pBase
 	mcci_tweetnacl_sha512_t hash;
-	mcci_tweetnacl_sha512_t expectedHash;
-	const size_t nsig = mcci_tweetnacl_sign_signature_size();
 	mcci_tweetnacl_result_t invalid;
+	const McciBootloader_AppInfo_t *pAppInfo;
 
 	// check whether the image is valid.
-	if (! McciBootloaderPlatform_checkImageValid(pBase, nBytes, (uintptr_t)pBase, nBytes))
+	pAppInfo = McciBootloaderPlatform_checkImageValid(pBase, nBytes, (uintptr_t)pBase, nBytes);
+	if (pAppInfo == NULL)
 		return false;
 
 	// compute the hash
 	mcci_tweetnacl_hash_sha512(
 		&hash,
 		pBase,
-		nBytes
+		pAppInfo->imagesize + sizeof(mcci_tweetnacl_sign_publickey_t)
 		);
 
-	// the hash is always at pBase + nBytes + the signature bytes
-	const uint8_t * pCheckHash = (const uint8_t *)pBase + nBytes
-				   + nsig
-				   - sizeof(expectedHash)
-				   ;
+	// find the signature block
+	const McciBootloader_SignatureBlock_t * const pSigBlock =
+		(const void *)((const uint8_t *)pBase + pAppInfo->imagesize);
 
 	invalid = mcci_tweetnacl_verify_64(
-				expectedHash.bytes,
-				pCheckHash
+				hash.bytes,
+				pSigBlock->hash.bytes
 				);
 
 	return mcci_tweetnacl_result_is_success(invalid);
