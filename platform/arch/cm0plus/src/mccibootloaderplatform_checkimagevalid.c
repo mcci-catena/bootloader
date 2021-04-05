@@ -123,13 +123,6 @@ McciBootloaderPlatform_checkImageValid(
 			return false;
 		}
 
-	/* check that the image fits */
-	if (targetAddress != (uint32_t) &gk_McciBootloader_AppBase)
-		return false;
-
-	if ((uint32_t) &gk_McciBootloader_AppTop - targetAddress > targetSize)
-		return false;
-
 	const McciBootloader_AppInfo_t * const pAppInfo =
 		McciBootloaderPlatform_getAppInfo(
 			pPageZero, sizeof(*pPageZero)
