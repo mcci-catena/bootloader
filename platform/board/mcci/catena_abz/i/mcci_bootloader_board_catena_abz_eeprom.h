@@ -44,11 +44,7 @@ McciBootloaderBoard_CatenaAbz_Eeprom_t;
 ///
 struct McciBootloaderBoard_CatenaAbz_Eeprom_s
 	{
-	uint32_t	ulMagicBegin;	///< opening value
-	uint32_t	reserved[64 - 4]; ///< padding to make this 256 bytes
 	uint32_t	fUpdateRequest;	///< the update request.
-	uint32_t	ulSize;		///< size of structure in bytes
-	uint32_t	ulMagicEnd;	///< identifies the EEPROM
 	};
 
 // we don't want to use any external headers other than stdint.h, so
@@ -58,7 +54,7 @@ struct McciBootloaderBoard_CatenaAbz_Eeprom_s
 
 // make sure the structure is the right size
 MCCI_BOOTLOADER_EEPROM_STATIC_ASSERT(
-	sizeof(McciBootloaderBoard_CatenaAbz_Eeprom_t) == 256
+	sizeof(McciBootloaderBoard_CatenaAbz_Eeprom_t) == 4
 	);
 
 /// \brief mark the beginning of a bootloader EEPROM section
