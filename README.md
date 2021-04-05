@@ -305,13 +305,13 @@ The following table summarizes the bootloader's decisions.
 |:-----:|:-----:|:------:|:------:|:-------:|:------:|:------------|--------
 |  (1)  |  NG   |   -    |   -    |   -     |  -     |  Halt with indication
 |  (2)  |  OK   |   OK   |   "go"  |   -     |  -     |  Launch app
-|  (3)  |  OK   |   OK   |  "update" |   NG    |  -     |  Launch app, clear flag
+|  (3)  |  OK   |   OK   |  "update" |   NG    |  -     |  Clear flag, launch app
 |  (4)  |  OK   |   OK   |  "update" |   OK    |  -     |  Load update image, clear flag & reevaluate. | Power failure during flash will bring us up in some App NG state, but Update Flag will still be "update"
 |  (5)  |  OK   |   NG   |  "update" |  OK   |  - | See (4). | This state is hit after a power fail in (4).
 |  (6)  |  OK   |   NG   |  "update" |  NG   |  OK | Load fallback image, clear flag, reevaluate. |
 |  (7)  |  OK   |   NG   |  "go"    |  -    |  OK    |  Load fallback image, clear flag & and reevaluate | Note that we do not load the update image in this case, even if it looks good, because we have not ben requested to do so.
-|  (8)  |  OK   |   NG   |  "go"  |   OK    |  NG    | Load update image, clear flag, reevaluate. | This is the only case in which we'll load the update image when the update flag is not set.
-|  (9)  |  OK   |   NG   |   -    |   NG    |  NG    |  Halt with indication
+|  (8)  |  OK   |   NG   |  "go"  |   OK    |  NG    | Load update image, clear flag, reevaluate. | This is the only case in which we'll load the update image when the update flag is not set. The justification is that it allows us to potentially return the system to a working state.
+|  (9)  |  OK   |   NG   |   -    |   NG    |  NG    |  Clear flag, halt with indication
 
 The implementation matrix is a little crazy because it's expensive to evaluate quality of update and fallback images.
 
