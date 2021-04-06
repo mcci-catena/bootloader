@@ -23,6 +23,8 @@ Author:
 
 #include "flash_mx25v8035f.h"
 #include "mcci_bootloader_platform.h"
+#include "mcci_bootloader.h"
+#include "mcci_flash_sfdp.h"
 
 /****************************************************************************\
 |
@@ -96,6 +98,39 @@ McciBootloaderFlash_Mx25v8035f_storageInit(
 
 	// wait for flash to come back.
 	McciBootloaderPlatform_delayMs(100);
+
+	// read SFDP: address 3 plus a dummy byte.
+	static const uint8_t kcRdSfdp[5] = { MX25V8035F_CMD_RDSFDP,  0, 0, 0, 0 };
+
+	// read the SFDP
+	McciBootloaderPlatform_spiTransfer(
+			/* RX */ NULL,
+			kcRdSfdp,
+			sizeof(kcRdSfdp),
+			/* continue? */ true
+			);
+
+	// get the data
+	struct	{
+		mcci_flash_sfdp_header_t header;
+		mcci_flash_sfdp_param_t  param[2];
+		} sfdpData;
+
+	McciBootloaderPlatform_spiTransfer(
+			/* RX */ (uint8_t *)&sfdpData,
+			/* TX */ NULL,
+			sizeof(sfdpData),
+			/* continue? */ false
+			);
+
+	if (McciFlashSfdpHeader_getSignature(&sfdpData.header) != MCCI_FLASH_SFDP_HEADER_SIGNATURE)
+		{
+		McciBootloaderPlatform_fail(McciBootloaderError_FlashNotFound);
+		}
+	if (McciFlashSfdpHeader_getVersion(&sfdpData.header) < MCCI_FLASH_SFDP_HEADER_PROPERTY_VERSION_JES216B)
+		{
+		McciBootloaderPlatform_fail(McciBootloaderError_FlashNotSupported);
+		}
 	}
 
 /*
