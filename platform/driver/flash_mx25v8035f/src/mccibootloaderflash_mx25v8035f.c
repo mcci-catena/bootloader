@@ -131,6 +131,10 @@ McciBootloaderFlash_Mx25v8035f_storageInit(
 		{
 		McciBootloaderPlatform_fail(McciBootloaderError_FlashNotSupported);
 		}
+	if (McciFlashSfdpHeader_getProtocol(&sfdpData.header) != MCCI_FLASH_SFDP_HEADER_PROPERTY_PROTOCOL_NOR)
+		{
+		McciBootloaderPlatform_fail(McciBootloaderError_FlashNotSupported);
+		}
 	}
 
 /*
