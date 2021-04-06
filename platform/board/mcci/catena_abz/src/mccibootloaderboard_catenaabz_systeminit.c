@@ -34,6 +34,13 @@ Author:
 |
 \****************************************************************************/
 
+MCCI_BOOTLOADER_NORETURN_PFX
+static void
+fastBlinkForever(void)
+	MCCI_BOOTLOADER_NORETURN_SFX;
+
+static void
+delayTick(void);
 
 /****************************************************************************\
 |
@@ -144,10 +151,52 @@ McciBootloaderBoard_CatenaAbz_delayMs(uint32_t ms)
 		}
 	}
 
+static void
+delayTick(void)
+	{
+	while ((McciArm_getReg(MCCI_CM0PLUS_SYSTICK_CSR) & MCCI_CM0PLUS_SYSTICK_CSR_COUNTFLAG) == 0)
+		;
+	}
+
 void
 McciBootloaderBoard_CatenaAbz_fail(
 	McciBootloaderError_t errorCode
 	)
+	{
+	if (errorCode == McciBootloaderError_BootloaderNotValid)
+		fastBlinkForever();
+	else
+		{
+		unsigned timeToReboot;
+
+		McciArm_disableInterrupts();
+		timeToReboot = 60 * 1000;
+
+		McciBootloaderBoard_CatenaAbz_annunciatorIndicateState(errorCode);
+
+		for (; timeToReboot > 0; --timeToReboot)
+			{
+			delayTick();
+			McciBootloaderBoard_CatenaAbz_handleSysTick();
+			}
+
+		McciArm_DataSynchBarrier();
+
+		McciArm_putRegMasked(
+			MCCI_CM0PLUS_SCB_AIRCR,
+			MCCI_CM0PLUS_SCB_AIRCR_VECTKEY |
+			MCCI_CM0PLUS_SCB_AIRCR_SYSRESETREQ,
+			MCCI_CM0PLUS_SCB_AIRCR_VECTKEY_VALUE |
+			MCCI_CM0PLUS_SCB_AIRCR_SYSRESETREQ
+			);
+
+		McciArm_DataSynchBarrier();
+		while (true)
+			/* spin till reset */;
+		}
+	}
+
+static void fastBlinkForever(void)
 	{
 	uint32_t rOdr = McciArm_getReg(MCCI_STM32L0_REG_GPIOB + MCCI_STM32L0_GPIO_ODR);
 
