@@ -191,7 +191,7 @@ extern "C" {
 /// \name SCB AIRCR fields (Appplication Interrupt and Reset Control)
 ///	@{
 #define	MCCI_CM0PLUS_SCB_AIRCR_VECTKEY		(UINT32_C(0xFFFF) << 16)	///< Vector key
-#define	MCCI_CM0PLUS_SCB_AIRCR_VECTKEYSTAT	(UINT32_C(0xFFFF) << 16)	///< Vector key status
+#define	MCCI_CM0PLUS_SCB_AIRCR_VECTKEY_VALUE	(UINT32_C(0x05FA) << 16)	///< Value to write to unlock regster.
 #define	MCCI_CM0PLUS_SCB_AIRCR_ENDIANNESS	(UINT32_C(1) << 15)		///<
 #define	MCCI_CM0PLUS_SCB_AIRCR_SYSRESETREQ	(UINT32_C(1) << 2)		///<
 #define	MCCI_CM0PLUS_SCB_AIRCR_VECTCLRACTIVE	(UINT32_C(1) << 1)		///<
@@ -437,6 +437,22 @@ McciArm_disableInterrupts(
 	__asm volatile ("cpsid i" ::: "memory");
 	return primask;
 	}
+
+///
+/// \brief insert a data synchronization barrier
+///
+/// \details
+///	Force all pending memory operations to complete before
+//	continuing.
+///
+__attribute__((always_inline)) static inline
+void McciArm_DataSynchBarrier(
+	void
+	)
+	{
+	__asm volatile ("dsb 0xF" ::: "memory");
+	}
+
 #else
 # error "Compiler not supported"
 #endif

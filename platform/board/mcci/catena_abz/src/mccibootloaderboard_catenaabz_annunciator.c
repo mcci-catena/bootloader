@@ -34,6 +34,7 @@ typedef struct CatenaAbz_Annuciator_s CatenaAbz_Annuciator_t;
 typedef enum
 	{
 	stNoChange = -1, ///< internal: don't change state.
+	stInitial,	///< not initialized
 	stIdle,		///< not displaying
 	stLedOn,	///< light is on
 	stBitGap,	///< displaying bit gap
@@ -75,6 +76,7 @@ McciBootloaderBoard_CatenaAbz_annunciatorInit(
 	/// enable interrupts
 	McciArm_setPRIMASK(0);
 	annunciator.bittime = 100; // 100 ms per bit.
+	annunciator.bitState = stIdle;
 	}
 
 void
@@ -92,7 +94,13 @@ McciBootloaderBoard_CatenaAbz_annunciatorIndicateState(
 			if (display & (UINT32_C(1) << nBits))
 				break;
 			}
-		annunciator.display = (uint32_t)display << (32 - nBits);
+
+		// if display is 2^k-1, then add a bit, so we have
+		// a time contrast on long pulses.
+		if (((display + 1) & display) == 0)
+			++nBits;
+
+		annunciator.display = (uint32_t)display << (31 - nBits);
 		}
 	else
 		annunciator.display = 0;
@@ -101,13 +109,13 @@ McciBootloaderBoard_CatenaAbz_annunciatorIndicateState(
 static bool
 nextBit(void)
 	{
-	bool nextBit = !!(annunciator.value & UINT32_C(0x80000000));
+	bool fNextBit = !!(annunciator.value & UINT32_C(0x80000000));
 	annunciator.value <<= 1;
 	if (annunciator.value == 0)
 		return false;
 
 	McciBootloaderBoard_CatenaAbz_setLed();
-	annunciator.timer = annunciator.tick + annunciator.bittime * (1 + 2 * nextBit);
+	annunciator.timer = annunciator.tick + annunciator.bittime * (1 + 2 * fNextBit);
 	return true;
 	}
 
@@ -120,17 +128,16 @@ McciBootloaderBoard_CatenaAbz_handleSysTick(
 	annunciator.tick = now;
 	AnnunciatorBitState_t nextState = stNoChange;
 
-	if (annunciator.bootState == McciBootloaderState_Initial)
-		return;
-
 	switch (annunciator.bitState)
 		{
 	default:
-		nextState = McciBootloaderState_Initial;
-		break;
+	case stInitial:
+		nextState = stInitial;
+		annunciator.bitState = stInitial;
+		return;
 
 	case stIdle:
-		if (annunciator.bootState != McciBootloaderState_Initial)
+		if (annunciator.display != 0)
 			{
 			annunciator.value = annunciator.display;
 			nextBit();
