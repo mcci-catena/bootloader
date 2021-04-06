@@ -124,46 +124,47 @@ McciBootloaderBoard_CatenaAbz_spiInit(void)
 		 MCCI_BOOTLOADER_FIELD_SET_VALUE(MCCI_STM32L0_GPIO_PUPD_P(12), MCCI_STM32L0_GPIO_PUPD_NONE))
 		);
 
-	// enable SPI2
+	// enable SPI2 at APB1
 	McciArm_putRegOr(
 		MCCI_STM32L0_REG_RCC_APB1ENR,
 		MCCI_STM32L0_REG_RCC_APB1ENR_SPI2EN
 		);
+
+	// reset the SPI2 block
 	McciArm_putRegOr(
 		MCCI_STM32L0_REG_RCC_APB1RSTR,
 		MCCI_STM32L0_REG_RCC_APB1RSTR_SPI2RST
 		);
+	McciArm_putRegClear(
+		MCCI_STM32L0_REG_RCC_APB1RSTR,
+		MCCI_STM32L0_REG_RCC_APB1RSTR_SPI2RST
+		);
 
-	// set SPI_CR2
-	McciArm_putRegClearSet(
+	// setup SPI_CR1
+	// since we reset above, we don't have to worry about anything
+	// exept non-default settings
+	McciArm_putRegOr(
 		MCCI_STM32L0_REG_SPI2 + MCCI_STM32L0_SPI_CR1,
 		(
-		 MCCI_STM32L0_SPI_CR1_BIDIMODE |
-		 MCCI_STM32L0_SPI_CR1_CRCEN |
-		 MCCI_STM32L0_SPI_CR1_SSM |
-		 MCCI_STM32L0_SPI_CR1_LSBFIRST |
-		 MCCI_STM32L0_SPI_CR1_SSM |		/* per STM32L0 manual page 830; SSM 0/SSI 1 drives when SSE */
-		 MCCI_STM32L0_SPI_CR1_SPE |		/* disable while programming */
-		 MCCI_STM32L0_SPI_CR1_BR |		/* all the baud-rate bits */
-		 MCCI_STM32L0_SPI_CR1_CPOL |
-		 MCCI_STM32L0_SPI_CR1_CPHA
-		),
-		(
-		 MCCI_STM32L0_SPI_CR1_SSI |	/* the ST HAL sets this for master */
-		 MCCI_STM32L0_SPI_CR1_MSTR
+		 MCCI_STM32L0_SPI_CR1_BR_2 |	// fastest
+		 MCCI_STM32L0_SPI_CR1_MSTR	// master mode
 		)
 		);
 
-	McciArm_putReg(
+	// setup SPI_CR2
+	// since we reset above, we don't have to worry about anything
+	// exept non-default settings
+	McciArm_putRegOr(
 		MCCI_STM32L0_REG_SPI2 + MCCI_STM32L0_SPI_CR2,
-		0
+		MCCI_STM32L0_SPI_CR2_SSOE		/* enable the nss output */
 		);
 
-	McciArm_putRegClear(
-		MCCI_STM32L0_REG_SPI2 + MCCI_STM32L0_SPI_I2SCFGR,
-		MCCI_STM32L0_SPI_I2SCFGR_I2SMOD
-		);
-
+	// setup I2SCFGR_I2SMOD
+	// since we reset above, we don't need to do anything.
+	// McciArm_putRegClear(
+	//	MCCI_STM32L0_REG_SPI2 + MCCI_STM32L0_SPI_I2SCFGR,
+	//	MCCI_STM32L0_SPI_I2SCFGR_I2SMOD
+	//	);
 	}
 
 /*
