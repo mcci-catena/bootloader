@@ -487,6 +487,20 @@ install: $(addprefix install-,$(PROGRAMS) $(LIBRARIES))
 .PHONY: source-release
 source-release:
 
+#
+# print-target-path: prints the target path for the built executables
+#
+.PHONY: print-target-path
+print-target-path:
+	@echo "$(abspath $(T_OBJDIR))"
+
+#
+# print-target-suffix: prints the target suffix for the built executables
+#
+.PHONY: print-target-suffix
+print-target-suffix:
+	@echo "${T_EXE_SUFFIX}"
+
 # pick up the dependencies.
 -include $(DEPENDS)
 
