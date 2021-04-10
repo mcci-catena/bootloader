@@ -341,7 +341,7 @@ typedef struct McciBootloaderPlatform_ARMv6M_SvcRq_HashBlocks_Arg_s
 	size_t nMessage;
 	} McciBootloaderPlatform_ARMv6M_SvcRq_HashBlocks_Arg_t;
 
-/// \brief argumennt to \ref McciBootloaderPlatform_ARMv6M_SvcRq_HashFinish
+/// \brief argument to \ref McciBootloaderPlatform_ARMv6M_SvcRq_HashFinish
 typedef struct McciBootloaderPlatform_ARMv6M_SvcRq_HashFinish_Arg_s
 	{
 	void *pHash;
