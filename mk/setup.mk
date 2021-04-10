@@ -173,15 +173,41 @@ MCCIBOOTLOADER_LDSCRIPT	:=	$(abspath ${MCCIBOOTLOADER_ROOT}mk/mccibootloader.ld)
 #
 ##############################################################################
 
+#
+# for source releases, we need a copy of git-archive-all.
+#
 GIT_ARCHIVE_ALL_SH ?= $(shell D=$(GIT_ARCHIVE_ALL_SH_DIR); which "$$D$${D:+/}git-archive-all.sh")
 
-MCCI_PREP_BOOTLOADER ?=	mccibootloader_image
-MCCI_BOOTLOADER_KEYFILE_TEST :=  $(abspath ${MCCIBOOTLOADER_ROOT}/tools/mccibootloader_image/test/mcci-test.pem)
+#
+# get the bootloader info. Turn off cross-compile because we need the version for the host
+#
 
+# path to bootloader tree
+MCCIBOOTLOADER_IMAGE_ROOT := $(abspath ${MCCIBOOTLOADER_ROOT}/tools/mccibootloader_image)
+
+# path to directory holding image, and image suffix
+MCCIBOOTLOADER_IMAGE_PATH := $(shell make -C "${MCCIBOOTLOADER_IMAGE_ROOT}" CROSS_COMPILE= --no-print-directory print-target-path)
+MCCIBOOTLOADER_IMAGE_SUFFIX := $(shell make -C "${MCCIBOOTLOADER_IMAGE_ROOT}" CROSS_COMPILE= --no-print-directory print-target-suffix)
+
+# make sure the image path is well formed (either blank, or ending with a slash)
+ifneq ($(strip $(MCCIBOOTLOADER_IMAGE_PATH)),)
+ override MCCIBOOTLOADER_IMAGE_PATH := $(MCCIBOOTLOADER_IMAGE_PATH:/=)/
+endif
+
+# path of bootloader_image itself
+MCCIBOOTLOADER_IMAGE ?=	${MCCIBOOTLOADER_IMAGE_PATH}mccibootloader_image${MCCIBOOTLOADER_IMAGE_SUFFIX}
+
+#
+# set path to test-signing key file
+#
+MCCI_BOOTLOADER_KEYFILE_TEST :=  ${MCCIBOOTLOADER_IMAGE_ROOT}/test/mcci-test.pem
+
+#
+# set path to key file to use; if input is blank, then point to the test-signing key
+#
 ifeq ($(strip $(MCCI_BOOTLOADER_KEYFILE)),)
  MCCI_BOOTLOADER_KEYFILE = $(MCCI_BOOTLOADER_KEYFILE_TEST)
 endif
-
 
 ##############################################################################
 #
