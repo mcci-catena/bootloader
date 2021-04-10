@@ -110,7 +110,7 @@ gk_McciBootloader_CortexVectors =
 
 // instantiate the signature block.
 const McciBootloader_SignatureBlock_t
-gk_McciBootloader_SignatureBlock; 
+gk_McciBootloader_SignatureBlock;
 
 /****************************************************************************\
 |
