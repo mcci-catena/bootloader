@@ -1,4 +1,4 @@
-# STM32L0 Robust Bootloader with Firmware Update
+# MCCI Trusted Bootloader for STM32L0 with Firmware Update
 
 <!--
   This TOC uses the VS Code markdown TOC extension AlanWalk.markdown-toc.
@@ -23,15 +23,20 @@
 	- [Application Image Structure](#application-image-structure)
 	- [AppInfo overview](#appinfo-overview)
 	- [Signature block overview](#signature-block-overview)
-	- [Signature Verification Loop](#signature-verification-loop)
+	- [Signature Verification](#signature-verification)
 	- [Programming app image from SPI](#programming-app-image-from-spi)
 	- [Checking signatures](#checking-signatures)
 - [The bootloader query API on ARMv6-M systems](#the-bootloader-query-api-on-armv6-m-systems)
+	- [Get Update-Flag Pointer](#get-update-flag-pointer)
+	- [Initialize hash buffer](#initialize-hash-buffer)
+	- [Hash blocks](#hash-blocks)
+	- [Finish a hash operation](#finish-a-hash-operation)
 - [Bootloader States](#bootloader-states)
 - [Practical Details](#practical-details)
 	- [SPI flash initialization](#spi-flash-initialization)
 	- [Generating public/private key pairs](#generating-publicprivate-key-pairs)
 	- [Building](#building)
+		- [Windows Build Example](#windows-build-example)
 	- [Installing the bootloader](#installing-the-bootloader)
 	- [STM32L0 Watchdog timer](#stm32l0-watchdog-timer)
 - [Meta](#meta)
@@ -45,15 +50,19 @@
 
 ## Introduction
 
-The MCCI&reg; STM32L0 bootloader allows robust field updating STM32L0 systems with public-key authentication of the firmware images. Although it is *not* a "secure bootloader" in the commonly accepted sense, it is a robust bootloader in the following sense:
+The MCCI&reg; trusted bootloader provides enhanced system integrity for IoT devices, by confirms system integrity at startup, and allowing field updating STM32L0 systems using public-key authentication of the firmware images.
 
-- The bootloader will atomically update firmware from one image to another, while running unattended in the field.
+The bootloader is designed with makers, subject matter experts, and experimenters in mind, so that it is easy to deploy open-source field-updatable devices based on small CPUs like the STM32L0. It is readily integrated with the Arduino IDE or other build environments.
+
+Although it is *not* a "secure bootloader" in the commonly accepted sense, it is a trusted bootloader in the following sense:
+
+- Barring physical access to the device, and provided the bootloader has been write protected in the STM32L0 option registers, it is reasonably certain that the bootloader will not launch an application whose image has been corrupted.
+- The bootloader will authenticate and atomically update firmware from one image to another, while running unattended in the field. Power failures in the middle of an update will simply slow down the process.
 - Barring physical access to the device, the bootloader will not install images that have not been signed by the trusted private key.
-- Barring physical access to the device, and provided the bootloader has been write protected in the STM32L0 option registers, the bootloader will not launch an application whose image has been corrupted.
+- The bootloader allows the system engineer to provision a fallback image that can be used in case the installed application image is corrupt; this image can be write protected, and is separate from the "field update" image.
+- The normal workflow is simple and unobtrusive.
 - The code is simple and easily audited.
 - The cryptographic code is identically the simple and auditable public-domain TweetNaCl package, without any source changes.
-- It allows the system engineer to provision a fallback image that can be used in case the application image is corrupt; this image can be write protected.
-- The normal workflow is simple and unobtrusive.
 
 Its hardware requirements are modest. Beyond an STM32L0 CPU, it requires an external storage device large enough to store the fallback image and the update image. The bootloader itself is 10k, though we allow up to 20k for future growth.
 
@@ -75,7 +84,7 @@ The bootloader operates by interposing itself between the ST bootloader and the 
 - If a firmware update has been requested, the update image is checked on SPI flash. If valid, and properly signed, the application image is copied to program flash. If successful, the update request is cleared, and the application is launched.
 - If the application is invalid, and the update image is invalid, the fallback image is checked. If valid and properly signed, the fallback image is copied to program flash. If successful, the application is launched.  (See [Bootloader States](#bootloader-states) for a more complete discussion.)
 
-The boot sequence runs at the 32 MHz clock rate.
+The boot sequence runs at 32 MHz; it then restores the system to the post-reset state prior to launching the application.
 
 The bootloader enables the SPI flash, including handling external regulators on boards like the 4801.
 
@@ -87,9 +96,11 @@ A simple tool, [`mccibootloader_image`][1] is provided for preparing and signing
 
 To simplify the development workflow, `mccibootloader_image` works directly on ELF files produced by the linker, and writes ELF files compatible with other tools in the toolchain. The same tool is used for signing bootloader images and signing application images.
 
-For convenience, `mccibootloader_image` reads keyfiles prepared in OpenSSH format. Thus, `ssh-keygen` can be used used to generate the key files.
+For convenience, `mccibootloader_image` reads key-files prepared in OpenSSH format. Thus, `ssh-keygen` can be used used to generate the key files.
 
 In development, a standard "test signing" key is used; this is not secure, but it avoids a special mode in the bootloader to disable signing. (We feel that this makes it less likely that the special mode will accidentally be left on at ship time.)
+
+The bootloader exports a simple API that can be used by applications to communicate with the bootloader and take advantage of the TweetNaCl primitives that are part of the bootloader.
 
 [1]: tools/mccibootloader_image/README.md
 
@@ -105,7 +116,9 @@ The bootloader does not check signatures of the application before launching it.
 
 If an adversary can force a remote code execution attack, the bootloader can probably be compromised; but remote code execution also effectively takes over the system, unless the MPU is used; and that's much more intrusive. We feel that should be at a layer above the bootloader.
 
-Signature checks are slow -- about 10 seconds on an STM32L0 at 32 MHz. This is acceptable, as it only happens during a firmware update.
+Signature checks are slow -- about 10 seconds on an STM32L0 at 32 MHz. This is acceptable in MCCI's use cases, as it only happens during a firmware update.
+
+Although coded for portability, the initial release of the bootloader is specific to the STM32L0. The biggest limitation that we're aware of is in the build system, which is not yet prepared for multiple targets.
 
 ## MCCI / STM32L0 Deployment Details
 
@@ -199,7 +212,7 @@ typedef struct
   } Mcci_CortexAppEntryContents_t;
 ```
 
-The first 48 dwords (192 bytes) (including the above two dwords) of the image are exception handling vectors.
+The first 48 `uint32_t`s (192 bytes) of the image are exception handling vectors. (This includes the `Mcci_CortexAppEntryContents_t` structure already described).
 
 The next 64 bytes are reserved for use by the _application information_ structure, `McciBootloader_AppInfo_t`.
 
@@ -225,8 +238,8 @@ The bootloader and all application images contain AppInfo blocks at offset 192 t
 | 16..19 | `authSize` | `0xC0` | size of authentication info at end of image |
 | 20..23 | `version` | version | Semantic version of app. Byte 23 is major version, 22 is minor version, 21 is patch, and 20 (if non-zero) is the pre-release indictor. Note that prior to comparing semantic versions in this format, you must decrement the LSB modulo 256, so that pre-release 0x00 is greater than any non-zero pre-release value.
 | 24..31 | `posixTime` |  seconds since epoch | Normal Posix time; expressed as a 64-bit integer to avoid the year 2037 problem.
-| 32..47 | `reserved32` | reserved, zero | Reserved for future use.
-| 48..63 | `comment` | UTF8 text, zero-padded | A comment, such as the program name.
+| 32..47 | `comment` | UTF8 text, zero-padded | A comment, such as the program name.
+| 47..63 | `reserved32` | reserved, zero | Reserved for future use.
 
 ### Signature block overview
 
@@ -238,9 +251,9 @@ The signature block appears at address `targetAddress` plus `imageSize`.
 | 32..95 | `hash` | hash of image | SHA-512 hash of image from byte 0 through and including the public key
 | 96..159 | `signature` | signature of image | TweetNaCl signature of `hash`, with the duplicated `hash` omitted. To verify, form `signature | hash` and then run the signature check.
 
-### Signature Verification Loop
+### Signature Verification
 
-We validate by computing the hash, and checking it. Then we check the hash by `crypto_sign_open()` to the signature block, disclosing the signed hash. If the hash is properly signed, and the hash matches the hash of the application image, then we trust the image.
+We validate by computing the hash, and checking it. Then we check the hash by applying`crypto_sign_open()` to the signature block. If the hash is properly signed, and the hash matches the hash of the application image, then we trust the image.
 
 For verifying from SPI flash, we use a modified `crypto_hash()` to calculate the hash in chunks:
 
@@ -259,21 +272,19 @@ The loop looks like this:
 
 ### Programming app image from SPI
 
-The SPI image itself corresponds directly to the bytes to be programmed into program flash. All Elf headers must be stripped; the approved way to prepare this image is to use `objcopy`, as is done in the bootloader Makefile to make a `.rawbin` file.
+The SPI image itself corresponds directly to the bytes to be programmed into program flash. All Elf headers must be stripped; the approved way to prepare this image is to use `objcopy`, as is done in the bootloader `Makefile` to make a `.rawbin` file, or in the MCCI Arduino `platform.txt` file, to make a `.bin` file. The `objcopy` step is normally done after signing.
 
-Once the program image has been approved, we follow this procedure to load it into flash.
+The bootloader follows this procedure to load images from the SPI flash into program flash.
 
 1. Erase program flash application image space
-2. For each block in image:
+2. For each 4k block in image:
     1. Read the block of data from SPI flash
     2. Program block by dividing it into "half pages" and programming using a special function that lives in RAM.
 3. Finally, verify the application image by running the application check.
 
 ### Checking signatures
 
-It takes a long time to verify a ed25519 signature on the STM32L0;
-so we only check signatures when deciding whether to update
-the flash, after we've validated the SHA512 hash.
+It takes a long time to verify a ed25519 signature on the STM32L0; so we only check signatures when deciding whether to update the flash, after we've validated the SHA512 hash.
 
 ## The bootloader query API on ARMv6-M systems
 
@@ -286,8 +297,8 @@ typedef void
 (McciBootloaderPlatform_ARMv6M_SvcHandlerFn_t)(
     McciBootloaderPlatform_ARMv6M_SvcRq_t code,
     McciBootloaderPlatform_ARMv6M_SvcError_t *pError,
-    uint32_t a1,
-    uint32_t a2
+    uint32_t arg1,
+    uint32_t arg2
     );
 ```
 
@@ -295,7 +306,41 @@ typedef void
 
 The error code cell will be set to zero for success, and to a non-zero error code for failure. The error code 0xFFFFFFFFu is used as the "catch-all" code if the request code is not recognized. The error code 0xFFFFFFFEu is used for "invalid parameter".
 
-Only one request code is currently defined, `McciBootloaderPlatform_ARMv6M_SvcRq_GetUpdatePointer`. This request interprets `a1` as a pointer to a `uint32_t*` cell, and delivers a pointer to the update flag to that cell. The caller must have a library that enables writing to the EEPROM. The bootloader doesn't try to export its hardware access libraries, because there's no guarantee that the caller has the hardware set up correctly for the bootloader's use.
+### Get Update-Flag Pointer
+
+The request `McciBootloaderPlatform_ARMv6M_SvcRq_GetUpdatePointer` interprets `arg1` as a pointer to a `uint32_t*` cell, and delivers a pointer to the update flag to that cell. The caller must have a library that enables writing to the EEPROM. The bootloader doesn't try to export its hardware access libraries, because there's no guarantee that the caller has the hardware set up correctly for the bootloader's use.
+
+### Initialize hash buffer
+
+The request `McciBootloaderPlatform_ARMv6M_SvcRq_HashInit` interprets `arg1` as a pointer to a 64-byte hash buffer, and initializes it to the SHA-512 initialization vector.
+
+### Hash blocks
+
+The request `McciBootloaderPlatform_ARMv6M_SvcRq_HashBlocks` computes an intermediate hash on a part of a message. It interprets `arg1` as a pointer to a structure of type `McciBootloaderPlatform_ARMv6M_SvcRq_HashBlocks_Arg_t`.  This structure has the following layout:
+
+```c
+typedef struct McciBootloaderPlatform_ARMv6M_SvcRq_HashBlocks_Arg_s {
+   void *pHash;                // pointer to the 64-byte hash buffer
+   const uint8_t *pMessage;    // pointer to message fragment
+   size_t nMessage;            // count of message fragment
+} McciBootloaderPlatform_ARMv6M_SvcRq_HashBlocks_Arg_t;
+```
+
+The hash buffer at `*pHash` is updated to reflect the data in `pMessage[]`. All fragments in a message except the last should be a multiple of 128 bytes long. `nMessage` is updated to reflect the number of bytes left over (if message is not a multiple of 128 bytes long).
+
+### Finish a hash operation
+
+The request `McciBootloaderPlatform_ARMv6M_SvcRq_HashBlocks` finishes a
+hash operation. It interprets `arg1` as a pointer to a structure of type `McciBootloaderPlatform_ARMv6M_SvcRq_HashFinish_Arg_t`. This structure has the following layout:
+
+```c
+typedef struct McciBootloaderPlatform_ARMv6M_SvcRq_HashFinish_Arg_s {
+   void *pHash;                // pointer to the hash buffer
+   const uint8_t *pMessage;    // pointer to remaining bytes of message
+   size_t nMessage;            // length of remaining portion of message
+   size_t nOverall;            // number of bytes in message, overall
+} McciBootloaderPlatform_ARMv6M_SvcRq_HashFinish_Arg_t;
+```
 
 ## Bootloader States
 
@@ -335,15 +380,37 @@ The bootloader should be hashed and signed by `mccibootloader_image`; the signin
 
 Install GNU Make if not present (on Windows, use [scoop](https://scoop.io)).
 
+If on Windows, install git bash.
+
 Install Arduino IDE for target.
 
-Do a build, setting CROSS_COMPILE to point to the compile directory, like this.
+If you don't already have the bootloader image tool installed, you'll need to build it first. Change directory to `tools/mccibootloader_image` and following the instructions to build the image tool (if not already built).
+
+Find the compiler directory and prefix for the target. The Arduino forum explains how this is done, see for example [this post](https://forum.arduino.cc/index.php?topic=616372.0).
+
+Quick summary: turn on verbose output, do a build of any sketch with your target selected, and look at the log. The compiler path will be at the start of each command, for example as:
+
+<code><i>c:\Users\example\AppData\Local\arduino15\packages\mcci\tools\arm-none-eabi-gcc\6-2017-q2-update\bin\arm-none-eabi-</i><b>gcc</b> ...</code>
+
+Grab all the stuff before the "`gcc`", including the trailing dash.
+
+Do a build, setting `CROSS_COMPILE` to point to the compiler directory and tool prefix, like this.
+
+```bash
+CROSS_COMPILE='compiler_path_and_prefix' make
+```
+
+#### Windows Build Example
+
+```bash
+CROSS_COMPILE='c:\Users\example\AppData\Local\arduino15\packages\mcci\tools\arm-none-eabi-gcc\6-2017-q2-update\bin\arm-none-eabi-' make
+```
+
+If you prefer, you can use forward slashes and `~`-notation for your home directory, like this:
 
 ```bash
 CROSS_COMPILE=~/AppData/Local/arduino15/packages/mcci/tools/arm-none-eabi-gcc/6-2017-q2-update/bin/arm-none-eabi- make
 ```
-
-Change directory to `tools/mccibootloader_image` and build the image tool (if not already built).
 
 ### Installing the bootloader
 
@@ -352,6 +419,34 @@ Use ST-LINK and download using the -bin option after signing, using address 0x08
 ```bash
 st-flash --format binary bootloader-image.bin 0x08000000
 ```
+
+Or use gdb and the load command.
+
+1. Start a command window.
+2. Start the gdb server:
+
+    ```bash
+    st-util --port 1234
+    ```
+
+3. Start a second command window.
+4. Launch gdb using the elf file:
+
+    ```bash
+    ~/AppData/Local/arduino15/packages/mcci/tools/arm-none-eabi-gcc/6-2017-q2-update/bin/arm-none-eabi-gdb McciBootloader_4801.elf
+    ```
+
+5. In gdb, enter the following command to connect:
+
+    ```console
+    (gdb) target extended-remote :1234
+    ```
+
+6. Download the code:
+
+    ```console
+    (gdb) load
+    ```
 
 ### STM32L0 Watchdog timer
 
