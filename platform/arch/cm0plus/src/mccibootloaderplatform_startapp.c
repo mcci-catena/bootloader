@@ -93,6 +93,13 @@ McciBootloaderPlatform_startApp(
 	const uint32_t stack = pAppVectors->stack;
 	const uint32_t pc = pAppVectors->entry;
 
+	// Oddly, interrupts are enabled on launch, so we have to
+	// deal with that below.
+	McciArm_disableInterrupts();
+
+	// Do the SOC-specific things to get us ready;
+	McciBootloaderPlatform_prepareForLaunch();
+
 	// set the stack pointer
 	McciArm_setMSP(stack);
 
@@ -102,8 +109,9 @@ McciBootloaderPlatform_startApp(
 		(uint32_t) pAppVectors & MCCI_CM0PLUS_SCB_VTOR_TBLOFF
 		);
 
-	// go to the app.
-	asm("bx %0"::"r"(pc));
+	// go to the app: enable interrupts and jump.
+	__asm volatile ("cpsie i" ::: "memory");
+	__asm volatile ("bx %0" :: "r"(pc));
 	__builtin_unreachable();
 	}
 
