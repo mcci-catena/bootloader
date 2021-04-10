@@ -297,6 +297,9 @@ typedef enum McciBootloaderPlatform_ARMv6M_SvcError_e
 	{
 	/// successful processing
 	McciBootloaderPlatform_SvcError_OK = 0,
+
+	/// error: verify failure
+	McciBootloaderPlatform_SvcError_VerifyFailure = UINT32_C(-3),
 	/// error: invalid parameter to SVC
 	McciBootloaderPlatform_SvcError_InvalidParameter = UINT32_C(-2),
 	/// error: SVC isn't just unimplemented, it's unkown to the bootloader
@@ -311,9 +314,41 @@ typedef enum McciBootloaderPlatform_ARMv6M_SvcRq_e
 	/// Fetch pointer to \c uint32_t "update" flag in EEPROM. \c arg1 is pointer to cell to
 	/// receive pointer.
 	McciBootloaderPlatform_ARMv6M_SvcRq_GetUpdatePointer = UINT32_C(0x01000000),
+	/// Call \ref mcci_tweetnacl_hashblocks_sha512_init. \c arg1 is pointer to hash block.
+	McciBootloaderPlatform_ARMv6M_SvcRq_HashInit  /* = UINT32_C(0x01000001) */,
+
+	/// Call \ref mcci_tweetnacl_hashblocks_sha512. \c arg1 points to argument.
+	/// \see McciBootloaderPlatform_ARMv6M_SvcRq_HashBlocks_Arg_t
+	McciBootloaderPlatform_ARMv6M_SvcRq_HashBlocks  /* = UINT32_C(0x01000002) */,
+
+	/// Call \ref mcci_tweetnacl_hashblocks_finish. \c arg1 points to
+	/// argument.
+	/// \see McciBootloaderPlatform_ARMv6M_SvcRq_HashFinish_Arg_t
+	McciBootloaderPlatform_ARMv6M_SvcRq_HashFinish  /* = UINT32_C(0x01000003) */,
+
+	/// Call \ref mcci_tweetnacl_verify64. \c arg1 and \c arg2 are the pointers
+	/// result is set to verifyFailure for failure.
+	McciBootloaderPlatform_ARMv6M_SvcRq_Verify64  /* = UINT32_C(0x01000004) */,
 	} McciBootloaderPlatform_ARMv6M_SvcRq_t;
 
 MCCIADK_C_ASSERT(sizeof(McciBootloaderPlatform_ARMv6M_SvcRq_t) == sizeof(uint32_t));
+
+/// \brief argument to \ref McciBootloaderPlatform_ARMv6M_SvcRq_HashBlocks
+typedef struct McciBootloaderPlatform_ARMv6M_SvcRq_HashBlocks_Arg_s
+	{
+	void *pHash;
+	const uint8_t *pMessage;
+	size_t nMessage;
+	} McciBootloaderPlatform_ARMv6M_SvcRq_HashBlocks_Arg_t;
+
+/// \brief argumennt to \ref McciBootloaderPlatform_ARMv6M_SvcRq_HashFinish
+typedef struct McciBootloaderPlatform_ARMv6M_SvcRq_HashFinish_Arg_s
+	{
+	void *pHash;
+	const uint8_t *pMessage;
+	size_t nMessage;
+	size_t nOverall;
+	} McciBootloaderPlatform_ARMv6M_SvcRq_HashFinish_Arg_t;
 
 ///
 /// \brief SVC function interface

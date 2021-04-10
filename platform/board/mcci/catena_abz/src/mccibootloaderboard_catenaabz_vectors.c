@@ -160,6 +160,69 @@ McciBootloaderBoard_CatenaAbz_SvcHandler(
 		else
 			err = McciBootloaderPlatform_SvcError_InvalidParameter;
 		}
+		break;
+
+	case McciBootloaderPlatform_ARMv6M_SvcRq_HashInit:
+		{
+		mcci_tweetnacl_sha512_t * const pHash = (void *)arg1;
+
+		mcci_tweetnacl_hashblocks_sha512_init(pHash);
+		}
+		break;
+
+	case McciBootloaderPlatform_ARMv6M_SvcRq_HashBlocks:
+		{
+		McciBootloaderPlatform_ARMv6M_SvcRq_HashBlocks_Arg_t * const
+			pArg = (void *)arg1;
+
+		if (arg1 == 0 || (arg1 & 3) != 0)
+			err = McciBootloaderPlatform_SvcError_InvalidParameter;
+		else
+			{
+			mcci_tweetnacl_sha512_t * const pHash = pArg->pHash;
+			pArg->nMessage = mcci_tweetnacl_hashblocks_sha512(
+				pHash,
+				pArg->pMessage,
+				pArg->nMessage
+				);
+			}
+		}
+		break;
+
+	case McciBootloaderPlatform_ARMv6M_SvcRq_HashFinish:
+		{
+		McciBootloaderPlatform_ARMv6M_SvcRq_HashFinish_Arg_t * const
+			pArg = (void *)arg1;
+
+		if (arg1 == 0 || (arg1 & 3) != 0)
+			err = McciBootloaderPlatform_SvcError_InvalidParameter;
+		else
+			{
+			mcci_tweetnacl_sha512_t * const pHash = pArg->pHash;
+			mcci_tweetnacl_hashblocks_sha512_finish(
+				pHash,
+				pArg->pMessage,
+				pArg->nMessage,
+				pArg->nOverall
+				);
+			}
+		}
+		break;
+
+	case McciBootloaderPlatform_ARMv6M_SvcRq_Verify64:
+		{
+		const mcci_tweetnacl_sha512_t * const
+			pArg1 = (void *)arg1;
+		const mcci_tweetnacl_sha512_t * const
+			pArg2 = (void *)arg2;
+
+		mcci_tweetnacl_result_t const r = mcci_tweetnacl_verify_64(pArg1->bytes, pArg2->bytes);
+		err = mcci_tweetnacl_result_is_success(r)
+			? McciBootloaderPlatform_SvcError_OK
+			: McciBootloaderPlatform_SvcError_VerifyFailure
+			;
+		}
+		break;
 
 	default:
 		err = McciBootloaderPlatform_SvcError_Unclaimed;
