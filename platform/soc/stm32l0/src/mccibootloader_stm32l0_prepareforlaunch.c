@@ -122,13 +122,6 @@ McciBootloader_Stm32L0_prepareForLaunch(
 	while ((McciArm_getReg(MCCI_STM32L0_REG_RCC_CFGR) & MCCI_STM32L0_REG_RCC_CFGR_SWS) != MCCI_STM32L0_REG_RCC_CFGR_SWS_MSI)
 		/* loop */;
 
-	// reset things to defaults
-	// make sure MSI is on
-	McciArm_putRegOr(
-		MCCI_STM32L0_REG_RCC_CR,
-		 MCCI_STM32L0_REG_RCC_CR_MSION
-		);
-
 	// turn off other oscillators
 	McciArm_putRegClear(
 		MCCI_STM32L0_REG_RCC_CFGR,
@@ -174,11 +167,15 @@ McciBootloader_Stm32L0_prepareForLaunch(
 		0
 		);
 
-	// enable pre-read, pre-fetch,
+	// Set ACR back to reset state: pre-read disabled, read buf enable,
+	// run mode == IDLE, RUN_PD == IDLE SLEEP_PD == IDLE, prefetch disabled,
+	// zero wait state. And this also locks the RUN_PD bit.
 	McciArm_putRegClear(
 		MCCI_STM32L0_REG_FLASH_ACR,
 		 MCCI_STM32L0_REG_FLASH_ACR_DISAB_BUF |
 		 MCCI_STM32L0_REG_FLASH_ACR_PRE_READ |
+		 MCCI_STM32L0_REG_FLASH_ACR_RUN_PD |
+		 MCCI_STM32L0_REG_FLASH_ACR_SLEEP_PD |
 		 MCCI_STM32L0_REG_FLASH_ACR_PRFTEN |
 		 MCCI_STM32L0_REG_FLASH_ACR_LATENCY
 		);
