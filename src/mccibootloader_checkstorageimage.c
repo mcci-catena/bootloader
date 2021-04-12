@@ -158,7 +158,7 @@ McciBootloader_checkStorageImage(
 
 		/* advance pointer,  */
 		uint32_t const nConsumed = nThisTime - nRemaining;
-		addressCurrent += nConsumed;
+		addressCurrent += nThisTime;
 		pRemaining = g_McciBootloader_imageBlock + nConsumed;
 		}
 
@@ -171,7 +171,7 @@ McciBootloader_checkStorageImage(
 
 	// read the signature block
 	if (! McciBootloaderPlatform_storageRead(
-		addressCurrent,
+		address + pIncomingAppInfo->imagesize,
 		g_McciBootloader_imageBlock,
 		sizeof(McciBootloader_SignatureBlock_t)
 		))
@@ -180,7 +180,6 @@ McciBootloader_checkStorageImage(
 	const size_t nsig = sizeof(mcci_tweetnacl_sign_signature_t);
 	const size_t nsigned = sizeof(imageHash) + nsig;
 	size_t nActual;
-	mcci_tweetnacl_sha512_t signedHash;
 
 	// set up a pointer for convenience
 	const McciBootloader_SignatureBlock_t * const pSigBlock = (const void *)g_McciBootloader_imageBlock;
@@ -192,12 +191,18 @@ McciBootloader_checkStorageImage(
 		sizeof(imageHash.bytes)
 		);
 
+	// the TweetNaCl crypto_sign_open requires that output buffer
+	// have an allocation size that's equal to nsigned. We can
+	// conveniently do this in the block buffer.
+	mcci_tweetnacl_sha512_t *pSignedHash =
+		(void *)((uint8_t *)pSigBlock->signature.bytes + nsigned);
+
 	// result = non-zero for failure or zero for success.
 	volatile mcci_tweetnacl_result_t result;
 
 	// check the signature, which will update signedHash.
 	result = mcci_tweetnacl_sign_open(
-			/* output */ signedHash.bytes,
+			/* output */ pSignedHash->bytes,
 			&nActual,
 			pSigBlock->signature.bytes,
 			nsigned,
@@ -206,12 +211,12 @@ McciBootloader_checkStorageImage(
 
 	// constant time compares and checks.
 	// make sure the size is right.
-	result |= nActual ^ sizeof(signedHash);
+	result |= nActual ^ sizeof(pSignedHash->bytes);
 
 	// make sure the hashes match
 	result |= mcci_tweetnacl_verify_64(
 			imageHash.bytes,
-			signedHash.bytes
+			pSignedHash->bytes
 			);
 
 	// Make sure the key in the image matches ours. It should but still...
