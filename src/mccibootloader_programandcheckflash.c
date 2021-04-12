@@ -85,18 +85,20 @@ McciBootloader_programAndCheckFlash(
 	)
 	{
 	volatile const uint8_t * const targetAddress = (volatile const uint8_t *) pAppInfo->targetAddress;
-	size_t const overallSize = pAppInfo->imagesize + pAppInfo->authsize;
+	size_t const overallSizeTight = pAppInfo->imagesize + pAppInfo->authsize;
+	const size_t blockSize = sizeof(g_McciBootloader_imageBlock);
+	size_t const overallSize = (overallSizeTight + blockSize - 1) & ~(blockSize - 1);
 
+	// erase in 4k chunks, to match program size.
 	if (! McciBootloaderPlatform_systemFlashErase(
 		targetAddress, overallSize
 		))
 		return McciBootloaderError_EraseFailed;
 
-	// program in 4k chunks, up to the blcok that includes the
+	// program in 4k chunks, up to the block that includes the
 	// last byte of the signature
 	McciBootloaderStorageAddress_t const addressEnd =
 		storageAddress + overallSize;
-	const size_t blockSize = sizeof(g_McciBootloader_imageBlock);
 
 	McciBootloaderStorageAddress_t addressCurrent;
 	volatile const uint8_t *targetCurrent;
