@@ -84,12 +84,7 @@ McciBootloaderBoard_CatenaAbz_setUpdate(bool fRequest)
 	McciArm_putReg(MCCI_STM32L0_REG_FLASH_PEKEYR, MCCI_STM32L0_REG_FLASH_PEKEYR_UNLOCK1);
 	McciArm_putReg(MCCI_STM32L0_REG_FLASH_PEKEYR, MCCI_STM32L0_REG_FLASH_PEKEYR_UNLOCK2);
 
-	// the EEPROM should erase first, if needed; select the data EEPROM.
-	McciArm_putRegOr(
-		MCCI_STM32L0_REG_FLASH_PECR,
-		MCCI_STM32L0_REG_FLASH_PECR_DATA
-		);
-
+	// the EEPROM should erase first, if needed.
 	// write data
 	McciArm_putReg((uint32_t)&pEeprom->fUpdateRequest, dwValue);
 
