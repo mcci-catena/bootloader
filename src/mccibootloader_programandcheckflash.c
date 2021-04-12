@@ -130,7 +130,7 @@ McciBootloader_programAndCheckFlash(
 
 	/* finally, check the image */
 	if (! McciBootloader_checkCodeValid(
-		(const void *)targetAddress, overallSize
+		(const void *)targetAddress, overallSizeTight
 		))
 		{
 		return McciBootloaderError_FlashVerifyFailed;
