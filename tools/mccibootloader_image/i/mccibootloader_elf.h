@@ -102,7 +102,7 @@ public:
 		{
 		return	1 <= this->ei_data && this->ei_data <= 2;
 		}
-	ei_data_t getData() const { return ei_data_t(this->ei_data); }
+	constexpr ei_data_t getData() const { return ei_data_t(this->ei_data); }
 	constexpr bool isLittleEndian() const
 		{
 		return this->getData() == ei_data_t::kLittleEndian;
