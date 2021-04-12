@@ -56,18 +56,22 @@ McciBootloader_Stm32L0_systemFlashErase(
 	size_t nBytes
 	)
 	{
-	if (nBytes % MCCI_STM32L0_FLASH_PAGE_SIZE != 0)
-		return false;
-
 	bool result = true;
+
+	// round nBytes up if necessary for partial pages.
+	nBytes = (nBytes + MCCI_STM32L0_FLASH_PAGE_SIZE - 1) & ~(MCCI_STM32L0_FLASH_PAGE_SIZE - 1);
 
 	// wait
 	while (McciArm_getReg(MCCI_STM32L0_REG_FLASH_SR) & MCCI_STM32L0_REG_FLASH_SR_BSY)
 		/* loop */;
 
-	// unlock
+	// unlock the PECR bit
 	McciArm_putReg(MCCI_STM32L0_REG_FLASH_PEKEYR, MCCI_STM32L0_REG_FLASH_PEKEYR_UNLOCK1);
 	McciArm_putReg(MCCI_STM32L0_REG_FLASH_PEKEYR, MCCI_STM32L0_REG_FLASH_PEKEYR_UNLOCK2);
+
+	// unlock the PROG bit
+	McciArm_putReg(MCCI_STM32L0_REG_FLASH_PRGKEYR, MCCI_STM32L0_REG_FLASH_PRGKEYR_UNLOCK1);
+	McciArm_putReg(MCCI_STM32L0_REG_FLASH_PRGKEYR, MCCI_STM32L0_REG_FLASH_PRGKEYR_UNLOCK2);
 
 	// loop throgh each page, erasing
 	uint32_t p;
@@ -78,7 +82,7 @@ McciBootloader_Stm32L0_systemFlashErase(
 
 	McciArm_putRegOr(
 		MCCI_STM32L0_REG_FLASH_PECR,
-		MCCI_STM32L0_REG_FLASH_PECR_ERASE | MCCI_STM32L0_REG_FLASH_PECR_DATA
+		MCCI_STM32L0_REG_FLASH_PECR_ERASE | MCCI_STM32L0_REG_FLASH_PECR_PROG
 		);
 
 	for (; nPages > 0; p += MCCI_STM32L0_FLASH_PAGE_SIZE, --nPages)
@@ -101,7 +105,7 @@ McciBootloader_Stm32L0_systemFlashErase(
 	// turn off PECR bits
 	McciArm_putRegClear(
 		MCCI_STM32L0_REG_FLASH_PECR,
-		MCCI_STM32L0_REG_FLASH_PECR_ERASE | MCCI_STM32L0_REG_FLASH_PECR_DATA
+		MCCI_STM32L0_REG_FLASH_PECR_ERASE | MCCI_STM32L0_REG_FLASH_PECR_PROG
 		);
 
 	// lock
@@ -181,6 +185,10 @@ McciBootloader_Stm32L0_systemFlashWrite(
 	McciArm_putReg(MCCI_STM32L0_REG_FLASH_PEKEYR, MCCI_STM32L0_REG_FLASH_PEKEYR_UNLOCK1);
 	McciArm_putReg(MCCI_STM32L0_REG_FLASH_PEKEYR, MCCI_STM32L0_REG_FLASH_PEKEYR_UNLOCK2);
 
+	// unlock the PROG bit
+	McciArm_putReg(MCCI_STM32L0_REG_FLASH_PRGKEYR, MCCI_STM32L0_REG_FLASH_PRGKEYR_UNLOCK1);
+	McciArm_putReg(MCCI_STM32L0_REG_FLASH_PRGKEYR, MCCI_STM32L0_REG_FLASH_PRGKEYR_UNLOCK2);
+
 	result = true;
 	for (; nBytes > 0;
 	     nBytes -= nHalfPage,
@@ -188,11 +196,16 @@ McciBootloader_Stm32L0_systemFlashWrite(
 	     pSrcData += nHalfPage / sizeof(uint32_t)
 	     )
 		{
-		if (! McciBootloader_Stm32L0_programHalfPage(destAddr, pSrcData))
-			{
-			result = false;
+		// we really don't want to take an interrupt while programming.
+		const uint32_t psw = McciArm_disableInterrupts();
+
+		result = McciBootloader_Stm32L0_programHalfPage(destAddr, pSrcData);
+
+		// reenable.
+		McciArm_setPRIMASK(psw);
+
+		if (! result)
 			break;
-			}
 		}
 
 	// lock
