@@ -253,6 +253,7 @@ McciBootloader_main(void)
                 if (programResult == McciBootloaderError_OK)
                         {
                         /* definitely (4) or (5): launch the application */
+                        McciBootloaderPlatform_setUpdateFlag(false);
                         McciBootloaderPlatform_startApp(&gk_McciBootloader_AppBase);
                         }
                 else
