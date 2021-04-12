@@ -389,8 +389,7 @@ LIBS_$1 +=						\
 	$${T_OBJDIR}/libmcci_tweetnacl.a		\
 ### end LIBS_McciBootloader
 
-all: $$(T_OBJDIR)/$1.elf
-
+# rule for making the signed .elf file
 MCCI_CLEANFILES += $$(T_OBJDIR)/$1.elf
 
 $$(T_OBJDIR)/$1.elf: $$(T_OBJDIR)/$1 $${MCCI_BOOTLOADER_KEYFILE}
@@ -398,11 +397,23 @@ $$(T_OBJDIR)/$1.elf: $$(T_OBJDIR)/$1 $${MCCI_BOOTLOADER_KEYFILE}
 	@if [ "$${strip $${MCCI_BOOTLOADER_KEYFILE}}" = "$${strip $${MCCI_BOOTLOADER_KEYFILE_TEST}}" ]; then echo "Warning: using test-signing key" ; fi
 	$${MAKEHUSH}$$(MCCIBOOTLOADER_IMAGE) $$(T_OBJDIR)/$1 $$@ --sign --add-time --keyfile "$$(MCCI_BOOTLOADER_KEYFILE)" $${MCCIBOOTLOADER_IMAGE_FLAGS}
 
-MCCI_CLEANFILES += $$(T_OBJDIR)/$1.rawbin
+# rule for making the signed .bin file.
+MCCI_CLEANFILES += $$(T_OBJDIR)/$1.bin
 
-$$(T_OBJDIR)/$1.rawbin: $$(T_OBJDIR)/$1.elf
+$$(T_OBJDIR)/$1.bin: $$(T_OBJDIR)/$1.elf
 	@echo $$(notdir $$@)
 	$${MAKEHUSH}$$(CROSS_COMPILE)objcopy -O binary $$< $$@
+
+# rule for making the signed .hex file
+MCCI_CLEANFILES += $$(T_OBJDIR)/$1.hex
+
+$$(T_OBJDIR)/$1.hex: $$(T_OBJDIR)/$1.elf
+	@echo $$(notdir $$@)
+	$${MAKEHUSH}$$(CROSS_COMPILE)objcopy -O ihex $$< $$@
+
+### for the bootloader,  we need the .elf, the .bin and the .hex ###
+all: $$(T_OBJDIR)/$1.elf $$(T_OBJDIR)/$1.bin $$(T_OBJDIR)/$1.hex
+
 endef
 
 ##############################################################################
