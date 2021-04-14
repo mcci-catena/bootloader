@@ -272,19 +272,19 @@ The loop looks like this:
 
 ### Programming app image from SPI
 
-The SPI image itself corresponds directly to the bytes to be programmed into program flash. All Elf headers must be stripped; the approved way to prepare this image is to use `objcopy`, as is done in the bootloader `Makefile` to make a `.rawbin` file, or in the MCCI Arduino `platform.txt` file, to make a `.bin` file. The `objcopy` step is normally done after signing.
+The SPI image itself corresponds directly to the bytes to be programmed into program flash. All Elf headers must be stripped; the approved way to prepare this image is to use `objcopy`, as is done in the bootloader `Makefile` to make a `.bin` file, or in the MCCI Arduino `platform.txt` file, to make a `.bin` file. The `objcopy` step is normally done after signing. If directly loading the image via an STLINK, you might also want to create a `.hex` file.
 
 The bootloader follows this procedure to load images from the SPI flash into program flash.
 
-1. Erase program flash application image space
-2. For each 4k block in image:
-    1. Read the block of data from SPI flash
-    2. Program block by dividing it into "half pages" and programming using a special function that lives in RAM.
-3. Finally, verify the application image by running the application check.
+1. The bootloader erases the portion of the program flash application image space that will be used for the new image.
+2. For each 4k block in the new image:
+    1. The bootloader reads the block of data from SPI flash into RAM.
+    2. The bootloader then programs the block to application flash, by dividing the block into "half pages" and programming using a special function that lives in RAM.
+3. Finally, the bootloader verifies the application image by running the application check.
 
 ### Checking signatures
 
-It takes a long time to verify a ed25519 signature on the STM32L0; so we only check signatures when deciding whether to update the flash, after we've validated the SHA512 hash.
+It takes a little while to verify a ed25519 signature on the STM32L0; so we only check signatures when deciding whether to update the flash, after we've validated the SHA512 hash.
 
 ## The bootloader query API on ARMv6-M systems
 
