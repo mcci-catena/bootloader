@@ -378,7 +378,7 @@ The bootloader should be hashed and signed by `mccibootloader_image`; the signin
 
 ### Building
 
-Install GNU Make if not present (on Windows, use [scoop](https://scoop.io)).
+Install GNU Make if not present (on Windows, use [scoop](https://scoop.sh)).
 
 If on Windows, install git bash.
 
