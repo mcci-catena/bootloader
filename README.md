@@ -456,7 +456,7 @@ The STM32L0 has a watchdog timer that can be enabled in hardware by the option b
 
 ### License
 
-The bootloader and top-level wrappers are released under the [MIT license](./LICENSE). Commercial licenses and commercial support are available from MCCI Corporation. The TweetNaCl and NaCl code is all public domain (including MCCI contributions in those directories). The collective work is MIT licensed.
+The bootloader and top-level wrappers are released under the terms of the attached [license](./LICENSE). Commercial licenses and commercial support are available from MCCI Corporation. The TweetNaCl and NaCl code is all public domain (including MCCI contributions in those directories).
 
 ### Support Open Source Hardware and Software
 
