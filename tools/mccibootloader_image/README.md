@@ -276,7 +276,13 @@ fi
 
 ## Build instructions
 
-On Windows, we use git bash and use [scoop](https://scoop.sh) to install GNU make and clang. (At time of writing, there was no working gcc available via scoop, although that may have been fixed.) Use `make -j3 -O` to build.
+On Windows, we use git bash and use [scoop](https://scoop.sh) to install GNU make and clang.
+
+Make sure to install the pre-requisites below, before make a build.
+- scoop install make
+- scoop install llvm
+
+(At time of writing, there was no working gcc available via scoop, although that may have been fixed.) Use `make -j3 -O` to build.
 
 On macOS, we have used either GCC 10 (installed via homebrew) or clang (installed via `xcode-select --install`).
 
