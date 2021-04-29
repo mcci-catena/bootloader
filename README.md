@@ -38,6 +38,8 @@
 	- [Building](#building)
 		- [Windows Build Example](#windows-build-example)
 	- [Installing the bootloader](#installing-the-bootloader)
+	- [Download Bootloader and Application with DFU](#download-bootloader-and-application-with-dfu)
+	- [Download Bootloader and Application with STLINK](#download-bootloader-and-application-with-stlink)
 	- [STM32L0 Watchdog timer](#stm32l0-watchdog-timer)
 - [Meta](#meta)
 	- [License](#license)
@@ -453,6 +455,38 @@ Or use gdb and the load command.
     ```console
     (gdb) load
     ```
+
+### Download Bootloader and Application with DFU
+
+The MCCI Arduino Board Support Package comes with [DFU-Util](https://sourceforge.net/projects/dfu-util/) v0.9.
+
+Because apps no longer begin at start of the flash, you should use the `dfuse-pack` tool (from v0.9 or v0.10) to prepare the image.
+
+If downloading bootloader and image at the same time, combine the intel-hex form of two sketches as follows:
+
+<code>python dfuse-pack.py -i <em><u>bootloader</u></em>.hex -i <em><u>sketch.ino</u></em>.hex -D <em><u>0x040E</u></em>:<em><u>0x00A1</u></em> <em><u>output</u></em>.dfu
+</code>
+
+If the bootloader is already present, generate a DFUse image from the Intel hex file as follows:
+
+<code>python dfuse-pack.py -i <em><u>sketch.ino</u></em>.hex -D <em><u>0x040E</u></em>:<em><u>0x00A1</u></em> <em><u>output</u></em>.dfu
+</code>
+
+Here's a concrete example. In this case, the USB VID and PID are for an MCCI Catena 4610. The result is created in a file named `combined.dfu`. The `.dfu` extension is required in the next step; the name `combined` is arbitrary.
+
+```bash
+python dfuse-pack.py -i /c/mcci/projects/lora/bootloader/build/arm-none-eabi/release/McciBootloader_46xx.hex -i /c/tmp/build-vscode-lmic/compliance-otaa-halconfig.ino.hex -D 0x040E:0x00A1 /c/tmp/build-vscode-lmic/combined.dfu
+```
+
+To download the code, you put the Catena 4610 in DFU mode, and use the `dfu-util` program:
+
+```bash
+dfu-util -a 0 -D compliance-otaa-halconfig.ino.boot.dfu
+```
+
+### Download Bootloader and Application with STLINK
+
+If using STLINK, you can download the bootloader and the sketch as two different steps. You only need to download the bootloader once; after that, you can simply update the application. We recommend that you use the `.hex` file as the input, as it contains important addressing information.
 
 ### STM32L0 Watchdog timer
 
