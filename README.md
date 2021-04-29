@@ -380,9 +380,15 @@ The bootloader should be hashed and signed by `mccibootloader_image`; the signin
 
 Install GNU Make if not present (on Windows, use [scoop](https://scoop.sh)).
 
-If on Windows, install git bash.
+If on Windows, install [git](https://git-scm.com/downloads) bash.
 
-Install Arduino IDE for target.
+Install [Arduino IDE](https://www.arduino.cc/en/software) for target.
+
+Open the Arduino IDE. Go to `File>Preferences>Settings`. Add `https://github.com/mcci-catena/arduino-boards/raw/master/BoardManagerFiles/package_mcci_index.json` to the list in `Additional Boards Manager URLs`.
+
+If you already have entries in that list, use a comma (`,`) to separate the entry you're adding from the entries that are already there.
+
+Next, open the board manager. `Tools>Board:...`, and get up to the top of the menu that pops out -- it will give you a list of boards. Search for `MCCI` in the search box and select `MCCI Catena STM32 Boards`. An `[Install]` button will appear to the right; click it.
 
 If you don't already have the bootloader image tool installed, you'll need to build it first. Change directory to `tools/mccibootloader_image` and following the instructions to build the image tool (if not already built).
 
