@@ -494,9 +494,15 @@ The STM32L0 has a watchdog timer that can be enabled in hardware by the option b
 
 ## Meta
 
-### License
+### Copyright and License
 
-The bootloader and top-level wrappers are released under the terms of the attached [license](./LICENSE). Commercial licenses and commercial support are available from MCCI Corporation. The TweetNaCl and NaCl code is all public domain (including MCCI contributions in those directories).
+Except as explicitly noted, content created by MCCI in this repository tree is copyright (C) 2021, MCCI Corporation.
+
+The bootloader and top-level wrappers are released under the terms of the attached [license](./LICENSE.md). Commercial licenses and commercial support are available from MCCI Corporation. The bootloader image tool is released under its own [license](tools/mccibootloader_image/LICENSE.md).
+
+Git submodules are subject to their own copyrights and licenses; however overall collection is a combined work, and is copyrighted and subject to the overall license.
+
+Notwithstanding the above, the TweetNaCl and NaCl code in directories `pkgsrc/mcci_tweetnacl/extra/reference_tweetnacl` and `pkgsrc/mcci_tweetnacl/extra/reference_nacl` is all public domain (including MCCI contributions in those directories).
 
 ### Support Open Source Hardware and Software
 
