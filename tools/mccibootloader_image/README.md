@@ -25,7 +25,7 @@ Hash images and sign images for the MCCI bootloader.
 - [Using private keys in your build](#using-private-keys-in-your-build)
 - [Build instructions](#build-instructions)
 - [Meta](#meta)
-	- [License](#license)
+	- [Copyright and License](#copyright-and-license)
 	- [Support Open Source Hardware and Software](#support-open-source-hardware-and-software)
 	- [Trademarks](#trademarks)
 
@@ -297,13 +297,17 @@ To cross-compile, use the typical mechanism: `CROSS_COMPILE=prefix- make`. This 
 
 ## Meta
 
-### License
+### Copyright and License
 
-`mccibooloader_image` and wrappers released under the attached [license](../../LICENSE). Commercial licenses and commercial support are available from MCCI Corporation. The TweetNaCl and NaCl code is all public domain (including MCCI contributions in those directories).
+Except as explicitly noted, content created by MCCI in this repository tree is copyright (C) 2021, MCCI Corporation.
+
+`mccibooloader_image` and wrappers are released under the attached [license](./LICENSE.md). Commercial licenses and commercial support are available from MCCI Corporation.
+
+The TweetNaCl and NaCl code is all public domain (including MCCI contributions in those directories).
 
 ### Support Open Source Hardware and Software
 
-MCCI invests time and resources providing this open source code, please support MCCI and open-source hardware by purchasing products from MCCI, Adafruit and other open-source hardware/software vendors!
+MCCI invests time and resources providing this open source code, please support MCCI and open-source hardware by purchasing products from MCCI and other open-source hardware/software vendors!
 
 For information about MCCI's products, please visit [store.mcci.com](https://store.mcci.com/).
 
