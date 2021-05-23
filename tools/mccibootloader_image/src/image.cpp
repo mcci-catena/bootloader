@@ -108,6 +108,31 @@ void App_t::readImage()
 		this->fatal("unexpected e_phoff value");
 		}
 
+	// display the program header entries
+	if (this->fVerbose)
+		{
+		for (unsigned i = 0; i < pElfIdent32->getPhnum(); ++i)
+			{
+			const ElfIdent32_t::ProgramHeader_t ph { *pElfIdent32, i };
+
+			// dump the section
+				{
+				std::ostringstream msg;
+
+				msg << "ELF: section " << i << ": "
+				<< "vaddr(" << std::hex << ph.getVaddr() << ") "
+				<< "paddr(" << std::hex << ph.getPaddr() << ") "
+				<< "size(" << std::hex << ph.getMemsz() << ") "
+				<< "vend(" << std::hex << ph.getVaddr() + ph.getMemsz() << ") "
+				<< "offset(" << std::hex << ph.getOffset() << ") "
+				<< "fsize(" << std::hex << ph.getFilesz() << ") "
+				<< "flags(" << std::hex << ph.getFlags() << ")"
+				;
+				this->verbose(msg.str());
+				}
+			}
+		}
+
 	// empty the file image and set up the elf image
 	this->elf.image = std::move(this->fileimage);
 	this->fileimage.clear();
@@ -122,23 +147,6 @@ void App_t::readImage()
 
 		if (ph.getType() != decltype(ph.getType())::kLoad)
 			this->fatal("section type is not loadable");
-
-		// dump the section
-		if (this->fVerbose)
-			{
-			std::ostringstream msg;
-
-			msg << "ELF: section " << i << ": "
-			    << "vaddr(" << std::hex << ph.getVaddr() << ") "
-			    << "paddr(" << std::hex << ph.getPaddr() << ") "
-			    << "size(" << std::hex << ph.getMemsz() << ") "
-			    << "vend(" << std::hex << ph.getVaddr() + ph.getMemsz() << ") "
-			    << "offset(" << std::hex << ph.getOffset() << ") "
-			    << "fsize(" << std::hex << ph.getFilesz() << ") "
-			    << "flags(" << std::hex << ph.getFlags() << ")"
-			    ;
-			this->verbose(msg.str());
-			}
 
 		// we used to try skipping writable sections, but ...
 		// that requires PHDRS in the link script. Instead, use
