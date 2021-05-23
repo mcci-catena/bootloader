@@ -107,12 +107,6 @@ void App_t::readImage()
 		{
 		this->fatal("unexpected e_phoff value");
 		}
-	if (pElfIdent32->getPhnum() > 4)
-		{
-		ostringstream msg;
-		msg << "ELF e_phnum > 4: " << pElfIdent32->getPhnum();
-		this->fatal(msg.str());
-		}
 
 	// empty the file image and set up the elf image
 	this->elf.image = std::move(this->fileimage);
