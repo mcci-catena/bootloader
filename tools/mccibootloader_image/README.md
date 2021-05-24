@@ -70,6 +70,8 @@ The following options are defined. Note that options can be mixed with the input
 <dd>Update the input file in place.</dd>
 <dt><code>-k <em>file</em></code>, <code>--keyfile <em>file</em></code></dt>
 <dd>Read the signing key from <code><em>file</em></code>, which must be an OpenSSH ed25519 private key file, not password protected. The (insecure) keyfile <code>test/mcci-test.pem</code> is conventionally used for test purposes. </dd>
+<dt><code>-V <em>major[.minor[.patch]][-pre]</em></code>, <code>--app-version <em>major[.minor[.patch]][-pre]</em></code></dt>
+<dd>Set the application version according to the argument.</dd>
 <dt><code>-s</code>, <code>--sign</code></dt>
 <dd>Compute the hash (as with <code>-h</code>, and then sign. A key file must be provided.</dd>
 <dt><code>-v</code>, <code>--verbose</code></dt>
@@ -93,6 +95,7 @@ Program settings:
        --patch: false
      --keyfile: C:/mcci/projects/lora/bootloader/tools/mccibootloader_image/test/mcci-test.pem
      --comment: <<none>>
+ --app-version: <<none>>
 
 input:          build/arm-none-eabi/release/McciBootloader_46xx
 output:         build/arm-none-eabi/release/McciBootloader_46xx.elf

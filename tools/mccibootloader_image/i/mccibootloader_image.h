@@ -65,75 +65,7 @@ static_assert(offsetof(GuidWire_t, clock_seq_low) == 9, "GUID layout mismatch");
 static_assert(offsetof(GuidWire_t, node) == 10, "GUID layout mismatch");
 static_assert(sizeof(GuidWire_t) == GuidWire_t_SIZE, "GUID layout mismatch");
 
-// a forward reference
-struct McciBootloader_AppInfo_Wire_t;
-
-// the application structure
-struct App_t
-	{
-	bool		fVerbose;
-	bool		fSign;
-	bool		fHash;
-	bool		fPatch;
-	bool		fUpdate;
-	bool		fAddTime;
-	bool		fDryRun;
-	bool		fForceBinary;
-	char 		*pComment;
-	std::string	infilename;
-	std::string	outfilename;
-	std::string	progname;
-	std::string	keyfilename;
-	std::vector<uint8_t>	fileimage;
-
-	struct AppElf_t
-		{
-		std::vector<uint8_t>	image;
-		const McciBootloader_Elf::ElfIdent32_t *pIdent32;
-		std::vector<McciBootloader_Elf::ElfIdent32_t::ProgramHeader_t> vHeaders;
-		std::uint32_t	targetAddress;
-		} elf;
-
-	int		argc;
-	char		**argv;
-	size_t		fSize;
-	size_t		authSize;
-	mcci_tweetnacl_sha512_t fileHash;
-	const McciBootloader_AppInfo_Wire_t *pFileAppInfo;
-
-	int begin(int argc, char **argv);
-	bool isUsingElf() const
-		{ return this->elf.image.size() != 0; }
-
-private:
-	void scanArgs(int argc, char **argv);
-	[[noreturn]] void usage(const string &message);
-	[[noreturn]] void fatal(const string &message);
-	void verbose(const string &message);
-	void addHeader();
-	void addHash();
-	void addSignature();
-	void testNaCl();
-	void dump(const string &message, const uint8_t *pBegin, const uint8_t *pEnd);
-	void readImage();
-	void writeImage();
-	void elfImagePrep();
-
-	Keyfile_ed25519_t keyfile;
-	};
-
-static constexpr const char *filebasename(const char *s)
-    {
-    const char *pName = s;
-
-    for (auto p = s; *p != '\0'; ++p)
-        {
-        if (*p == '/' || *p == '\\')
-            pName = p + 1;
-        }
-    return pName;
-    }
-
+/* versions */
 namespace McciVersion {
 	typedef std::uint32_t Version_t;
 
@@ -174,6 +106,79 @@ namespace McciVersion {
 		return std::uint8_t(v);
 		}
 } // namespace McciVersion
+
+
+// a forward reference
+struct McciBootloader_AppInfo_Wire_t;
+
+// the application structure
+struct App_t
+	{
+	bool		fVerbose;
+	bool		fSign;
+	bool		fHash;
+	bool		fPatch;
+	bool		fUpdate;
+	bool		fAddTime;
+	bool		fDryRun;
+	bool		fForceBinary;
+	char 		*pComment;
+	std::string	infilename;
+	std::string	outfilename;
+	std::string	progname;
+	std::string	keyfilename;
+	std::vector<uint8_t>	fileimage;
+	McciVersion::Version_t	appVersion;
+	bool		fAppVersion;
+
+	struct AppElf_t
+		{
+		std::vector<uint8_t>	image;
+		const McciBootloader_Elf::ElfIdent32_t *pIdent32;
+		std::vector<McciBootloader_Elf::ElfIdent32_t::ProgramHeader_t> vHeaders;
+		std::uint32_t	targetAddress;
+		} elf;
+
+	int		argc;
+	char		**argv;
+	size_t		fSize;
+	size_t		authSize;
+	mcci_tweetnacl_sha512_t fileHash;
+	const McciBootloader_AppInfo_Wire_t *pFileAppInfo;
+
+	int begin(int argc, char **argv);
+	bool isUsingElf() const
+		{ return this->elf.image.size() != 0; }
+
+private:
+	void scanArgs(int argc, char **argv);
+	[[noreturn]] void usage(const string &message);
+	[[noreturn]] void fatal(const string &message);
+	void verbose(const string &message);
+	void addHeader();
+	void addHash();
+	void addSignature();
+	void testNaCl();
+	void dump(const string &message, const uint8_t *pBegin, const uint8_t *pEnd);
+	void readImage();
+	void writeImage();
+	void elfImagePrep();
+	void setAppVersion(const string &versionString);
+
+	Keyfile_ed25519_t keyfile;
+	};
+
+static constexpr const char *filebasename(const char *s)
+    {
+    const char *pName = s;
+
+    for (auto p = s; *p != '\0'; ++p)
+        {
+        if (*p == '/' || *p == '\\')
+            pName = p + 1;
+        }
+    return pName;
+    }
 
 // the layout of the image
 class uint32_le_t
