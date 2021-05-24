@@ -35,6 +35,10 @@ static void dumpAppInfo(
 	McciBootloader_AppInfo_Wire_t const &appInfo
 	);
 
+static std::string versionToString(
+	McciVersion::Version_t version
+	);
+
 /****************************************************************************\
 |
 |	Read-only data.
@@ -196,6 +200,13 @@ void App_t::scanArgs(int argc, char **argv)
 				this->usage("missing comment value");
 			this->pComment = *argv++;
 			}
+		else if (arg == "-V" || arg == "--app-version")
+			{
+			if (*argv == nullptr)
+				this->usage("missing app-version value");
+
+			this->setAppVersion(string(*argv));
+			}
 		else if (arg == "--version")
 			{
 			std::cout << "mccibootloader_image v"
@@ -257,6 +268,7 @@ void App_t::scanArgs(int argc, char **argv)
 			  << "       --patch: " << this->fPatch << "\n"
 		          << "     --keyfile: " << this->keyfilename << "\n"
 			  << "     --comment: " << (pComment == NULL ? "<<none>>": pComment) << "\n"
+			  << " --app-version: " << (!this->fAppVersion ? "<<none>>": versionToString(this->appVersion)) << "\n"
 			  << "\n"
 		          << "input:          " << this->infilename << "\n"
 		          << "output:         "
@@ -271,15 +283,117 @@ void App_t::scanArgs(int argc, char **argv)
 void App_t::usage(const string &message)
 	{
 	string usage = message;
-	if (usage != "")
+	if (usage != "" && usage[usage.length() - 1] != '\n')
 		{
 		usage.append(": ");
 		}
 	usage.append("usage: ");
 	usage.append(this->progname);
-	usage.append(" -[vsh k{keyfile} c{comment}] --[version sign hash comment {comment} dry-run add-time force-binary] infile [outfile]\n");
+	usage.append(" -[vsh k{keyfile} c{comment} -V{app-version}] --[version sign hash app-version {version} comment {comment} dry-run add-time force-binary] infile [outfile]\n");
 	fprintf(stderr, "%s\n", usage.c_str());
 	exit(EXIT_FAILURE);
+	}
+
+static std::string versionToString(McciVersion::Version_t version)
+	{
+	ostringstream sVersion;
+	sVersion << unsigned(McciVersion::getMajor(version))
+		 << "."
+		 << unsigned(McciVersion::getMinor(version))
+		 << "."
+		 << unsigned(McciVersion::getPatch(version))
+		 ;
+	if (McciVersion::getLocal(version) != 0)
+		{
+		sVersion << "-"
+			 << unsigned(McciVersion::getLocal(version));
+		}
+
+	return sVersion.str();
+	}
+
+void App_t::setAppVersion(
+	const string &versionString
+	)
+	{
+	unsigned i = 0;
+
+	auto const failstring = [&versionString, &i](const string &message) -> string
+		{
+		string result;
+		result = message + ": ";
+		result += versionString.substr(0, i);
+		result += "[";
+		result += versionString.substr(i);
+		result += "]\n";
+		return result;
+		};
+
+	auto const getn = [this, &versionString, &i, &failstring]() -> std::uint8_t
+		{
+		std::uint32_t result;
+		auto const n = versionString.length();
+		bool err;
+		bool gotDigit;
+
+		err = false;
+		gotDigit = false;
+		result = 0;
+
+		while (i < n && !err)
+			{
+			auto c = versionString[i];
+			if (! ('0' <= c && c <= '9'))
+				break;
+
+			gotDigit = true;
+			result = result * 10 + (c - '0');
+			if (result >= 256)
+				err = true;
+			else
+				++i;
+			}
+
+		if (! gotDigit)
+			err = true;
+
+		if (err)
+			this->usage(failstring("illegal app-version syntax"));
+
+		return result;
+		};
+	auto const checkpunct = [&versionString, &i](char c) -> bool
+		{
+		auto const n = versionString.length();
+
+		if (i < n && versionString[i] == c)
+			{
+			++i;
+			return true;
+			}
+		return false;
+		};
+
+	auto const major = getn();
+	std::uint8_t minor, patch, prerelease;
+	minor = patch = prerelease = 0;
+
+	if (checkpunct('.'))
+		{
+		minor = getn();
+		if (checkpunct('.'))
+			patch = getn();
+		}
+	if (checkpunct('-'))
+		{
+		prerelease = getn();
+		}
+
+	if (i < versionString.length())
+		this->usage(failstring("illegal value for app-version"));
+
+	this->appVersion = McciVersion::makeVersion(major, minor, patch, prerelease);
+	this->fAppVersion = true;
 	}
 
 void dumpAppInfo(
@@ -296,21 +410,8 @@ void dumpAppInfo(
 	          << " posixTimestamp: " << std::setw(16) << std::setfill(' ') << appInfo.posixTimestamp.get() << "\n"
 		  << "        comment:         " << appInfo.comment.get() << "\n";
 		  ;
-	auto version = appInfo.version.get();
-	ostringstream sVersion;
-	sVersion << unsigned(McciVersion::getMajor(version))
-		 << "."
-		 << unsigned(McciVersion::getMinor(version))
-		 << "."
-		 << unsigned(McciVersion::getPatch(version))
-		 ;
-	if (McciVersion::getLocal(version) != 0)
-		{
-		sVersion << "-"
-			 << unsigned(McciVersion::getLocal(version));
-		}
   
-	std::cout << "        version: " << std::setw(16) << std::setfill(' ') << sVersion.str();
+	std::cout << "        version: " << std::setw(16) << std::setfill(' ') << versionToString(appInfo.version.get());
 	std::cout << "\n";
 	std::cout << "\n";
 	}
@@ -383,6 +484,12 @@ void App_t::addHeader()
 	appInfo.authsize.put(
 		this->authSize
 		);
+
+	// set the version if one was provided
+	if (this->fAppVersion)
+		appInfo.version.put(
+			this->appVersion
+			);
 
 	// add posix time
 	if (this->fAddTime)
