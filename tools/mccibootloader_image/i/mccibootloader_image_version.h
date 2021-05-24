@@ -27,7 +27,7 @@ Author:
 #include "mccibootloader_image.h"
 
 constexpr McciVersion::Version_t kVersion =
-	McciVersion::makeVersion(0, 3, 1, 0);
+	McciVersion::makeVersion(0, 4, 0, 0);
 constexpr char kCopyright[] = "Copyright (C) 2021, MCCI Corporation";
 
 #endif /* _mccibootloader_image_version_h_ */
