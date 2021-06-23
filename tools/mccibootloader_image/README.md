@@ -284,6 +284,11 @@ On Windows, we use git bash and use [scoop](https://scoop.sh) to install GNU mak
 Make sure to install the pre-requisites below, before make a build.
 - scoop install make
 - scoop install llvm
+- [Visual Studio SDK](https://developer.microsoft.com/en-us/windows/downloads/sdk-archive/)
+
+**NOTE:** 
+1. It's important to check whether the work/test machine has installed with any of the Visual Studio SDK versions. If not, please install it using the link above, it's necessary to support with the required C Runtime library files during the clang compilation.
+2. Also, it's advised to check, if there are more than one MSVS SDK versions installed in the work machine (Installed SDK versions can be checked under the windows directory path *"C:\Program Files (x86)\Windows Kits\10\Include"*). If so, please uninstall the unused SDK versions and maintain the active version alone. Because the clang may have trouble fetching the library files if there are more than one SDK version available in the machine.
 
 (At time of writing, there was no working gcc available via scoop, although that may have been fixed.) Use `make -j3 -O` to build.
 
