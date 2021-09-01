@@ -115,6 +115,7 @@ struct McciBootloader_AppInfo_Wire_t;
 struct App_t
 	{
 	bool		fVerbose;
+	bool		fDebug;
 	bool		fSign;
 	bool		fHash;
 	bool		fPatch;

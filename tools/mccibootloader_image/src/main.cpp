@@ -160,6 +160,10 @@ void App_t::scanArgs(int argc, char **argv)
 			{
 			this->fVerbose = fBool;
 			}
+		else if (boolArg == "-D" || boolArg == "--debug")
+			{
+			this->fDebug = fBool;
+			}
 		else if (boolArg == "-h" || boolArg == "--hash")
 			{
 			this->fHash = fBool;
@@ -260,6 +264,7 @@ void App_t::scanArgs(int argc, char **argv)
 		std::cout << std::boolalpha;
 		std::cout << "Program settings:\n"
 		          << "     --verbose: " << this->fVerbose << "\n"
+		          << "       --debug: " << this->fDebug << "\n"
 		          << "        --hash: " << this->fHash << "\n"
 		          << "        --sign: " << this->fSign << "\n"
 		          << "    --add-time: " << this->fAddTime << "\n"
@@ -289,7 +294,7 @@ void App_t::usage(const string &message)
 		}
 	usage.append("usage: ");
 	usage.append(this->progname);
-	usage.append(" -[vsh k{keyfile} c{comment} -V{app-version}] --[version sign hash app-version {version} comment {comment} dry-run add-time force-binary] infile [outfile]\n");
+	usage.append(" -[vsh k{keyfile} c{comment} -V{app-version}] --[version sign hash app-version {version} comment {comment} dry-run add-time force-binary verbose debug] infile [outfile]\n");
 	fprintf(stderr, "%s\n", usage.c_str());
 	exit(EXIT_FAILURE);
 	}
