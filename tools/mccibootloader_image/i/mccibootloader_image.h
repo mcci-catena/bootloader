@@ -156,6 +156,7 @@ private:
 	[[noreturn]] void usage(const string &message);
 	[[noreturn]] void fatal(const string &message);
 	void verbose(const string &message);
+	bool probeHeader(size_t appInfoOffset, McciBootloader_AppInfo_Wire_t &fileAppInfo, uint8_t * &pFileAppInfo);
 	void addHeader();
 	void addHash();
 	void addSignature();
@@ -300,16 +301,29 @@ union CortexAppEntry_t
 	CortexAppEntryContents_t	AppEntry;
 	};
 
-struct CortexVectorsContents_t
+///
+/// \brief the template for creating the architecture-specific vectors
+///
+/// \param a_nVec number of vectors to be reserved.
+///
+/// \details
+/// 	ARM Cortex architectures allow different numbers of
+///	entries in the vector table. We use this template to represent
+///	the vectors in a consistent way.
+///
+template <uint32_t a_nVec>
+struct CortexAbstractVectorsContents_t
 	{
-	uint32_le_t	v[192/4];
+	static constexpr uint32_t nVec = a_nVec;	//< the number of vectors
+	uint32_le_t		v[nVec];		//< the array of vector pointers
 	};
 
-union CortexVectors_t
+template <uint32_t a_nVec>
+union CortexAbstractVectors_t
 	{
-	CortexAppEntryContents_t	AppEntry;
-	CortexAppEntry_t		AppEntryCast;
-	CortexVectorsContents_t		Vectors;
+	CortexAppEntryContents_t			AppEntry;
+	CortexAppEntry_t				AppEntryCast;
+	CortexAbstractVectorsContents_t<a_nVec>		Vectors;
 	};
 
 struct McciBootloader_AppInfo_Wire_t
@@ -350,22 +364,77 @@ static_assert(
 	"wrong size for McciBootloader_SignatureBlock_Wire_t"
 	);
 
-struct McciBootloader_CortexPageZeroContents_t
+template <uint32_t a_nVec>
+struct McciBootloader_CortexAbstract_PageZeroContents_t
 	{
-	CortexVectorsContents_t		Hdr;
-	McciBootloader_AppInfo_Wire_t	AppInfo;
+	CortexAbstractVectorsContents_t<a_nVec>	Hdr;
+	McciBootloader_AppInfo_Wire_t		AppInfo;
 	};
 
-union McciBootloader_CortexPageZero_Wire_t
+template <uint32_t a_nVec>
+union McciBootloader_CortexAbstract_PageZero_Wire_t
 	{
 	CortexAppEntryContents_t		CortexAppEntry;		//< View instance as a CortexM0 AppEntry.
 	CortexAppEntry_t			CortexAppEntryCast;	//< Downcast to an AppEntry without explicit casting
-	CortexVectorsContents_t		 	CortexVectors;		//< View instance as vectors.
-	CortexVectors_t	 			CortexVectorsCast;	//< Downcast to a CortexVectors_t without explicit casting
-	McciBootloader_CortexPageZeroContents_t PageZero;		//< View instance as a PageZero.
-	uint8_t					Bytes[256];		//< padding to force size
+	CortexAbstractVectorsContents_t<a_nVec>	CortexVectors;		//< View instance as vectors.
+	CortexAbstractVectors_t<a_nVec> 	CortexVectorsCast;	//< Downcast to a CortexVectors_t without explicit casting
+	McciBootloader_CortexAbstract_PageZeroContents_t<a_nVec>
+						PageZero;		//< View instance as a PageZero.
+	uint8_t					Bytes[a_nVec * 4 + 64];	//< padding to force size
 	};
 
-static_assert(sizeof(McciBootloader_CortexPageZero_Wire_t) == 256, "Page zero size wrong");
+///
+/// \brief concrete page-zero type for Cortex m0/m0plus CPUs.
+///
+/// \details The CM0/CM0+ architectures have 48 vectors, and 256 bytes in page zero.
+///	This structure is the concrete representation.
+///
+typedef McciBootloader_CortexAbstract_PageZero_Wire_t<48>
+	McciBootloader_CortexM0_PageZero_Wire_t;
+
+static_assert(
+	sizeof(McciBootloader_CortexM0_PageZero_Wire_t) == 256,
+	"Page zero size wrong"
+	);
+
+///
+/// \brief concrete page-zero type for Cortex m7 CPUs.
+///
+/// \details The CM7 architectures have up to 240 vectors, and 1024 bytes in page zero.
+///	This structure is the concrete representation.
+///
+typedef McciBootloader_CortexAbstract_PageZero_Wire_t<256>
+	McciBootloader_CortexM7_PageZero_Wire_t;
+
+static_assert(
+	sizeof(McciBootloader_CortexM7_PageZero_Wire_t) == 1024 + 64,
+	"Page zero size wrong"
+	);
+
+///
+/// \brief concrete page-zero type for STM32H7 SOCs.
+///
+/// \details The STM32H7 SOCs have hundress of vectors, but less than 240.
+///	This structure is the concrete representation.  Rather than trying to crunch things
+///	as tightly as possible, we act as if there are 240 vectors (which leaves 64
+///	bytes free at the end, but wastes (240-170)*4 = 280 bytes between the end of
+///	the vectors and the start of the AppInfo block.
+///
+typedef McciBootloader_CortexAbstract_PageZero_Wire_t<240>
+	McciBootloader_Stm32h7_PageZero_Wire_t;
+
+static_assert(
+	sizeof(McciBootloader_Stm32h7_PageZero_Wire_t) == 1024,
+	"Page zero size wrong"
+	);
+
+///
+/// \brief represent the supported positions for AppInfo_Wire_t structures
+///
+struct McciBootloader_AppInfoOffset_t
+	{
+	const char *pModelName;		//> the name of the architecture or model used for this table
+	size_t appInfoOffset;		//> the byte offset of the appinfo in the file image
+	};
 
 #endif /* _mccibootloader_image_h_ */
