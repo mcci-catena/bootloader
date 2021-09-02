@@ -484,9 +484,12 @@ void App_t::addHeader()
 	if (this->fVerbose)
 		{
 		std::ostringstream msg;
-		msg	<< "AppInfo("
+		msg	<< "AppInfo for architecture "
 			<< pEntry->pModelName
-			<< ") from input";
+			<< " found at offset 0x"
+			<< std::hex
+			<< pEntry->appInfoOffset
+			;
 
 		dumpAppInfo(
 			msg.str(),
