@@ -416,7 +416,7 @@ static_assert(
 ///
 /// \brief concrete page-zero type for STM32H7 SOCs.
 ///
-/// \details The STM32H7 SOCs have hundress of vectors, but less than 240 (including
+/// \details The STM32H7 SOCs have hundreds of vectors, but less than 240 (including
 ///	the 16 CPU vectors).  So we can make everything fit in the first 1k of the
 ///	image, by putting the AppInfo at in the last 64 bytes of the 1k block.
 ///	We could optimize this on an SOC-by-SOC basis, but that seems like wasted
