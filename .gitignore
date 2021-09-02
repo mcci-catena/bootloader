@@ -6,3 +6,4 @@
 *.o
 build
 *.hide
+doc/doxygen
