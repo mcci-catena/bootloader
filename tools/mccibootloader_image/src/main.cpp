@@ -497,7 +497,7 @@ void App_t::addHeader()
 			);
 		}
 
-	// appInfo starts as an instace of an appinfo with defaults.
+	// appInfo starts as an instance of an appinfo with defaults.
 	McciBootloader_AppInfo_Wire_t appInfo;
 
 	// if the file's appinfo looks good, use it
