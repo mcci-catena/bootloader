@@ -175,7 +175,7 @@ extern "C" {
 #define	MCCI_CM0PLUS_SCB_ICSR_PENDSVSET		(UINT32_C(1) << 28)	///<
 #define	MCCI_CM0PLUS_SCB_ICSR_PENDSVCLR		(UINT32_C(1) << 27)	///<
 #define	MCCI_CM0PLUS_SCB_ICSR_PENDSTSET		(UINT32_C(1) << 26)	///<
-#define	MCCI_CM0PLUS_SCB_ICSR_PENDSTCLR		(UINT32_C(1) << 26)	///<
+#define	MCCI_CM0PLUS_SCB_ICSR_PENDSTCLR		(UINT32_C(1) << 25)	///<
 #define	MCCI_CM0PLUS_SCB_ICSR_RSV24		(UINT32_C(1) << 24)	///<
 #define	MCCI_CM0PLUS_SCB_ICSR_ISRPREEMPT	(UINT32_C(1) << 23)	///<
 #define	MCCI_CM0PLUS_SCB_ICSR_ISRPENDING	(UINT32_C(1) << 22)	///<
@@ -214,8 +214,8 @@ extern "C" {
 ///	@{
 #define	MCCI_CM0PLUS_SCB_SHPR_PRI	(UINT32_C(3) << 6)	///< priority bits within a byte
 
-#define	MCCI_CM0PLUS_PRI_INDEX_SVC	UINT32_C(11)	///< priority of systick
-#define	MCCI_CM0PLUS_PRI_INDEX_PENDSV	UINT32_C(14)	///< priority of systick
+#define	MCCI_CM0PLUS_PRI_INDEX_SVC	UINT32_C(11)	///< priority of SVCall
+#define	MCCI_CM0PLUS_PRI_INDEX_PENDSV	UINT32_C(14)	///< priority of PendSV
 #define	MCCI_CM0PLUS_PRI_INDEX_SYSTICK	UINT32_C(15)	///< priority of systick
 
 /// 	\brief return register for a given handler index
@@ -493,7 +493,7 @@ typedef union Mcci_CortexAppEntry_u
 ///
 /// \brief Cortex M0 interrupt vectors (low level view)
 ///
-/// This structure represents the vectors page as an aray of 96 32-bit vectors.
+/// This structure represents the vectors page as an array of 48 32-bit vectors.
 /// It's used mostly for initialization and for building up larger structures.
 ///
 typedef struct Mcci_CortexVectorsContents_s

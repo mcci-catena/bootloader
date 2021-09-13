@@ -99,6 +99,21 @@ LDSCRIPT_McciBootloader_46xx	:=	$(BOOTLOADER_LDSCRIPT_ABZ)
 
 ##############################################################################
 #
+#	The stm32h7b3 bootloader
+#
+##############################################################################
+
+BOOTLOADERS += McciBootloader_stm32h7b3
+
+LIBS_McciBootloader_stm32h7b3 :=			\
+	${T_OBJDIR}/libmcci_bootloader_stm32h7.a	\
+	${T_OBJDIR}/libmcci_bootloader_stm32h7b3.a	\
+### end LIBS_McciBootloader_stm32h7b3
+
+LDSCRIPT_McciBootloader_stm32h7b3 := $(abspath platform/board/st/stm32h7b3/mk/mccibootloader.ld)
+
+##############################################################################
+#
 #	The cm0plus library
 #
 ##############################################################################
@@ -263,6 +278,84 @@ SOURCES_libmcci_tweetnacl :=						\
 INCLUDES_libmcci_tweetnacl :=			\
 	$_					\
 # end INCLUDES_libmcci_tweetnacl
+
+##############################################################################
+#
+#	The cm7 library
+#
+##############################################################################
+
+LIBRARIES += libmcci_bootloader_cm7
+
+_ := platform/arch/cm7
+
+CFLAGS_OPT_libmcci_bootloader_cm7 += -Os
+
+INCLUDES_libmcci_bootloader_cm7 :=					\
+	$(INCLUDES_libmcci_bootloader)					\
+	$_/i								\
+# end INCLUDES_libmcci_bootloader_cm7
+
+SOURCES_libmcci_bootloader_cm7 :=					\
+	$_/src/mccibootloaderplatform_cm7_checkimagevalid.c		\
+	$_/src/mccibootloaderplatform_cm7_getappinfo.c			\
+	$_/src/mccibootloaderplatform_cm7_getsignatureblock.c		\
+	$_/src/mccibootloaderplatform_cm7_startapp.c			\
+# end SOURCES_libmcci_bootloader_cm7
+
+##############################################################################
+#
+#	The stm32h7 library
+#
+##############################################################################
+
+LIBRARIES += libmcci_bootloader_stm32h7
+
+_ := platform/soc/stm32h7
+
+CFLAGS_OPT_libmcci_bootloader_stm32h7 += -Os
+
+INCLUDES_libmcci_bootloader_stm32h7 :=					\
+	$(INCLUDES_libmcci_bootloader_cm7)				\
+	$_/i								\
+# end INCLUDES_libmcci_bootloader_stm32h7
+
+SOURCES_libmcci_bootloader_stm32h7 :=					\
+	$_/src/mccibootloader_stm32h7_prepareforlaunch.c		\
+	$_/src/mccibootloader_stm32h7_systemflash.c			\
+	$_/src/mccibootloader_stm32h7_systeminit.c			\
+	$_/src/mccibootloaderplatform_stm32h7_checkimagevalid.c		\
+	$_/src/mccibootloaderplatform_stm32h7_getappinfo.c		\
+	$_/src/mccibootloaderplatform_stm32h7_getsignatureblock.c	\
+	$_/src/mccibootloaderplatform_stm32h7_startapp.c		\
+# end SOURCES_libmcci_bootloader_stm32h7
+
+##############################################################################
+#
+#	The stm32h7b3 library
+#
+##############################################################################
+
+LIBRARIES += libmcci_bootloader_stm32h7b3
+
+_ := platform/board/st/stm32h7b3
+
+CFLAGS_OPT_libmcci_bootloader_stm32h7b3 += -Os
+
+INCLUDES_libmcci_bootloader_stm32h7b3 :=				\
+	$(INCLUDES_libmcci_bootloader_stm32h7)				\
+	$_/i								\
+# end INCLUDES_libmcci_bootloader_stm32h7b3
+
+SOURCES_libmcci_bootloader_stm32h7b3 :=					\
+	$_/src/mccibootloaderboard_stm32h7b3_annunciator.c		\
+	$_/src/mccibootloaderboard_stm32h7b3_request.c			\
+	$_/src/mccibootloaderboard_stm32h7b3_platforminterface.c	\
+	$_/src/mccibootloaderboard_stm32h7b3_prepareforlaunch.c		\
+	$_/src/mccibootloaderboard_stm32h7b3_storage.c			\
+	$_/src/mccibootloaderboard_stm32h7b3_systeminit.c		\
+	$_/src/mccibootloaderboard_stm32h7b3_vectors.c			\
+# end SOURCES_libmcci_bootloader_stm32h7b3
 
 # post processing
 include mk/tail.mk
