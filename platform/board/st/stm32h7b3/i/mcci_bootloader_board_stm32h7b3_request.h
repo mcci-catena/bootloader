@@ -39,8 +39,10 @@ McciBootloaderBoard_Stm32h7b3_Request_t;
 ///
 /// \brief layout of STM32H7B3 update request image
 ///
-/// We place an image of this at the end of the bootloader image.
+/// We place an image of this at the end of the application image.
 ///
+extern void *gk_McciBootloader_RequestBase;
+
 struct McciBootloaderBoard_Stm32h7b3_Request_s
 	{
 	uint32_t	MagicBegin;

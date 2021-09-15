@@ -294,7 +294,7 @@ extern "C" {
 #define MCCI_STM32H7_REG_FLASH_CR_RSV13		(UINT32_C(3) << 13)	///< Reserved, don't change
 #define MCCI_STM32H7_REG_FLASH_CR_SSN		(UINT32_C(0x7F) << 6)	///< Sector erase selection number
 #define MCCI_STM32H7_REG_FLASH_CR_SSN_N(n)	((n) << 6)		///< Sector erase selection number
-#define MCCI_STM32H7_REG_FLASH_CR_START		(UINT32_C(7) << 5)	///< Erase start control
+#define MCCI_STM32H7_REG_FLASH_CR_START		(UINT32_C(1) << 5)	///< Erase start control
 #define MCCI_STM32H7_REG_FLASH_CR_FW		(UINT32_C(1) << 4)	///< Write forcing control
 #define MCCI_STM32H7_REG_FLASH_CR_BER		(UINT32_C(1) << 3)	///< Bank erase request
 #define MCCI_STM32H7_REG_FLASH_CR_SER		(UINT32_C(1) << 2)	///< Sector erase request

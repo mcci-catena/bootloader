@@ -28,9 +28,6 @@ Author:
 |
 \****************************************************************************/
 
-extern void *gk_McciBootloader_UpdateBase;
-extern void *gk_McciBootloader_FallbackBase;
-
 
 /****************************************************************************\
 |

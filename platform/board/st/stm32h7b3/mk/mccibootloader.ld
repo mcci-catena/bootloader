@@ -64,15 +64,15 @@ g_McciBootloader_WorkingRamBase = g_McciBootloader_StackBase - gk_McciBootloader
 /* where things are */
 gk_McciBootloader_BootBase      = gk_McciBootloader_FlashBase;
 gk_McciBootloader_BootTop       = gk_McciBootloader_BootBase + gk_McciBootloader_BootSize;
-gk_McciBootloader_AppBase       = gk_McciBootloader_BootTop;
-gk_McciBootloader_AppTop        = gk_McciBootloader_AppBase + gk_McciBootloader_AppSize;
-
-gk_McciBootloader_RequestBase   = gk_McciBootloader_AppTop;
+gk_McciBootloader_RequestBase   = gk_McciBootloader_BootTop;
 gk_McciBootloader_RequestTop    = gk_McciBootloader_RequestBase + gk_McciBootloader_RequestSize;
 gk_McciBootloader_MfgBase       = gk_McciBootloader_RequestTop;
 gk_McciBootloader_MfgTop        = gk_McciBootloader_MfgBase + gk_McciBootloader_MfgSize;
 
-gk_McciBootloader_UpdateBase    = gk_McciBootloader_FlashBase + 1M + 1K;
+gk_McciBootloader_AppBase       = gk_McciBootloader_FlashBase + 64K;
+gk_McciBootloader_AppTop        = gk_McciBootloader_AppBase + gk_McciBootloader_AppSize;
+
+gk_McciBootloader_UpdateBase    = gk_McciBootloader_FlashBase + 1M;
 gk_McciBootloader_FallbackBase  = gk_McciBootloader_FlashBase + 1M + 512K;
 
 /* the memory areas */

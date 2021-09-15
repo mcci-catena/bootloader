@@ -63,15 +63,13 @@ MCCI_BOOTLOADER_BEGIN_DECLS
 ///
 /// \details The update block begins at the bank2.
 ///
-#define	MCCI_BOOTLOADER_BOARD_STM32H7B3_STORAGE_UPDATE_BASE	\
-	MCCI_STM32H7_MEMORY_FLASH2
+extern void *gk_McciBootloader_UpdateBase;
 
 ///
 /// \brief we put the fallback image at the bank2 512k to 1024k, in case anyone
 ///	needs special things in page zero.
 ///
-#define	MCCI_BOOTLOADER_BOARD_STM32H7B3_STORAGE_FALLBACK_BASE	\
-	(MCCI_STM32H7_MEMORY_FLASH2 + (UINT32_C(512) * 1024))
+extern void *gk_McciBootloader_FallbackBase;
 
 
 /****************************************************************************\
