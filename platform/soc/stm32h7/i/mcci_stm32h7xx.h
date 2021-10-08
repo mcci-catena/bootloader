@@ -2012,7 +2012,7 @@ extern "C" {
 #define MCCI_STM32H7_SPI_CFG2		UINT32_C(0x0C)	///< offset to SPI configuration register 2
 #define MCCI_STM32H7_SPI_IER		UINT32_C(0x10)	///< offset to SPI interrupt enable register
 #define MCCI_STM32H7_SPI_SR		UINT32_C(0x14)	///< offset to SPI status register
-#define MCCI_STM32H7_SPI_IFCR		UINT32_C(0x18)	///< offset to SPI interrupt/status flags clearregister
+#define MCCI_STM32H7_SPI_IFCR		UINT32_C(0x18)	///< offset to SPI interrupt/status flags clear register
 #define MCCI_STM32H7_SPI_TXDR		UINT32_C(0x20)	///< offset to SPI transmit data register
 #define MCCI_STM32H7_SPI_RXDR		UINT32_C(0x30)	///< offset to SPI receive data register
 #define MCCI_STM32H7_SPI_CRCPOLY	UINT32_C(0x40)	///< offset to SPI CRC polynomial
@@ -2189,6 +2189,597 @@ extern "C" {
 #define MCCI_STM32H7_SPI_I2SCFGR_I2SCFG_SFD	(UINT32_C(4) << 1)	///< slave - full duplex
 #define MCCI_STM32H7_SPI_I2SCFGR_I2SCFG_MFD	(UINT32_C(5) << 1)	///< master - full duplex
 #define MCCI_STM32H7_SPI_I2SCFGR_I2SMOD		(UINT32_C(1) << 0)	///< I2S mode selection
+///	@}
+
+
+/****************************************************************************\
+|
+|	DMA Control Registers
+|
+\****************************************************************************/
+
+/// \name DMA offsets
+///	@{
+#define	MCCI_STM32H7_DMA_LISR		UINT32_C(0x00)	///< offset to DMA low interrupt status register
+#define MCCI_STM32H7_DMA_HISR		UINT32_C(0x04)	///< offset to DMA high interrupt status register
+#define	MCCI_STM32H7_DMA_LIFCR		UINT32_C(0x08)	///< offset to DMA low interrupt flag clear register
+#define MCCI_STM32H7_DMA_HIFCR		UINT32_C(0x0C)	///< offset to DMA high interrupt flag clear register
+
+#define MCCI_STM32H7_DMA_SCR		UINT32_C(0x00)	///< offset to DMA stream configuration register
+#define MCCI_STM32H7_DMA_SNDTR		UINT32_C(0x04)	///< offset to DMA stream number of data register
+#define MCCI_STM32H7_DMA_SPAR		UINT32_C(0x08)	///< offset to DMA stream peripheral address register
+#define MCCI_STM32H7_DMA_SM0AR		UINT32_C(0x0C)	///< offset to DMA stream memory 0 address register
+#define MCCI_STM32H7_DMA_SM1AR		UINT32_C(0x10)	///< offset to DMA stream memory 1 address register
+#define MCCI_STM32H7_DMA_SFCR		UINT32_C(0x14)	///< offset to DMA stream FIFO control register
+
+#define MCCI_STM32H7_DMA_STREAM_BASE(x)	(((x) * UINT32_C(0x18)) + UINT32_C(0x10))	///< offset to DMA stream x base
+#define MCCI_STM32H7_DMA_SxCR(x)	(((x) * UINT32_C(0x18)) + UINT32_C(0x10))	///< offset to DMA stream x configuration register
+#define MCCI_STM32H7_DMA_SxNDTR(x)	(((x) * UINT32_C(0x18)) + UINT32_C(0x14))	///< offset to DMA stream x number of data register
+#define MCCI_STM32H7_DMA_SxPAR(x)	(((x) * UINT32_C(0x18)) + UINT32_C(0x18))	///< offset to DMA stream x peripheral address register
+#define MCCI_STM32H7_DMA_SxM0AR(x)	(((x) * UINT32_C(0x18)) + UINT32_C(0x1C))	///< offset to DMA stream x memory 0 address register
+#define MCCI_STM32H7_DMA_SxM1AR(x)	(((x) * UINT32_C(0x18)) + UINT32_C(0x20))	///< offset to DMA stream x memory 1 address register
+#define MCCI_STM32H7_DMA_SxFCR(x)	(((x) * UINT32_C(0x18)) + UINT32_C(0x24))	///< offset to DMA stream x FIFO control register
+///	@}
+
+/// \name DMA_LISR and DMA_FISR bits
+///	@{
+#define MCCI_STM32H7_DMA_ISR_RSV28	UINT32_C(0xF0000000)	///< reserved, don't change
+#define MCCI_STM32H7_DMA_ISR_TCIF3	(UINT32_C(1) << 27)	///< transfer complete interrupt flag
+#define MCCI_STM32H7_DMA_ISR_HTIF3	(UINT32_C(1) << 26)	///< half transfer interrupt flag
+#define MCCI_STM32H7_DMA_ISR_TEIF3	(UINT32_C(1) << 25)	///< transfer error interrupt flag
+#define MCCI_STM32H7_DMA_ISR_DMEIF3	(UINT32_C(1) << 24)	///< direct mode error interrupt flag
+#define MCCI_STM32H7_DMA_ISR_RSV23	(UINT32_C(1) << 23)	///< reserved, don't change
+#define MCCI_STM32H7_DMA_ISR_FEIF3	(UINT32_C(1) << 22)	///< FIFO error interrupt flag
+#define MCCI_STM32H7_DMA_ISR_TCIF2	(UINT32_C(1) << 21)	///< transfer complete interrupt flag
+#define MCCI_STM32H7_DMA_ISR_HTIF2	(UINT32_C(1) << 20)	///< half transfer interrupt flag
+#define MCCI_STM32H7_DMA_ISR_TEIF2	(UINT32_C(1) << 19)	///< transfer error interrupt flag
+#define MCCI_STM32H7_DMA_ISR_DMEIF2	(UINT32_C(1) << 18)	///< direct mode error interrupt flag
+#define MCCI_STM32H7_DMA_ISR_RSV17	(UINT32_C(1) << 17)	///< reserved, don't change
+#define MCCI_STM32H7_DMA_ISR_FEIF2	(UINT32_C(1) << 16)	///< FIFO error interrupt flag
+#define MCCI_STM32H7_DMA_ISR_RSV12	UINT32_C(0x0000F000)	///< reserved, don't change
+#define MCCI_STM32H7_DMA_ISR_TCIF1	(UINT32_C(1) << 11)	///< transfer complete interrupt flag
+#define MCCI_STM32H7_DMA_ISR_HTIF1	(UINT32_C(1) << 10)	///< half transfer interrupt flag
+#define MCCI_STM32H7_DMA_ISR_TEIF1	(UINT32_C(1) << 9)	///< transfer error interrupt flag
+#define MCCI_STM32H7_DMA_ISR_DMEIF1	(UINT32_C(1) << 8)	///< direct mode error interrupt flag
+#define MCCI_STM32H7_DMA_ISR_RSV7	(UINT32_C(1) << 7)	///< reserved, don't change
+#define MCCI_STM32H7_DMA_ISR_FEIF1	(UINT32_C(1) << 6)	///< FIFO error interrupt flag
+#define MCCI_STM32H7_DMA_ISR_TCIF0	(UINT32_C(1) << 5)	///< transfer complete interrupt flag
+#define MCCI_STM32H7_DMA_ISR_HTIF0	(UINT32_C(1) << 4)	///< half transfer interrupt flag
+#define MCCI_STM32H7_DMA_ISR_TEIF0	(UINT32_C(1) << 3)	///< transfer error interrupt flag
+#define MCCI_STM32H7_DMA_ISR_DMEIF0	(UINT32_C(1) << 2)	///< direct mode error interrupt flag
+#define MCCI_STM32H7_DMA_ISR_RSV1	(UINT32_C(1) << 1)	///< reserved, don't change
+#define MCCI_STM32H7_DMA_ISR_FEIF0	(UINT32_C(1) << 0)	///< FIFO error interrupt flag
+
+#define MCCI_STM32H7_DMA_ISR_TCIF	(UINT32_C(1) << 5)	///< transfer complete interrupt flag
+#define MCCI_STM32H7_DMA_ISR_HTIF	(UINT32_C(1) << 4)	///< half transfer interrupt flag
+#define MCCI_STM32H7_DMA_ISR_TEIF	(UINT32_C(1) << 3)	///< transfer error interrupt flag
+#define MCCI_STM32H7_DMA_ISR_DMEIF	(UINT32_C(1) << 2)	///< direct mode error interrupt flag
+#define MCCI_STM32H7_DMA_ISR_FEIF	(UINT32_C(1) << 0)	///< FIFO error interrupt flag
+
+#define MCCI_STM32H7_DMA_ISR_SHIFT	6			///< ISR stream shift
+#define MCCI_STM32H7_DMA_ISR_MASK	(UINT32_C(0x1D) << 0)	///< ISR stream mask
+///	@}
+
+/// \name DMA_SCR bits
+///	@{
+#define MCCI_STM32H7_DMA_SCR_RSV25	UINT32_C(0xFE000000)	///< reserved, don't change
+#define MCCI_STM32H7_DMA_SCR_MBURST	(UINT32_C(3) << 23)	///< memory burst transfer configuration
+#define MCCI_STM32H7_DMA_SCR_MBURST_SINGLE	(UINT32_C(0) << 23)	///< single transfer
+#define MCCI_STM32H7_DMA_SCR_MBURST_INCR4	(UINT32_C(1) << 23)	///< INCR4 (incremental burst of 4 beats)
+#define MCCI_STM32H7_DMA_SCR_MBURST_INCR8	(UINT32_C(2) << 23)	///< INCR8 (incremental burst of 8 beats)
+#define MCCI_STM32H7_DMA_SCR_MBURST_INCR16	(UINT32_C(3) << 23)	///< INCR16 (incremental burst of 16 beats)
+#define MCCI_STM32H7_DMA_SCR_PBURST	(UINT32_C(3) << 21)	///< peripheral burst transfer configuration
+#define MCCI_STM32H7_DMA_SCR_PBURST_SINGLE	(UINT32_C(0) << 21)	///< single transfer
+#define MCCI_STM32H7_DMA_SCR_PBURST_INCR4	(UINT32_C(1) << 21)	///< INCR4 (incremental burst of 4 beats)
+#define MCCI_STM32H7_DMA_SCR_PBURST_INCR8	(UINT32_C(2) << 21)	///< INCR8 (incremental burst of 8 beats)
+#define MCCI_STM32H7_DMA_SCR_PBURST_INCR16	(UINT32_C(3) << 21)	///< INCR16 (incremental burst of 16 beats)
+#define MCCI_STM32H7_DMA_SCR_TRBUFF	(UINT32_C(1) << 20)	///< Enable the DMA to handle bufferable transfers
+#define MCCI_STM32H7_DMA_SCR_CT		(UINT32_C(1) << 19)	///< current target (only in double-buffer mode)
+#define MCCI_STM32H7_DMA_SCR_DBM	(UINT32_C(1) << 18)	///< double-buffer mode
+#define MCCI_STM32H7_DMA_SCR_PL		(UINT32_C(3) << 16)	///< priority level
+#define MCCI_STM32H7_DMA_SCR_PL_LOW	(UINT32_C(0) << 16)	///< low
+#define MCCI_STM32H7_DMA_SCR_PL_MEDIUM	(UINT32_C(0) << 16)	///< medium
+#define MCCI_STM32H7_DMA_SCR_PL_HIGH	(UINT32_C(0) << 16)	///< high
+#define MCCI_STM32H7_DMA_SCR_PL_VERY_HIGH	(UINT32_C(0) << 16)	///< very high
+#define MCCI_STM32H7_DMA_SCR_PINCOS	(UINT32_C(1) << 15)	///< peripheral increment offset size
+#define MCCI_STM32H7_DMA_SCR_MSIZE	(UINT32_C(3) << 13)	///< memory data size
+#define MCCI_STM32H7_DMA_SCR_MSIZE_BYTE	(UINT32_C(0) << 13)	///< byte (8-bit)
+#define MCCI_STM32H7_DMA_SCR_MSIZE_HALF	(UINT32_C(1) << 13)	///< hlaf-word (16-bit)
+#define MCCI_STM32H7_DMA_SCR_MSIZE_WORD	(UINT32_C(2) << 13)	///< word (32-bit)
+#define MCCI_STM32H7_DMA_SCR_PSIZE	(UINT32_C(3) << 11)	///< peripheral data size
+#define MCCI_STM32H7_DMA_SCR_PSIZE_BYTE	(UINT32_C(0) << 11)	///< byte (8-bit)
+#define MCCI_STM32H7_DMA_SCR_PSIZE_HALF	(UINT32_C(1) << 11)	///< hlaf-word (16-bit)
+#define MCCI_STM32H7_DMA_SCR_PSIZE_WORD	(UINT32_C(2) << 11)	///< word (32-bit)
+#define MCCI_STM32H7_DMA_SCR_MINC	(UINT32_C(1) << 10)	///< memory increment mode
+#define MCCI_STM32H7_DMA_SCR_PINC	(UINT32_C(1) << 9)	///< peripheral increment mode
+#define MCCI_STM32H7_DMA_SCR_CIRC	(UINT32_C(1) << 8)	///< circular mode
+#define MCCI_STM32H7_DMA_SCR_DIR	(UINT32_C(3) << 6)	///< data transfer direction
+#define MCCI_STM32H7_DMA_SCR_DIR_PERI_TO_MEM	(UINT32_C(0) << 6)	///< peripheral-to-memory
+#define MCCI_STM32H7_DMA_SCR_DIR_MEM_TO_PERI	(UINT32_C(1) << 6)	///< memory-to-peripheral
+#define MCCI_STM32H7_DMA_SCR_DIR_MEM_TO_MEM	(UINT32_C(2) << 6)	///< memory-to-memory
+#define MCCI_STM32H7_DMA_SCR_PFCTRL	(UINT32_C(1) << 5)	///< peripheral flow controller
+#define MCCI_STM32H7_DMA_SCR_TCIE	(UINT32_C(1) << 4)	///< transfer complete interrupt enable
+#define MCCI_STM32H7_DMA_SCR_HTIE	(UINT32_C(1) << 3)	///< half transfer interrupt enable
+#define MCCI_STM32H7_DMA_SCR_TEIE	(UINT32_C(1) << 2)	///< transfer error interrupt enable
+#define MCCI_STM32H7_DMA_SCR_DMEIE	(UINT32_C(1) << 1)	///< direct mode error interrupt enable
+#define MCCI_STM32H7_DMA_SCR_EN		(UINT32_C(1) << 0)	///< stream enable / flag stream ready when read low
+///	@}
+
+/// \name DMA_SFCR bits
+///	@{
+#define MCCI_STM32H7_DMA_SFCR_RSV8	UINT32_C(0xFFFFFF00)	///< reserved, don't change
+#define MCCI_STM32H7_DMA_SFCR_FEIE	(UINT32_C(1) << 7)	///< FIFO error interrupt enable
+#define MCCI_STM32H7_DMA_SFCR_FS	(UINT32_C(7) << 3)	///< FIFO status
+#define MCCI_STM32H7_DMA_SFCR_FS_LESS_1P4	(UINT32_C(0) << 3)	///< 0 < fifo_level < 1/4
+#define MCCI_STM32H7_DMA_SFCR_FS_LESS_1P2	(UINT32_C(1) << 3)	///< 1/4 <= fifo_level < 1/2
+#define MCCI_STM32H7_DMA_SFCR_FS_LESS_3P4	(UINT32_C(2) << 3)	///< 1/2 <= fifo_level < 3/4
+#define MCCI_STM32H7_DMA_SFCR_FS_LESS_FULL	(UINT32_C(3) << 3)	///< 3/4 <= fifo_level < full
+#define MCCI_STM32H7_DMA_SFCR_FS_EMPTY	(UINT32_C(4) << 3)	///< FIFO is empty
+#define MCCI_STM32H7_DMA_SFCR_FS_FULL	(UINT32_C(5) << 3)	///< FIFO is full
+#define MCCI_STM32H7_DMA_SFCR_DMDIS	(UINT32_C(1) << 2)	///< direct mode disable
+#define MCCI_STM32H7_DMA_SFCR_FTH	(UINT32_C(3) << 0)	///< FIFO threshold selection
+#define MCCI_STM32H7_DMA_SFCR_FTH_1P4_FULL	(UINT32_C(0) << 0)	///< 1/4 full FIFO
+#define MCCI_STM32H7_DMA_SFCR_FTH_1P2_FULL	(UINT32_C(1) << 0)	///< 1/4 full FIFO
+#define MCCI_STM32H7_DMA_SFCR_FTH_3P4_FULL	(UINT32_C(2) << 0)	///< 1/4 full FIFO
+#define MCCI_STM32H7_DMA_SFCR_FTH_FULL	(UINT32_C(3) << 0)	///< 1/4 full FIFO
+///	@}
+
+
+/****************************************************************************\
+|
+|	DMAMUX Control Registers
+|
+\****************************************************************************/
+
+/// \name DMAMUX offsets
+///	@{
+#define	MCCI_STM32H7_DMAMUX1_C0CR	UINT32_C(0x00)	///< offset to DMAMUX1 request line multiplexer channel 0 configuration register
+#define MCCI_STM32H7_DMAMUX1_C1CR	UINT32_C(0x04)	///< offset to DMAMUX1 request line multiplexer channel 1 configuration register
+#define	MCCI_STM32H7_DMAMUX1_C2CR	UINT32_C(0x08)	///< offset to DMAMUX1 request line multiplexer channel 2 configuration register
+#define MCCI_STM32H7_DMAMUX1_C3CR	UINT32_C(0x0C)	///< offset to DMAMUX1 request line multiplexer channel 3 configuration register
+#define	MCCI_STM32H7_DMAMUX1_C4CR	UINT32_C(0x10)	///< offset to DMAMUX1 request line multiplexer channel 4 configuration register
+#define MCCI_STM32H7_DMAMUX1_C5CR	UINT32_C(0x14)	///< offset to DMAMUX1 request line multiplexer channel 5 configuration register
+#define	MCCI_STM32H7_DMAMUX1_C6CR	UINT32_C(0x18)	///< offset to DMAMUX1 request line multiplexer channel 6 configuration register
+#define MCCI_STM32H7_DMAMUX1_C7CR	UINT32_C(0x1C)	///< offset to DMAMUX1 request line multiplexer channel 7 configuration register
+#define	MCCI_STM32H7_DMAMUX1_C8CR	UINT32_C(0x20)	///< offset to DMAMUX1 request line multiplexer channel 8 configuration register
+#define MCCI_STM32H7_DMAMUX1_C9CR	UINT32_C(0x24)	///< offset to DMAMUX1 request line multiplexer channel 9 configuration register
+#define	MCCI_STM32H7_DMAMUX1_C10CR	UINT32_C(0x28)	///< offset to DMAMUX1 request line multiplexer channel 10 configuration register
+#define MCCI_STM32H7_DMAMUX1_C11CR	UINT32_C(0x2C)	///< offset to DMAMUX1 request line multiplexer channel 11 configuration register
+#define	MCCI_STM32H7_DMAMUX1_C12CR	UINT32_C(0x30)	///< offset to DMAMUX1 request line multiplexer channel 12 configuration register
+#define MCCI_STM32H7_DMAMUX1_C13CR	UINT32_C(0x34)	///< offset to DMAMUX1 request line multiplexer channel 13 configuration register
+#define	MCCI_STM32H7_DMAMUX1_C14CR	UINT32_C(0x38)	///< offset to DMAMUX1 request line multiplexer channel 14 configuration register
+#define MCCI_STM32H7_DMAMUX1_C15CR	UINT32_C(0x3C)	///< offset to DMAMUX1 request line multiplexer channel 15 configuration register
+#define	MCCI_STM32H7_DMAMUX1_CCR(x)	((x) * UINT32_C(0x04))	///< offset to DMAMUX1 request line multiplexer channel x configuration register
+
+#define	MCCI_STM32H7_DMAMUX2_C0CR	UINT32_C(0x00)	///< offset to DMAMUX2 request line multiplexer channel 0 configuration register
+#define MCCI_STM32H7_DMAMUX2_C1CR	UINT32_C(0x04)	///< offset to DMAMUX2 request line multiplexer channel 1 configuration register
+#define	MCCI_STM32H7_DMAMUX2_C2CR	UINT32_C(0x08)	///< offset to DMAMUX2 request line multiplexer channel 2 configuration register
+#define MCCI_STM32H7_DMAMUX2_C3CR	UINT32_C(0x0C)	///< offset to DMAMUX2 request line multiplexer channel 3 configuration register
+#define	MCCI_STM32H7_DMAMUX2_C4CR	UINT32_C(0x10)	///< offset to DMAMUX2 request line multiplexer channel 4 configuration register
+#define MCCI_STM32H7_DMAMUX2_C5CR	UINT32_C(0x14)	///< offset to DMAMUX2 request line multiplexer channel 5 configuration register
+#define	MCCI_STM32H7_DMAMUX2_C6CR	UINT32_C(0x18)	///< offset to DMAMUX2 request line multiplexer channel 6 configuration register
+#define MCCI_STM32H7_DMAMUX2_C7CR	UINT32_C(0x1C)	///< offset to DMAMUX2 request line multiplexer channel 7 configuration register
+#define	MCCI_STM32H7_DMAMUX2_CCR(x)	((x) * UINT32_C(0x04))	///< offset to DMAMUX2 request line multiplexer channel x configuration register
+
+#define	MCCI_STM32H7_DMAMUX1_CSR	UINT32_C(0x80)	///< offset to DMAMUX1 request line multiplexer interrupt channel status register
+#define	MCCI_STM32H7_DMAMUX2_CSR	UINT32_C(0x80)	///< offset to DMAMUX2 request line multiplexer interrupt channel status register
+#define	MCCI_STM32H7_DMAMUX1_CFR	UINT32_C(0x84)	///< offset to DMAMUX1 request line multiplexer interrupt clear flag register
+#define	MCCI_STM32H7_DMAMUX2_CFR	UINT32_C(0x84)	///< offset to DMAMUX2 request line multiplexer interrupt clear flag register
+
+#define	MCCI_STM32H7_DMAMUX1_RG0CR	UINT32_C(0x100)	///< offset to DMAMUX1 request generator channel 0 configuration register
+#define	MCCI_STM32H7_DMAMUX1_RG1CR	UINT32_C(0x104)	///< offset to DMAMUX1 request generator channel 1 configuration register
+#define	MCCI_STM32H7_DMAMUX1_RG2CR	UINT32_C(0x108)	///< offset to DMAMUX1 request generator channel 2 configuration register
+#define	MCCI_STM32H7_DMAMUX1_RG3CR	UINT32_C(0x10C)	///< offset to DMAMUX1 request generator channel 3 configuration register
+#define	MCCI_STM32H7_DMAMUX1_RG4CR	UINT32_C(0x110)	///< offset to DMAMUX1 request generator channel 4 configuration register
+#define	MCCI_STM32H7_DMAMUX1_RG5CR	UINT32_C(0x114)	///< offset to DMAMUX1 request generator channel 5 configuration register
+#define	MCCI_STM32H7_DMAMUX1_RG6CR	UINT32_C(0x118)	///< offset to DMAMUX1 request generator channel 6 configuration register
+#define	MCCI_STM32H7_DMAMUX1_RG7CR	UINT32_C(0x11C)	///< offset to DMAMUX1 request generator channel 7 configuration register
+#define	MCCI_STM32H7_DMAMUX1_RGCR(x)	(UINT32_C(0x100) + ((x) * UINT32_C(0x04)))	///< offset to DMAMUX1 request generator channel x configuration register
+
+#define	MCCI_STM32H7_DMAMUX2_RG0CR	UINT32_C(0x100)	///< offset to DMAMUX2 request generator channel 0 configuration register
+#define	MCCI_STM32H7_DMAMUX2_RG1CR	UINT32_C(0x104)	///< offset to DMAMUX2 request generator channel 1 configuration register
+#define	MCCI_STM32H7_DMAMUX2_RG2CR	UINT32_C(0x108)	///< offset to DMAMUX2 request generator channel 2 configuration register
+#define	MCCI_STM32H7_DMAMUX2_RG3CR	UINT32_C(0x10C)	///< offset to DMAMUX2 request generator channel 3 configuration register
+#define	MCCI_STM32H7_DMAMUX2_RG4CR	UINT32_C(0x110)	///< offset to DMAMUX2 request generator channel 4 configuration register
+#define	MCCI_STM32H7_DMAMUX2_RG5CR	UINT32_C(0x114)	///< offset to DMAMUX2 request generator channel 5 configuration register
+#define	MCCI_STM32H7_DMAMUX2_RG6CR	UINT32_C(0x118)	///< offset to DMAMUX2 request generator channel 6 configuration register
+#define	MCCI_STM32H7_DMAMUX2_RG7CR	UINT32_C(0x11C)	///< offset to DMAMUX2 request generator channel 7 configuration register
+#define	MCCI_STM32H7_DMAMUX2_RGCR(x)	(UINT32_C(0x100) + ((x) * UINT32_C(0x04)))	///< offset to DMAMUX2 request generator channel x configuration register
+
+#define	MCCI_STM32H7_DMAMUX1_RGSR	UINT32_C(0x140)	///< offset to DMAMUX1 request generator interrupt channel status register
+#define	MCCI_STM32H7_DMAMUX2_RGSR	UINT32_C(0x140)	///< offset to DMAMUX2 request generator interrupt channel status register
+#define	MCCI_STM32H7_DMAMUX1_RGCFR	UINT32_C(0x144)	///< offset to DMAMUX1 request generator interrupt clear flag register
+#define	MCCI_STM32H7_DMAMUX2_RGCFR	UINT32_C(0x144)	///< offset to DMAMUX2 request generator interrupt clear flag register
+///	@}
+
+/// \name DMAMUX1_CxCR bits
+///	@{
+#define MCCI_STM32H7_DMAMUX1_CxCR_RSV27	UINT32_C(0xF8000000)	///< reserved, don't change
+#define MCCI_STM32H7_DMAMUX1_CxCR_SYNC_ID	(UINT32_C(7) << 24)	///< Synchronization identification
+#define MCCI_STM32H7_DMAMUX1_CxCR_SYNC_ID_N(n)	((n) << 24)	///<
+#define MCCI_STM32H7_DMAMUX1_CxCR_NBREQ	(UINT32_C(0x1F) << 19)	///< Number of DMA requests minus 1 to forward
+#define MCCI_STM32H7_DMAMUX1_CxCR_NBREQ_N(n)	((n) << 19)	///<
+#define MCCI_STM32H7_DMAMUX1_CxCR_SPOL	(UINT32_C(3) << 17)	///< Synchronization polarity
+#define MCCI_STM32H7_DMAMUX1_CxCR_SPOL_NO	(UINT32_C(0) << 17)	///< no event, i.e. no synchronization nor detection
+#define MCCI_STM32H7_DMAMUX1_CxCR_SPOL_RISING	(UINT32_C(1) << 17)	///< rising edge
+#define MCCI_STM32H7_DMAMUX1_CxCR_SPOL_FALLING	(UINT32_C(2) << 17)	///< falling edge
+#define MCCI_STM32H7_DMAMUX1_CxCR_SPOL_BOTH	(UINT32_C(3) << 17)	///< rising and falling edges
+#define MCCI_STM32H7_DMAMUX1_CxCR_SE	(UINT32_C(1) << 16)	///< Synchronization enable
+#define MCCI_STM32H7_DMAMUX1_CxCR_RSV10	(UINT32_C(0x3F) << 10)	///< reserved, don't change
+#define MCCI_STM32H7_DMAMUX1_CxCR_EGE	(UINT32_C(1) << 9)	///< Event generation enable
+#define MCCI_STM32H7_DMAMUX1_CxCR_SOIE	(UINT32_C(1) << 8)	///< Synchronization overrun interrupt enable
+#define MCCI_STM32H7_DMAMUX1_CxCR_RSV7	(UINT32_C(1) << 7)	///< reserved, don't change
+#define MCCI_STM32H7_DMAMUX1_CxCR_DMAREQ_ID	(UINT32_C(0x7F) << 0)	///< DMA request identification
+#define MCCI_STM32H7_DMAMUX1_CxCR_DMAREQ_ID_N(n)	((n) << 0)	///<
+///	@}
+
+/// \name DMAMUX2_CxCR bits
+///	@{
+#define MCCI_STM32H7_DMAMUX2_CxCR_RSV28	UINT32_C(0xF0000000)	///< reserved, don't change
+#define MCCI_STM32H7_DMAMUX2_CxCR_SYNC_ID	(UINT32_C(0xF) << 24)	///< Synchronization identification
+#define MCCI_STM32H7_DMAMUX2_CxCR_SYNC_ID_N(n)	((n) << 24)	///<
+#define MCCI_STM32H7_DMAMUX2_CxCR_NBREQ	(UINT32_C(0x1F) << 19)	///< Number of DMA requests minus 1 to forward
+#define MCCI_STM32H7_DMAMUX2_CxCR_NBREQ_N(n)	((n) << 19)	///<
+#define MCCI_STM32H7_DMAMUX2_CxCR_SPOL	(UINT32_C(3) << 17)	///< Synchronization polarity
+#define MCCI_STM32H7_DMAMUX2_CxCR_SPOL_NO	(UINT32_C(0) << 17)	///< no event, i.e. no synchronization nor detection
+#define MCCI_STM32H7_DMAMUX2_CxCR_SPOL_RISING	(UINT32_C(1) << 17)	///< rising edge
+#define MCCI_STM32H7_DMAMUX2_CxCR_SPOL_FALLING	(UINT32_C(2) << 17)	///< falling edge
+#define MCCI_STM32H7_DMAMUX2_CxCR_SPOL_BOTH	(UINT32_C(3) << 17)	///< rising and falling edges
+#define MCCI_STM32H7_DMAMUX2_CxCR_SE	(UINT32_C(1) << 16)	///< Synchronization enable
+#define MCCI_STM32H7_DMAMUX2_CxCR_RSV10	(UINT32_C(0x3F) << 10)	///< reserved, don't change
+#define MCCI_STM32H7_DMAMUX2_CxCR_EGE	(UINT32_C(1) << 9)	///< Event generation enable
+#define MCCI_STM32H7_DMAMUX2_CxCR_SOIE	(UINT32_C(1) << 8)	///< Synchronization overrun interrupt enable
+#define MCCI_STM32H7_DMAMUX2_CxCR_RSV7	(UINT32_C(7) << 5)	///< reserved, don't change
+#define MCCI_STM32H7_DMAMUX2_CxCR_DMAREQ_ID	(UINT32_C(0x1F) << 0)	///< DMA request identification
+#define MCCI_STM32H7_DMAMUX2_CxCR_DMAREQ_ID_N(n)	((n) << 0)	///<
+///	@}
+
+/// \name DMAMUX1_RGxCR bits
+///	@{
+#define MCCI_STM32H7_DMAMUX1_RGxCR_RSV24	UINT32_C(0xFF000000)	///< reserved, don't change
+#define MCCI_STM32H7_DMAMUX1_RGxCR_GNBREQ	(UINT32_C(0x1F) << 19)	///< Number of DMA requests to be generated (minus 1)
+#define MCCI_STM32H7_DMAMUX1_RGxCR_GNBREQ_N(n)	((n) << 19)	///<
+#define MCCI_STM32H7_DMAMUX1_RGxCR_GPOL	(UINT32_C(3) << 17)	///< DMA request generator trigger polarity
+#define MCCI_STM32H7_DMAMUX1_RGxCR_GPOL_NO	(UINT32_C(0) << 17)	///< no event, i.e. no synchronization nor detection
+#define MCCI_STM32H7_DMAMUX1_RGxCR_GPOL_RISING	(UINT32_C(1) << 17)	///< rising edge
+#define MCCI_STM32H7_DMAMUX1_RGxCR_GPOL_FALLING	(UINT32_C(2) << 17)	///< falling edge
+#define MCCI_STM32H7_DMAMUX1_RGxCR_GPOL_BOTH	(UINT32_C(3) << 17)	///< rising and falling edges
+#define MCCI_STM32H7_DMAMUX1_RGxCR_GE	(UINT32_C(1) << 16)	///< DMA request generator channel x enable
+#define MCCI_STM32H7_DMAMUX1_RGxCR_RSV9	(UINT32_C(0x7F) << 9)	///< reserved, don't change
+#define MCCI_STM32H7_DMAMUX1_RGxCR_OIE	(UINT32_C(1) << 8)	///< Trigger overrun interrupt enable
+#define MCCI_STM32H7_DMAMUX1_RGxCR_RSV3	(UINT32_C(0x1F) << 3)	///< reserved, don't change
+#define MCCI_STM32H7_DMAMUX1_RGxCR_SIG_ID	(UINT32_C(7) << 0)	///< Signal identification
+#define MCCI_STM32H7_DMAMUX1_RGxCR_SIG_ID_N(n)	((n) << 0)	///<
+///	@}
+
+/// \name DMAMUX2_RGxCR bits
+///	@{
+#define MCCI_STM32H7_DMAMUX2_RGxCR_RSV24	UINT32_C(0xFF000000)	///< reserved, don't change
+#define MCCI_STM32H7_DMAMUX2_RGxCR_GNBREQ	(UINT32_C(0x1F) << 19)	///< Number of DMA requests to be generated (minus 1)
+#define MCCI_STM32H7_DMAMUX2_RGxCR_GNBREQ_N(n)	((n) << 19)	///<
+#define MCCI_STM32H7_DMAMUX2_RGxCR_GPOL	(UINT32_C(3) << 17)	///< DMA request generator trigger polarity
+#define MCCI_STM32H7_DMAMUX2_RGxCR_GPOL_NO	(UINT32_C(0) << 17)	///< no event, i.e. no synchronization nor detection
+#define MCCI_STM32H7_DMAMUX2_RGxCR_GPOL_RISING	(UINT32_C(1) << 17)	///< rising edge
+#define MCCI_STM32H7_DMAMUX2_RGxCR_GPOL_FALLING	(UINT32_C(2) << 17)	///< falling edge
+#define MCCI_STM32H7_DMAMUX2_RGxCR_GPOL_BOTH	(UINT32_C(3) << 17)	///< rising and falling edges
+#define MCCI_STM32H7_DMAMUX2_RGxCR_GE	(UINT32_C(1) << 16)	///< DMA request generator channel x enable
+#define MCCI_STM32H7_DMAMUX2_RGxCR_RSV9	(UINT32_C(0x7F) << 9)	///< reserved, don't change
+#define MCCI_STM32H7_DMAMUX2_RGxCR_OIE	(UINT32_C(1) << 8)	///< Trigger overrun interrupt enable
+#define MCCI_STM32H7_DMAMUX2_RGxCR_RSV5	(UINT32_C(7) << 5)	///< reserved, don't change
+#define MCCI_STM32H7_DMAMUX2_RGxCR_SIG_ID	(UINT32_C(0x1F) << 0)	///< Signal identification
+#define MCCI_STM32H7_DMAMUX2_RGxCR_SIG_ID_N(n)	((n) << 0)	///<
+///	@}
+
+
+/****************************************************************************\
+|
+|	DCMI Control Registers
+|
+\****************************************************************************/
+
+/// \name DCMI offsets
+///	@{
+#define	MCCI_STM32H7_DCMI_CR		UINT32_C(0x00)	///< offset to DCMI control register
+#define MCCI_STM32H7_DCMI_SR		UINT32_C(0x04)	///< offset to DCMI status register
+#define	MCCI_STM32H7_DCMI_RIS		UINT32_C(0x08)	///< offset to DCMI raw interrupt status register
+#define MCCI_STM32H7_DCMI_IER		UINT32_C(0x0C)	///< offset to DCMI interrupt enable register
+#define MCCI_STM32H7_DCMI_MIS		UINT32_C(0x10)	///< offset to DCMI masked interrupt status register
+#define MCCI_STM32H7_DCMI_ICR		UINT32_C(0x14)	///< offset to DCMI interrupt clear register
+#define MCCI_STM32H7_DCMI_ESCR		UINT32_C(0x18)	///< offset to DCMI embedded synchronization code register
+#define MCCI_STM32H7_DCMI_ESUR		UINT32_C(0x1C)	///< offset to DCMI embedded synchronization unmask register
+#define MCCI_STM32H7_DCMI_CWSTRT	UINT32_C(0x20)	///< offset to DCMI crop window start
+#define MCCI_STM32H7_DCMI_CWSIZE	UINT32_C(0x24)	///< offset to DCMI crop window size
+#define MCCI_STM32H7_DCMI_DR		UINT32_C(0x28)	///< offset to DCMI data register
+///	@}
+
+/// \name DCMI_CR bits
+///	@{
+#define MCCI_STM32H7_DCMI_CR_RSV21	UINT32_C(0xFFE00000)	///< reserved, don't change
+#define MCCI_STM32H7_DCMI_CR_OELS	(UINT32_C(1) << 20)	///< Odd/Even Line Select (Line Select Start)
+#define MCCI_STM32H7_DCMI_CR_LSM	(UINT32_C(1) << 19)	///< Line Select mode
+#define MCCI_STM32H7_DCMI_CR_OEBS	(UINT32_C(1) << 18)	///< Odd/Even Byte Select (Byte Select Start)
+#define MCCI_STM32H7_DCMI_CR_BSM	(UINT32_C(3) << 16)	///< Byte Select mode
+#define MCCI_STM32H7_DCMI_CR_BSM_N(n)	((n) << 16)		///<
+#define MCCI_STM32H7_DCMI_CR_RSV15	(UINT32_C(1) << 15)	///< reserved, don't change
+#define MCCI_STM32H7_DCMI_CR_ENABLE	(UINT32_C(1) << 14)	///< DCMI enable
+#define MCCI_STM32H7_DCMI_CR_RSV12	(UINT32_C(3) << 12)	///< reserved, don't change
+#define MCCI_STM32H7_DCMI_CR_EDM	(UINT32_C(3) << 10)	///< Extended data mode
+#define MCCI_STM32H7_DCMI_CR_EDM_N(n)	((n) << 10)		///<
+#define MCCI_STM32H7_DCMI_CR_FCRC	(UINT32_C(3) << 8)	///< Frame capture rate control
+#define MCCI_STM32H7_DCMI_CR_FCRC_N(n)	((n) << 8)		///<
+#define MCCI_STM32H7_DCMI_CR_VSPOL	(UINT32_C(1) << 7)	///< Vertical synchronization polarity
+#define MCCI_STM32H7_DCMI_CR_HSPOL	(UINT32_C(1) << 6)	///< Horizontal synchronization polarity
+#define MCCI_STM32H7_DCMI_CR_PCKPOL	(UINT32_C(1) << 5)	///< Pixel clock polarity
+#define MCCI_STM32H7_DCMI_CR_ESS	(UINT32_C(1) << 4)	///< Embedded synchronization select
+#define MCCI_STM32H7_DCMI_CR_JPEG	(UINT32_C(1) << 3)	///< JPEG format
+#define MCCI_STM32H7_DCMI_CR_CROP	(UINT32_C(1) << 2)	///< Crop feature
+#define MCCI_STM32H7_DCMI_CR_CM		(UINT32_C(1) << 1)	///< Capture mode
+#define MCCI_STM32H7_DCMI_CR_CAPTURE	(UINT32_C(1) << 0)	///< Capture enable
+///	@}
+
+/// \name DCMI_SR bits
+///	@{
+#define MCCI_STM32H7_DCMI_SR_RSV3	UINT32_C(0xFFFFFFF8)	///< reserved, don't change
+#define MCCI_STM32H7_DCMI_SR_FNE	(UINT32_C(1) << 2)	///< FIFO not empty
+#define MCCI_STM32H7_DCMI_SR_VSYNC	(UINT32_C(1) << 1)	///< Vertical synchronization
+#define MCCI_STM32H7_DCMI_SR_HSYNC	(UINT32_C(1) << 0)	///< Horizontal synchronization
+///	@}
+
+/// \name DCMI_RIS bits
+///	@{
+#define MCCI_STM32H7_DCMI_RIS_RSV5	UINT32_C(0xFFFFFFE0)	///< reserved, don't change
+#define MCCI_STM32H7_DCMI_RIS_LINE	(UINT32_C(1) << 4)	///< Line raw interrupt status
+#define MCCI_STM32H7_DCMI_RIS_VSYNC	(UINT32_C(1) << 3)	///< DCMI_VSYNC raw interrupt status
+#define MCCI_STM32H7_DCMI_RIS_ERR	(UINT32_C(1) << 2)	///< Synchronization error raw interrupt status
+#define MCCI_STM32H7_DCMI_RIS_OVR	(UINT32_C(1) << 1)	///< Overrun raw interrupt status
+#define MCCI_STM32H7_DCMI_RIS_FRAME	(UINT32_C(1) << 0)	///< Capture complete raw interrupt status
+///	@}
+
+/// \name DCMI_IER bits
+///	@{
+#define MCCI_STM32H7_DCMI_IER_RSV5	UINT32_C(0xFFFFFFE0)	///< reserved, don't change
+#define MCCI_STM32H7_DCMI_IER_LINE	(UINT32_C(1) << 4)	///< Line interrupt enable
+#define MCCI_STM32H7_DCMI_IER_VSYNC	(UINT32_C(1) << 3)	///< DCMI_VSYNC interrupt enable
+#define MCCI_STM32H7_DCMI_IER_ERR	(UINT32_C(1) << 2)	///< Synchronization interrupt enable
+#define MCCI_STM32H7_DCMI_IER_OVR	(UINT32_C(1) << 1)	///< Overrun interrupt enable
+#define MCCI_STM32H7_DCMI_IER_FRAME	(UINT32_C(1) << 0)	///< Capture complete interrupt enable
+///	@}
+
+/// \name DCMI_MIS bits
+///	@{
+#define MCCI_STM32H7_DCMI_MIS_RSV5	UINT32_C(0xFFFFFFE0)	///< reserved, don't change
+#define MCCI_STM32H7_DCMI_MIS_LINE	(UINT32_C(1) << 4)	///< Line maskedinterrupt status
+#define MCCI_STM32H7_DCMI_MIS_VSYNC	(UINT32_C(1) << 3)	///< DCMI_VSYNC maskedinterrupt status
+#define MCCI_STM32H7_DCMI_MIS_ERR	(UINT32_C(1) << 2)	///< Synchronization maskedinterrupt status
+#define MCCI_STM32H7_DCMI_MIS_OVR	(UINT32_C(1) << 1)	///< Overrun maskedinterrupt status
+#define MCCI_STM32H7_DCMI_MIS_FRAME	(UINT32_C(1) << 0)	///< Capture complete maskedinterrupt status
+///	@}
+
+/// \name DCMI_ICR bits
+///	@{
+#define MCCI_STM32H7_DCMI_ICR_RSV5	UINT32_C(0xFFFFFFE0)	///< reserved, don't change
+#define MCCI_STM32H7_DCMI_ICR_LINE	(UINT32_C(1) << 4)	///< Line interrupt status clear
+#define MCCI_STM32H7_DCMI_ICR_VSYNC	(UINT32_C(1) << 3)	///< DCMI_VSYNC interrupt status clear
+#define MCCI_STM32H7_DCMI_ICR_ERR	(UINT32_C(1) << 2)	///< Synchronization raw interrupt status clear
+#define MCCI_STM32H7_DCMI_ICR_OVR	(UINT32_C(1) << 1)	///< Overrun interrupt status clear
+#define MCCI_STM32H7_DCMI_ICR_FRAME	(UINT32_C(1) << 0)	///< Capture complete interrupt status clear
+///	@}
+
+/// \name DCMI_ESCR bits
+///	@{
+#define MCCI_STM32H7_DCMI_ESCR_FEC	(UINT32_C(0xFF) << 24)	///< Frame end delimiter code
+#define MCCI_STM32H7_DCMI_ESCR_FEC_N(n)	((n) << 24)		///<
+#define MCCI_STM32H7_DCMI_ESCR_LEC	(UINT32_C(0xFF) << 16)	///< Line end delimiter code
+#define MCCI_STM32H7_DCMI_ESCR_LEC_N(n)	((n) << 16)		///<
+#define MCCI_STM32H7_DCMI_ESCR_LSC	(UINT32_C(0xFF) << 8)	///< Line start delimiter code
+#define MCCI_STM32H7_DCMI_ESCR_LSC_N(n)	((n) << 8)		///<
+#define MCCI_STM32H7_DCMI_ESCR_FSC	(UINT32_C(0xFF) << 0)	///< Frame start delimiter code
+#define MCCI_STM32H7_DCMI_ESCR_FSC_N(n)	((n) << 0)		///<
+///	@}
+
+/// \name DCMI_ESUR bits
+///	@{
+#define MCCI_STM32H7_DCMI_ESUR_FEU	(UINT32_C(0xFF) << 24)	///< Frame end delimiter unmask
+#define MCCI_STM32H7_DCMI_ESUR_FEU_N(n)	((n) << 24)		///<
+#define MCCI_STM32H7_DCMI_ESUR_LEU	(UINT32_C(0xFF) << 16)	///< Line end delimiter unmask
+#define MCCI_STM32H7_DCMI_ESUR_LEU_N(n)	((n) << 16)		///<
+#define MCCI_STM32H7_DCMI_ESUR_LSU	(UINT32_C(0xFF) << 8)	///< Line start delimiter unmask
+#define MCCI_STM32H7_DCMI_ESUR_LSU_N(n)	((n) << 8)		///<
+#define MCCI_STM32H7_DCMI_ESUR_FSU	(UINT32_C(0xFF) << 0)	///< Frame start delimiter unmask
+#define MCCI_STM32H7_DCMI_ESUR_FSU_N(n)	((n) << 0)		///<
+///	@}
+
+/// \name DCMI_CWSTRT bits
+///	@{
+#define MCCI_STM32H7_DCMI_CWSTRT_RSV29	(UINT32_C(7) << 29)	///< reserved, don't change
+#define MCCI_STM32H7_DCMI_CWSTRT_VST	(UINT32_C(0x1FFF) << 16)	///< Vertical start line count
+#define MCCI_STM32H7_DCMI_CWSTRT_VST_N(n) ((n) << 16)		///<
+#define MCCI_STM32H7_DCMI_CWSTRT_RSV14	(UINT32_C(3) << 14)	///< reserved, don't change
+#define MCCI_STM32H7_DCMI_CWSTRT_HOFFCNT	(UINT32_C(0x3FFF) << 0)	///< Horizontal offset count
+#define MCCI_STM32H7_DCMI_CWSTRT_HOFFCNT_N(n)	((n) << 0)	///<
+///	@}
+
+/// \name DCMI_CWSIZE bits
+///	@{
+#define MCCI_STM32H7_DCMI_CWSIZE_RSV30	(UINT32_C(3) << 30)	///< reserved, don't change
+#define MCCI_STM32H7_DCMI_CWSIZE_VLINE	(UINT32_C(0x3FFF) << 16)	///< Vertical line count
+#define MCCI_STM32H7_DCMI_CWSIZE_VLINE_N(n) ((n) << 16)		///<
+#define MCCI_STM32H7_DCMI_CWSIZE_RSV14	(UINT32_C(3) << 14)	///< reserved, don't change
+#define MCCI_STM32H7_DCMI_CWSIZE_CAPCNT	(UINT32_C(0x3FFF) << 0)	///< Capture count
+#define MCCI_STM32H7_DCMI_CWSIZE_CAPCNT_N(n)	((n) << 0)	///<
+///	@}
+
+
+/****************************************************************************\
+|
+|	I2C Control Registers
+|
+\****************************************************************************/
+
+/// \name I2C offsets
+///	@{
+#define	MCCI_STM32H7_I2C_CR1		UINT32_C(0x00)	///< offset to I2C control register 1
+#define MCCI_STM32H7_I2C_CR2		UINT32_C(0x04)	///< offset to I2C control register 2
+#define	MCCI_STM32H7_I2C_OAR1		UINT32_C(0x08)	///< offset to I2C own address 1 register
+#define MCCI_STM32H7_I2C_OAR2		UINT32_C(0x0C)	///< offset to I2C own address 2 register
+#define MCCI_STM32H7_I2C_TIMINGR	UINT32_C(0x10)	///< offset to I2C timing register
+#define MCCI_STM32H7_I2C_TIMOUTR	UINT32_C(0x14)	///< offset to I2C timeout register
+#define MCCI_STM32H7_I2C_ISR		UINT32_C(0x18)	///< offset to I2C interrupt and status register
+#define MCCI_STM32H7_I2C_ICR		UINT32_C(0x1C)	///< offset to I2C interrupt clear register
+#define MCCI_STM32H7_I2C_PECR		UINT32_C(0x20)	///< offset to I2C PEC register
+#define MCCI_STM32H7_I2C_RXDR		UINT32_C(0x24)	///< offset to I2C receive data register
+#define MCCI_STM32H7_I2C_TXDR		UINT32_C(0x28)	///< offset to I2C transmit data register
+///	@}
+
+/// \name I2C_CR1 bits
+///	@{
+#define MCCI_STM32H7_I2C_CR1_RSV24	UINT32_C(0xFF000000)	///< reserved, don't change
+#define MCCI_STM32H7_I2C_CR1_PECEN	(UINT32_C(1) << 23)	///< PEC enable
+#define MCCI_STM32H7_I2C_CR1_ALERTEN	(UINT32_C(1) << 22)	///< SMBus alert enable
+#define MCCI_STM32H7_I2C_CR1_SMBDEN	(UINT32_C(1) << 21)	///< SMBus Device Default Address enable
+#define MCCI_STM32H7_I2C_CR1_SMBHEN	(UINT32_C(1) << 20)	///< SMBus Host Address enable
+#define MCCI_STM32H7_I2C_CR1_GCEN	(UINT32_C(1) << 19)	///< General call enable
+#define MCCI_STM32H7_I2C_CR1_WUPEN	(UINT32_C(1) << 18)	///< Wakeup from Stop mode enable
+#define MCCI_STM32H7_I2C_CR1_NOSTRETCH	(UINT32_C(1) << 17)	///< Clock stretching disable
+#define MCCI_STM32H7_I2C_CR1_SBC	(UINT32_C(1) << 16)	///< Slave byte control
+#define MCCI_STM32H7_I2C_CR1_RXDMAEN	(UINT32_C(1) << 15)	///< DMA reception requests enable
+#define MCCI_STM32H7_I2C_CR1_TXDMAEN	(UINT32_C(1) << 14)	///< DMA transmission requests enable
+#define MCCI_STM32H7_I2C_CR1_RSV13	(UINT32_C(1) << 13)	///< reserved, don't change
+#define MCCI_STM32H7_I2C_CR1_ANFOFF	(UINT32_C(1) << 12)	///< Analog noise filter OFF
+#define MCCI_STM32H7_I2C_CR1_DNF	(UINT32_C(0xF) << 8)	///< Digital noise filter
+#define MCCI_STM32H7_I2C_CR1_DNF_N(n)	((n) << 8)		///<
+#define MCCI_STM32H7_I2C_CR1_ERRIE	(UINT32_C(1) << 7)	///< Error interrupts enable
+#define MCCI_STM32H7_I2C_CR1_TCIE	(UINT32_C(1) << 6)	///< Transfer Complete interrupt enable
+#define MCCI_STM32H7_I2C_CR1_STOPIE	(UINT32_C(1) << 5)	///< Stop detection Interrupt enable
+#define MCCI_STM32H7_I2C_CR1_NACKIE	(UINT32_C(1) << 4)	///< Not acknowledge received Interrupt enable
+#define MCCI_STM32H7_I2C_CR1_ADDRIE	(UINT32_C(1) << 3)	///< Address match Interrupt enable (slave only)
+#define MCCI_STM32H7_I2C_CR1_RXIE	(UINT32_C(1) << 2)	///< RX Interrupt enable
+#define MCCI_STM32H7_I2C_CR1_TXIE	(UINT32_C(1) << 1)	///< TX Interrupt enable
+#define MCCI_STM32H7_I2C_CR1_PE		(UINT32_C(1) << 0)	///< Peripheral enable
+///	@}
+
+/// \name I2C_CR2 bits
+///	@{
+#define MCCI_STM32H7_I2C_CR2_RSV27	UINT32_C(0xF8000000)	///< reserved, don't change
+#define MCCI_STM32H7_I2C_CR2_PECBYTE	(UINT32_C(1) << 26)	///< Packet error checking byte
+#define MCCI_STM32H7_I2C_CR2_AUTOEND	(UINT32_C(1) << 25)	///< Automatic end mode (master mode)
+#define MCCI_STM32H7_I2C_CR2_RELOAD	(UINT32_C(1) << 24)	///< NBYTES reload mode
+#define MCCI_STM32H7_I2C_CR2_NBYTES	(UINT32_C(0xFF) << 16)	///< Number of bytes
+#define MCCI_STM32H7_I2C_CR2_NBYTES_N(n)	((n) << 16)	///<
+#define MCCI_STM32H7_I2C_CR2_NACK	(UINT32_C(1) << 15)	///< NACK generation (slave mode)
+#define MCCI_STM32H7_I2C_CR2_STOP	(UINT32_C(1) << 14)	///< Stop generation (master mode)
+#define MCCI_STM32H7_I2C_CR2_START	(UINT32_C(1) << 13)	///< Start generation
+#define MCCI_STM32H7_I2C_CR2_HEAD10R	(UINT32_C(1) << 12)	///< 10-bit address header only read direction (master receiver mode)
+#define MCCI_STM32H7_I2C_CR2_ADD10	(UINT32_C(1) << 11)	///< 10-bit addressing mode (master mode)
+#define MCCI_STM32H7_I2C_CR2_RD_WRN	(UINT32_C(1) << 10)	///< Transfer direction (master mode)
+#define MCCI_STM32H7_I2C_CR2_SADD	(UINT32_C(0x3FF) << 0)	///< Slave address (master mode)
+#define MCCI_STM32H7_I2C_CR2_SADD_N(n)	((n) << 0)		///<
+///	@}
+
+/// \name I2C_OAR1 bits
+///	@{
+#define MCCI_STM32H7_I2C_OAR1_RSV16	UINT32_C(0xFFFF0000)	///< reserved, don't change
+#define MCCI_STM32H7_I2C_OAR1_OA1EN	(UINT32_C(1) << 15)	///< Own Address 1 enable
+#define MCCI_STM32H7_I2C_OAR1_RSV11	(UINT32_C(0xF) << 11)	///<  reserved, don't change
+#define MCCI_STM32H7_I2C_OAR1_OA1MODE	(UINT32_C(1) << 10)	///< Own Address 1 10-bit mode
+#define MCCI_STM32H7_I2C_OAR1_OA1	(UINT32_C(0x3FF) << 0)	///< Interface own slave address
+#define MCCI_STM32H7_I2C_OAR1_OA1_N(n)	((n) << 0)		///<
+///	@}
+
+/// \name I2C_OAR2 bits
+///	@{
+#define MCCI_STM32H7_I2C_OAR2_RSV16	UINT32_C(0xFFFF0000)	///< reserved, don't change
+#define MCCI_STM32H7_I2C_OAR2_OA2EN	(UINT32_C(1) << 15)	///< Own Address 2 enable
+#define MCCI_STM32H7_I2C_OAR2_RSV11	(UINT32_C(0xF) << 11)	///<  reserved, don't change
+#define MCCI_STM32H7_I2C_OAR2_OA2MSK	(UINT32_C(7) << 8)	///< Own Address 2 masks
+#define MCCI_STM32H7_I2C_OAR2_OA2MSK_N(n)	((n) << 8)	///<
+#define MCCI_STM32H7_I2C_OAR2_OA2	(UINT32_C(0xFF) << 0)	///< Interface address
+#define MCCI_STM32H7_I2C_OAR2_OA2_N(n)	((n) << 0)		///<
+///	@}
+
+/// \name I2C_TIMINGR bits
+///	@{
+#define MCCI_STM32H7_I2C_TIMINGR_PRESC	(UINT32_C(0xF) << 28)	///< Timing prescaler
+#define MCCI_STM32H7_I2C_TIMINGR_PRESC_N(n)	((n) << 28)	///<
+#define MCCI_STM32H7_I2C_TIMINGR_RSV24	(UINT32_C(0xF) << 24)	///< reserved, don't change
+#define MCCI_STM32H7_I2C_TIMINGR_SCLDEL	(UINT32_C(0xF) << 20)	///< Data setup time
+#define MCCI_STM32H7_I2C_TIMINGR_SCLDEL_N(n)	((n) << 20)	///<
+#define MCCI_STM32H7_I2C_TIMINGR_SDADEL	(UINT32_C(0xF) << 16)	///< Data hold time
+#define MCCI_STM32H7_I2C_TIMINGR_SDADEL_N(n)	((n) << 16)	///<
+#define MCCI_STM32H7_I2C_TIMINGR_SCLH	(UINT32_C(0xFF) << 8)	///< SCL high period (master mode)
+#define MCCI_STM32H7_I2C_TIMINGR_SCLH_N(n)	((n) << 8)	///<
+#define MCCI_STM32H7_I2C_TIMINGR_SCLL	(UINT32_C(0xFF) << 0)	///< SCL low period (master mode)
+#define MCCI_STM32H7_I2C_TIMINGR_SCLL_N(n)	((n) << 0)	///<
+///	@}
+
+/// \name I2C_TIMEOUTR bits
+///	@{
+#define MCCI_STM32H7_I2C_TIMEOUTR_TEXTEN	(UINT32_C(1) << 31)	///< Extended clock timeout enable
+#define MCCI_STM32H7_I2C_TIMEOUTR_RSV28	(UINT32_C(7) << 28)	///< reserved, don't change
+#define MCCI_STM32H7_I2C_TIMEOUTR_TIMEOUTB	(UINT32_C(0xFFF) << 16)	///< Bus timeout B
+#define MCCI_STM32H7_I2C_TIMEOUTR_TIMEOUTB_N(n)	((n) << 16)	///<
+#define MCCI_STM32H7_I2C_TIMEOUTR_TIMOUTEN	(UINT32_C(1) << 15)	///< Clock timeout enable
+#define MCCI_STM32H7_I2C_TIMINGR_RSV13	(UINT32_C(3) << 13)	///< reserved, don't change
+#define MCCI_STM32H7_I2C_TIMEOUTR_TIDLE	(UINT32_C(1) << 12)	///< Idle clock timeout detection
+#define MCCI_STM32H7_I2C_TIMEOUTR_TIMEOUTA	(UINT32_C(0xFFF) << 0)	///< Bus Timeout A
+#define MCCI_STM32H7_I2C_TIMEOUTR_TIMEOUTA_N(n)	((n) << 0)	///<
+///	@}
+
+/// \name I2C_ISR bits
+///	@{
+#define MCCI_STM32H7_I2C_ISR_RSV24	UINT32_C(0xFF000000)	///< reserved, don't change
+#define MCCI_STM32H7_I2C_ISR_ADDCODE	(UINT32_C(0x7F) << 17)	///< Address match code (Slave mode)
+#define MCCI_STM32H7_I2C_ISR_DIR	(UINT32_C(1) << 16)	///< Transfer direction (Slave mode)
+#define MCCI_STM32H7_I2C_ISR_BUSY	(UINT32_C(1) << 15)	///< Bus busy
+#define MCCI_STM32H7_I2C_ISR_RSV14	(UINT32_C(1) << 14)	///<  reserved, don't change
+#define MCCI_STM32H7_I2C_ISR_ALERT	(UINT32_C(1) << 13)	///< SMBus alert
+#define MCCI_STM32H7_I2C_ISR_TIMEOUT	(UINT32_C(1) << 12)	///< Timeout or tLOW detection flag
+#define MCCI_STM32H7_I2C_ISR_PECERR	(UINT32_C(1) << 11)	///< PEC Error in reception
+#define MCCI_STM32H7_I2C_ISR_OVR	(UINT32_C(1) << 10)	///< Overrun/Underrun (slave mode)
+#define MCCI_STM32H7_I2C_ISR_ARLO	(UINT32_C(1) << 9)	///< Arbitration lost
+#define MCCI_STM32H7_I2C_ISR_BERR	(UINT32_C(1) << 8)	///< Bus error
+#define MCCI_STM32H7_I2C_ISR_TCR	(UINT32_C(1) << 7)	///< Transfer Complete Reload
+#define MCCI_STM32H7_I2C_ISR_TC		(UINT32_C(1) << 6)	///< Transfer Complete (master mode)
+#define MCCI_STM32H7_I2C_ISR_STOPF	(UINT32_C(1) << 5)	///< Stop detection flag
+#define MCCI_STM32H7_I2C_ISR_NACKF	(UINT32_C(1) << 4)	///< Not Acknowledge received flag
+#define MCCI_STM32H7_I2C_ISR_ADDR	(UINT32_C(1) << 3)	///< Address matched (slave mode)
+#define MCCI_STM32H7_I2C_ISR_RXNE	(UINT32_C(1) << 2)	///< Receive data register not empty (receivers)
+#define MCCI_STM32H7_I2C_ISR_TXIS	(UINT32_C(1) << 1)	///< Transmit interrupt status (transmitters)
+#define MCCI_STM32H7_I2C_ISR_TXE	(UINT32_C(1) << 0)	///< Transmit data register empty (transmitters)
+///	@}
+
+/// \name I2C_ICR bits
+///	@{
+#define MCCI_STM32H7_I2C_ICR_RSV14	UINT32_C(0xFFFFC000)	///< reserved, don't change
+#define MCCI_STM32H7_I2C_ICR_ALERTCF	(UINT32_C(1) << 13)	///< Alert flag clear
+#define MCCI_STM32H7_I2C_ICR_TIMEOUTCF	(UINT32_C(1) << 12)	///< Timeout detection flag clear
+#define MCCI_STM32H7_I2C_ICR_PECCF	(UINT32_C(1) << 11)	///< PEC Error flag clear
+#define MCCI_STM32H7_I2C_ICR_OVRCF	(UINT32_C(1) << 10)	///< Overrun/Underrun flag clear
+#define MCCI_STM32H7_I2C_ICR_ARLOCF	(UINT32_C(1) << 9)	///< Arbitration lost flag clear
+#define MCCI_STM32H7_I2C_ICR_BERRCF	(UINT32_C(1) << 8)	///< Bus error flag clear
+#define MCCI_STM32H7_I2C_ICR_RSV6	(UINT32_C(3) << 6)	///< reserved, don't change
+#define MCCI_STM32H7_I2C_ICR_STOPCF	(UINT32_C(1) << 5)	///< STOP detection flag clear
+#define MCCI_STM32H7_I2C_ICR_NACKCF	(UINT32_C(1) << 4)	///< Not Acknowledge flag clear
+#define MCCI_STM32H7_I2C_ICR_ADDRCF	(UINT32_C(1) << 3)	///< Address matched flag clear
+#define MCCI_STM32H7_I2C_ICR_RSV0	(UINT32_C(7) << 0)	///< reserved, don't change
+///	@}
+
+/// \name I2C_PECR bits
+///	@{
+#define MCCI_STM32H7_I2C_PECR_RSV8	UINT32_C(0xFFFFFF00)	///< reserved, don't change
+#define MCCI_STM32H7_I2C_PECR_PEC	(UINT32_C(0xFF) << 0)	///< Packet error checking register
+///	@}
+
+/// \name I2C_RXDR bits
+///	@{
+#define MCCI_STM32H7_I2C_RXDR_RSV8	UINT32_C(0xFFFFFF00)	///< reserved, don't change
+#define MCCI_STM32H7_I2C_RXDR_RXDATA	(UINT32_C(0xFF) << 0)	///< 8-bit receive data
+///	@}
+
+/// \name I2C_TXDR bits
+///	@{
+#define MCCI_STM32H7_I2C_TXDR_RSV8	UINT32_C(0xFFFFFF00)	///< reserved, don't change
+#define MCCI_STM32H7_I2C_TXDR_TXDATA	(UINT32_C(0xFF) << 0)	///< 8-bit transmit data
 ///	@}
 
 
