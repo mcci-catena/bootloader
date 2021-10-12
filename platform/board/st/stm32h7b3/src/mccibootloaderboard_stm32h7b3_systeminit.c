@@ -34,11 +34,11 @@ Author:
 \****************************************************************************/
 
 #ifndef	MCCI_BOOTLOADER_LED_GPIO	/* PARAM */
-# define MCCI_BOOTLOADER_LED_GPIO	MCCI_STM32H7_REG_GPIOG
+# define MCCI_BOOTLOADER_LED_GPIO	MCCI_STM32H7_REG_GPIOI
 #endif
 
 #ifndef	MCCI_BOOTLOADER_LED_GPIO_PIN	/* PARAM */
-# define MCCI_BOOTLOADER_LED_GPIO_PIN	11
+# define MCCI_BOOTLOADER_LED_GPIO_PIN	3
 #endif
 
 MCCI_BOOTLOADER_NORETURN_PFX
@@ -97,13 +97,13 @@ McciBootloaderBoard_Stm32h7b3_systemInit(
 	{
 	McciBootloader_Stm32h7_systemInit();
 
-	// enable GPIO port G
+	// enable GPIO port I
 	McciArm_putRegOr(
 		MCCI_STM32H7_REG_RCC_AHB4ENR,
-		MCCI_STM32H7_REG_RCC_AHB4ENR_GPIOGEN
+		MCCI_STM32H7_REG_RCC_AHB4ENR_GPIOIEN
 		);
 
-	// set up GPIO port G11 as low speed
+	// set up GPIO port I3 as low speed
 	McciArm_putRegMasked(
 		MCCI_BOOTLOADER_LED_GPIO + MCCI_STM32H7_GPIO_OSPEEDR,
 		MCCI_STM32H7_GPIO_OSPEED_P(MCCI_BOOTLOADER_LED_GPIO_PIN),
@@ -113,7 +113,7 @@ McciBootloaderBoard_Stm32h7b3_systemInit(
 			)
 		);
 
-	// set up GPIO port G11 as an output type push-pull
+	// set up GPIO port I3 as an output type push-pull
 	McciArm_putRegMasked(
 		MCCI_BOOTLOADER_LED_GPIO + MCCI_STM32H7_GPIO_OTYPER,
 		MCCI_STM32H7_GPIO_OTYPE_P(MCCI_BOOTLOADER_LED_GPIO_PIN),
@@ -123,7 +123,7 @@ McciBootloaderBoard_Stm32h7b3_systemInit(
 			)
 		);
 
-	// set up GPIO port G11 as no pull
+	// set up GPIO port I3 as no pull
 	McciArm_putRegMasked(
 		MCCI_BOOTLOADER_LED_GPIO + MCCI_STM32H7_GPIO_PUPDR,
 		MCCI_STM32H7_GPIO_PUPD_P(MCCI_BOOTLOADER_LED_GPIO_PIN),
@@ -133,7 +133,7 @@ McciBootloaderBoard_Stm32h7b3_systemInit(
 			)
 		);
 
-	// set up GPIO port G11 as output
+	// set up GPIO port I3 as output
 	McciArm_putRegMasked(
 		MCCI_BOOTLOADER_LED_GPIO + MCCI_STM32H7_GPIO_MODER,
 		MCCI_STM32H7_GPIO_MODE_P(MCCI_BOOTLOADER_LED_GPIO_PIN),
@@ -143,13 +143,13 @@ McciBootloaderBoard_Stm32h7b3_systemInit(
 			)
 		);
 
-	// clear G11
+	// clear I3
 	McciArm_putReg(
 		MCCI_BOOTLOADER_LED_GPIO + MCCI_STM32H7_GPIO_BSRR,
 		MCCI_STM32H7_GPIO_BSRR_BR_P(MCCI_BOOTLOADER_LED_GPIO_PIN)
 		);
 
-	// set G11 and clear it, so we can see things on a scope
+	// set I3 and clear it, so we can see things on a scope
 	McciArm_putReg(
 		MCCI_BOOTLOADER_LED_GPIO + MCCI_STM32H7_GPIO_BSRR,
 		MCCI_STM32H7_GPIO_BSRR_BS_P(MCCI_BOOTLOADER_LED_GPIO_PIN)
@@ -157,6 +157,23 @@ McciBootloaderBoard_Stm32h7b3_systemInit(
 	McciArm_putReg(
 		MCCI_BOOTLOADER_LED_GPIO + MCCI_STM32H7_GPIO_BSRR,
 		MCCI_STM32H7_GPIO_BSRR_BR_P(MCCI_BOOTLOADER_LED_GPIO_PIN)
+		);
+
+	// init SysTick
+	McciArm_putReg(
+		MCCI_CM7_SYSTICK_RVR,
+		(64000000 / 1000)	/* system clock is 64MHz */
+		);
+	McciArm_putReg(MCCI_CM7_SYSTICK_CVR, 0);
+	McciArm_putReg(
+		MCCI_CM7_SYSTICK_CSR,
+		MCCI_CM7_SYSTICK_CSR_CLKSOURCE |
+		MCCI_CM7_SYSTICK_CSR_TICKINT |
+		MCCI_CM7_SYSTICK_CSR_ENABLE
+		);
+	McciArm_putRegOr(
+		MCCI_STM32H7_REG_RCC_APB4ENR,
+		MCCI_STM32H7_REG_RCC_APB4ENR_SYSCFGEN
 		);
 	}
 

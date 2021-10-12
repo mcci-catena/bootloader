@@ -72,8 +72,14 @@ McciBootloaderBoard_Stm32h7b3_prepareForLaunch(
 	void
 	)
 	{
+	// deinit SysTick
+	McciArm_putRegClear(
+		MCCI_STM32H7_REG_RCC_APB4ENR,
+		MCCI_STM32H7_REG_RCC_APB4ENR_SYSCFGEN
+		);
+	McciArm_putReg(MCCI_CM7_SYSTICK_CSR, 0);
+
 	McciBootloader_Stm32h7_prepareForLaunch();
 	}
-
 
 /**** end of mccibootloaderboard_catenaabz_prepareforlaunch.c ****/
