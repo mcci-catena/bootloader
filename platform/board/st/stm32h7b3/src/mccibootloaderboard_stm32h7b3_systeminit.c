@@ -67,7 +67,7 @@ delayTick(void);
 Name:	McciBootloaderBoard_Stm32h7b3_systemInit()
 
 Function:
-	Initialize MCCI Catena based on Murata ABZ module for bootloader.
+	Initialize STM32H7B3 module for bootloader.
 
 Definition:
 	McciBootloaderPlatform_SystemInitFn_t
@@ -78,9 +78,9 @@ Definition:
 		);
 
 Description:
-	We set up the CPU for 32 MHz operation (using stm32l0 initialization).
+	We set up the CPU for reset state.
 
-	We then then enable GPIOs for the LED (pin PB2).
+	We then then enable GPIOs for the LED (pin PI3) and initiaize SysTick.
 
 Returns:
 	No explicit result.

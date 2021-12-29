@@ -364,9 +364,10 @@ extern "C" {
 ///	@{
 #define	MCCI_CM7_SCB_AIRCR_VECTKEY		(UINT32_C(0xFFFF) << 16)	///< Vector key
 #define	MCCI_CM7_SCB_AIRCR_VECTKEY_VALUE	(UINT32_C(0x05FA) << 16)	///< Value to write to unlock regster.
-#define	MCCI_CM7_SCB_AIRCR_ENDIANNESS		(UINT32_C(1) << 15)		///<
-#define	MCCI_CM7_SCB_AIRCR_PRIGROUP		(UINT32_C(1) << 8)		///<
-#define	MCCI_CM7_SCB_AIRCR_SYSRESETREQ		(UINT32_C(1) << 2)		///<
+#define	MCCI_CM7_SCB_AIRCR_ENDIANNESS		(UINT32_C(1) << 15)		///< 0=little, 1=big endian
+#define	MCCI_CM7_SCB_AIRCR_PRIGROUP		(UINT32_C(7) << 8)		///< Priority grouping position
+#define	MCCI_CM7_SCB_AIRCR_PRIGROUP_N(n)	((n) << 8)			///<
+#define	MCCI_CM7_SCB_AIRCR_SYSRESETREQ		(UINT32_C(1) << 2)		///< System reset request
 #define	MCCI_CM7_SCB_AIRCR_VECTCLRACTIVE	(UINT32_C(1) << 1)		///<
 #define	MCCI_CM7_SCB_AIRCR_VECTRESET		(UINT32_C(1) << 0)		///<
 ///	@}
@@ -405,7 +406,7 @@ extern "C" {
 
 /// 	\brief return register for a given handler index
 static inline uint32_t
-McciCm0Plus_SCB_SHPR_getRegister(
+McciCm7_SCB_SHPR_getRegister(
 	uint32_t	handlerIndex
 	)
 	{
@@ -416,7 +417,7 @@ McciCm0Plus_SCB_SHPR_getRegister(
 
 ///	\brief return byte mask for a given handler index
 static inline uint32_t
-McciCm0Plus_SCB_SHPR_getMask(
+McciCm7_SCB_SHPR_getMask(
 	uint32_t	handlerIndex
 	)
 	{
@@ -441,6 +442,26 @@ McciCm0Plus_SCB_SHPR_getMask(
 #define	MCCI_CM7_SCB_SHCSR_USGFAULTACT		(UINT32_C(1) << 3)	///<
 #define	MCCI_CM7_SCB_SHCSR_BUSFAULTACT		(UINT32_C(1) << 1)	///<
 #define	MCCI_CM7_SCB_SHCSR_MEMFAULTACT		(UINT32_C(1) << 0)	///<
+///	@}
+
+/****************************************************************************\
+|
+|	Interrupt Number Definition
+|
+\****************************************************************************/
+
+/// \name Cortex-M Processor Exceptions Numbers
+///	@{
+#define	MCCI_CM7_IRQ_BASE		UINT32_C(256)				///< Cortext-M Processor Exception Number Base
+#define	MCCI_CM7_IRQ_NonMaskableInt	(MCCI_CM7_IRQ_BASE + UINT32_C(2))	///< Non Maskable Interrupt
+#define	MCCI_CM7_IRQ_HardFault		(MCCI_CM7_IRQ_BASE + UINT32_C(3))	///< Cortex-M Memory Management	Interrupt
+#define	MCCI_CM7_IRQ_MemoryManagement	(MCCI_CM7_IRQ_BASE + UINT32_C(4))	///< Cortex-M Memory Management	Interrupt
+#define	MCCI_CM7_IRQ_BusFault		(MCCI_CM7_IRQ_BASE + UINT32_C(5))	///< Cortex-M Bus Fault	Interrupt
+#define	MCCI_CM7_IRQ_UsageFault		(MCCI_CM7_IRQ_BASE + UINT32_C(6))	///< Cortex-M Usage Fault Interrupt
+#define	MCCI_CM7_IRQ_SVCall		(MCCI_CM7_IRQ_BASE + UINT32_C(11))	///< Cortex-M SV Call Interrupt
+#define	MCCI_CM7_IRQ_DebugMonitor	(MCCI_CM7_IRQ_BASE + UINT32_C(12))	///< Cortex-M Debug Monitor Interrupt
+#define	MCCI_CM7_IRQ_PendSV		(MCCI_CM7_IRQ_BASE + UINT32_C(14))	///< Cortex-M Pend SV Interrupt
+#define	MCCI_CM7_IRQ_SysTick		(MCCI_CM7_IRQ_BASE + UINT32_C(15))	///< Cortex-M System Tick Interrupt
 ///	@}
 
 /****************************************************************************\
@@ -666,6 +687,271 @@ void McciArm_DataSynchBarrier(
 	)
 	{
 	__asm volatile ("dsb 0xF" ::: "memory");
+	}
+
+///
+/// \brief enable NVIC interrupt
+///
+/// \details
+///	Enable NVIC interrupt
+///
+/// \param [in] interruptNumber device specific interrupt number
+///
+__attribute__((always_inline)) static inline
+void McciArm_NvicEnableIrq(
+	uint32_t interruptNumber
+	)
+	{
+	if (interruptNumber < MCCI_CM7_IRQ_BASE)
+		{
+		__asm volatile ("" ::: "memory");
+		McciArm_putReg(
+			MCCI_CM7_NVIC_ISER + (interruptNumber >> 5) * 4,
+			(1u << (interruptNumber & 31u))
+			);
+		__asm volatile ("" ::: "memory");
+		}
+	}
+
+///
+/// \brief disable NVIC interrupt
+///
+/// \details
+///	Disable NVIC interrupt
+///
+/// \param [in] interruptNumber device specific interrupt number
+///
+__attribute__((always_inline)) static inline
+void McciArm_NvicDisableIrq(
+	uint32_t interruptNumber
+	)
+	{
+	if (interruptNumber < MCCI_CM7_IRQ_BASE)
+		{
+		McciArm_putReg(
+			MCCI_CM7_NVIC_ICER + (interruptNumber >> 5) * 4,
+			(1u << (interruptNumber & 31u))
+			);
+		__asm volatile ("dsb 0xF" ::: "memory");
+		__asm volatile ("isb 0xF" ::: "memory");
+		}
+	}
+
+///
+/// \brief get NVIC interrupt enable state
+///
+/// \details
+///	Get NVIC interrupt enable state
+///
+/// \param [in] interruptNumber device specific interrupt number
+///
+/// \return interrupt enable state
+///
+__attribute__((always_inline)) static inline
+int McciArm_NvicGetEnableIrq(
+	uint32_t interruptNumber
+	)
+	{
+	if (interruptNumber < MCCI_CM7_IRQ_BASE)
+		{
+		return McciArm_getReg(
+			MCCI_CM7_NVIC_ISER + (interruptNumber >> 5) * 4
+			) & (1u << (interruptNumber & 31u)) ? 1 : 0;
+		}
+	else
+		{
+		return 0;
+		}
+	}
+
+///
+/// \brief get NVIC interrupt pending state
+///
+/// \details
+///	Get NVIC interrupt pending state
+///
+/// \param [in] interruptNumber device specific interrupt number
+///
+/// \return interrupt pending state. 1 is interrupt pending.
+///
+__attribute__((always_inline)) static inline
+int McciArm_NvicGetPendingIrq(
+	uint32_t interruptNumber
+	)
+	{
+	if (interruptNumber < MCCI_CM7_IRQ_BASE)
+		{
+		return McciArm_getReg(
+			MCCI_CM7_NVIC_ISPR + (interruptNumber >> 5) * 4
+			) & (1u << (interruptNumber & 31u)) ? 1 : 0;
+		}
+	else
+		{
+		return 0;
+		}
+	}
+
+///
+/// \brief set NVIC interrupt pending state
+///
+/// \details
+///	Set NVIC interrupt pending state
+///
+/// \param [in] interruptNumber device specific interrupt number
+///
+__attribute__((always_inline)) static inline
+void McciArm_NvicSetPendingIrq(
+	uint32_t interruptNumber
+	)
+	{
+	if (interruptNumber < MCCI_CM7_IRQ_BASE)
+		{
+		McciArm_putReg(
+			MCCI_CM7_NVIC_ISPR + (interruptNumber >> 5) * 4,
+			(1u << (interruptNumber & 31u))
+			);
+		}
+	}
+
+///
+/// \brief clear NVIC interrupt pending state
+///
+/// \details
+///	Clear NVIC interrupt pending state
+///
+/// \param [in] interruptNumber device specific interrupt number
+///
+__attribute__((always_inline)) static inline
+void McciArm_NvicClearPendingIrq(
+	uint32_t interruptNumber
+	)
+	{
+	if (interruptNumber < MCCI_CM7_IRQ_BASE)
+		{
+		McciArm_putReg(
+			MCCI_CM7_NVIC_ICPR + (interruptNumber >> 5) * 4,
+			(1u << (interruptNumber & 31u))
+			);
+		}
+	}
+
+///
+/// \brief set NVIC priority group
+///
+/// \details
+///	Set NVIC priority group
+///
+/// \param [in] priorityGroup priority grouping field
+///
+__attribute__((always_inline)) static inline
+void McciArm_NvicSetPriorityGroup(
+	uint32_t priorityGroup
+	)
+	{
+	McciArm_putRegClearSet(
+		MCCI_CM7_SCB_AIRCR,
+		MCCI_CM7_SCB_AIRCR_VECTKEY | MCCI_CM7_SCB_AIRCR_PRIGROUP,
+		MCCI_CM7_SCB_AIRCR_VECTKEY_VALUE | MCCI_CM7_SCB_AIRCR_PRIGROUP_N(priorityGroup & 7)
+		);
+	}
+
+///
+/// \brief get NVIC priority group
+///
+/// \details
+///	Get NVIC priority group
+///
+/// \return priority grouping field
+///
+__attribute__((always_inline)) static inline
+uint32_t McciArm_NvicGetPriorityGroup(
+	void
+	)
+	{
+	return MCCI_BOOTLOADER_VALUE_GET_FIELD(
+		McciArm_getReg(MCCI_CM7_SCB_AIRCR),
+		MCCI_CM7_SCB_AIRCR_PRIGROUP
+		);
+	}
+
+///
+/// \brief set NVIC interrupt priority
+///
+/// \details
+///	Set NVIC interrupt priority
+///
+/// \param [in] interruptNumber Specific interrupt number
+/// \param [in] priority Priority to set
+///
+__attribute__((always_inline)) static inline
+void McciArm_NvicSetPriority(
+	uint32_t interruptNumber,
+	uint32_t priority
+	)
+	{
+	if (interruptNumber < MCCI_CM7_IRQ_BASE)
+		{
+		*(volatile uint8_t *)(MCCI_CM7_NVIC_IPR + interruptNumber) =
+			(uint8_t)(priority << 4);
+		}
+	else if (interruptNumber >= MCCI_CM7_IRQ_MemoryManagement)
+		{
+		*(volatile uint8_t *)(MCCI_CM7_SCB_SHPR1 + interruptNumber - MCCI_CM7_IRQ_MemoryManagement) =
+			(uint8_t)(priority << 4);
+		}
+	}
+
+///
+/// \brief get NVIC interrupt priority
+///
+/// \details
+///	Get NVIC interrupt priority
+///
+/// \param [in] interruptNumber Specific interrupt number
+///
+/// \return interrupt priority
+///
+__attribute__((always_inline)) static inline
+uint32_t McciArm_NvicGetPriority(
+	uint32_t interruptNumber
+	)
+	{
+	if (interruptNumber < MCCI_CM7_IRQ_BASE)
+		{
+		return *(volatile uint8_t *)(MCCI_CM7_NVIC_IPR + interruptNumber) >> 4;
+		}
+	else if (interruptNumber >= MCCI_CM7_IRQ_MemoryManagement)
+		{
+		return *(volatile uint8_t *)(MCCI_CM7_SCB_SHPR1 + interruptNumber - MCCI_CM7_IRQ_MemoryManagement) >> 4;
+		}
+	else
+		{
+		return 0;
+		}
+	}
+
+///
+/// \brief system reset
+///
+/// \details
+///	Initiate a system reset request to reset the MCU.
+///
+__attribute__((__noreturn__)) __attribute__((always_inline)) static inline
+void McciArm_NvicSystemReset(
+	void
+	)
+	{
+	__asm volatile ("dsb 0xF" ::: "memory");
+	McciArm_putRegAndOr(
+		MCCI_CM7_SCB_AIRCR,
+		MCCI_CM7_SCB_AIRCR_PRIGROUP,
+		MCCI_CM7_SCB_AIRCR_VECTKEY_VALUE | MCCI_CM7_SCB_AIRCR_SYSRESETREQ
+		);
+	__asm volatile ("dsb 0xF" ::: "memory");
+	for (;;)
+		{
+		__asm volatile ("nop");
+		}
 	}
 
 #else

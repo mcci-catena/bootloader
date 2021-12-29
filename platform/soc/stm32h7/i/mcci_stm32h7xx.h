@@ -1906,6 +1906,7 @@ extern "C" {
 ///		)`
 ///
 #define	MCCI_STM32H7_GPIO_MODE_P(p)	(UINT32_C(3) << (2 * (p)))
+#define	MCCI_STM32H7_GPIO_MODE_PV(p, v)	((v) << (2 * (p)))
 
 /// \name GPIO_OTYPER bits
 ///	@{
@@ -1923,7 +1924,8 @@ extern "C" {
 ///		MCCI_STM32H7_GPIO_OTYPE_PP
 ///		)`
 ///
-#define	MCCI_STM32H7_GPIO_OTYPE_P(p)	(UINT32_C(1) << (p))
+#define	MCCI_STM32H7_GPIO_OTYPE_P(p)		(UINT32_C(1) << (p))
+#define	MCCI_STM32H7_GPIO_OTYPE_PV(p, v)	((v) << (p))
 
 /// \name GPIO_OSPEEDR bits -- used to select pin speed, two bits per pin
 ///	@{
@@ -1932,6 +1934,7 @@ extern "C" {
 #define MCCI_STM32H7_GPIO_OSPEED_MEDIUM	UINT32_C(1)	//< medium
 #define MCCI_STM32H7_GPIO_OSPEED_HIGH	UINT32_C(2)	//< high
 #define MCCI_STM32H7_GPIO_OSPEED_VHIGH	UINT32_C(3)	//< very high
+///	@}
 
 /// \brief compute the mask for the mode bits for port bits 0..31
 ///
@@ -1942,8 +1945,8 @@ extern "C" {
 ///		MCCI_STM32H7_GPIO_OSPEED_IN
 ///		)`
 ///
-#define	MCCI_STM32H7_GPIO_OSPEED_P(p)	(UINT32_C(3) << (2 * (p)))
-///	@}
+#define	MCCI_STM32H7_GPIO_OSPEED_P(p)		(UINT32_C(3) << (2 * (p)))
+#define	MCCI_STM32H7_GPIO_OSPEED_PV(p, v)	((v) << (2 * (p)))
 
 /// \name GPIO_PUPDR bits -- used to select pin speed, two bits per pin
 ///	@{
@@ -1951,6 +1954,7 @@ extern "C" {
 #define MCCI_STM32H7_GPIO_PUPD_NONE	UINT32_C(0)	//< no pullup/pulldown
 #define MCCI_STM32H7_GPIO_PUPD_PULLUP	UINT32_C(1)	//< pullup
 #define MCCI_STM32H7_GPIO_PUPD_PULLDOWN	UINT32_C(2)	//< pulldown
+///	@}
 
 /// \brief compute the mask for the mode bits for port bits 0..31
 ///
@@ -1962,7 +1966,7 @@ extern "C" {
 ///		)`
 ///
 #define	MCCI_STM32H7_GPIO_PUPD_P(p)	(UINT32_C(3) << (2 * (p)))
-///	@}
+#define	MCCI_STM32H7_GPIO_PUPD_PV(p, v)	((v) << (2 * (p)))
 
 /// \name GPIO_BSRR bits
 ///	@{
@@ -1988,15 +1992,19 @@ extern "C" {
 /// \name GPIO_AFRx bits
 ///	@{
 /// \brief get reg offset for GPIO_AFRx
-#define	MCCI_STM32H7_GPIO_AFRx_P(p)	(MCCI_STM32H7_GPIO_AFRL + ((p) / UINT32_C(8)))	//< f
+#define	MCCI_STM32H7_GPIO_AFRx_P(p)	(MCCI_STM32H7_GPIO_AFRL + (((p) / UINT32_C(8)) * UINT32_C(4)))	//< f
+///	@}
 
 /// \brief get AFRx mask for port bit \p p.
 ///
 /// Normal use:
-///	MCCI_BOOTLOADER_FIELD_SET_VALUE(MCCI_STM32H7_GPIO_AFSEL_P(bitnum), 0..7)
+///	`MCCI_BOOTLOADER_FIELD_SET_VALUE(
+///		MCCI_STM32H7_GPIO_AFSEL_P(bitnum),
+///		0..15
+///		)`
 ///
-#define	MCCI_STM32H7_GPIO_AFSEL_P(p)	(UINT32_C(0xF) << ((p) & 0x7u)
-///	@}
+#define	MCCI_STM32H7_GPIO_AFSEL_P(p)	(UINT32_C(0xF) << (((p) & UINT32_C(0x7)) * UINT32_C(4)))
+#define	MCCI_STM32H7_GPIO_AFSEL_PV(p,v)	((v) << (((p) & UINT32_C(0x7)) * UINT32_C(4)))
 
 /****************************************************************************\
 |
@@ -2221,6 +2229,16 @@ extern "C" {
 #define MCCI_STM32H7_DMA_SxFCR(x)	(((x) * UINT32_C(0x18)) + UINT32_C(0x24))	///< offset to DMA stream x FIFO control register
 ///	@}
 
+/// \name DMA stream base address
+///	@{
+#define	MCCI_STM32H7_DMA1_STREAM_BASE(x)	\
+	(MCCI_STM32H7_REG_DMA1 + MCCI_STM32H7_DMA_STREAM_BASE(x))
+#define	MCCI_STM32H7_DMA2_STREAM_BASE(x)	\
+	(MCCI_STM32H7_REG_DMA2 + MCCI_STM32H7_DMA_STREAM_BASE(x))
+
+#define	MCCI_STM32H7_DMA_GET_STREAM(b)	((((b) & UINT32_C(0xFF)) - UINT32_C(0x10)) / UINT32_C(0x18))
+///	@}
+
 /// \name DMA_LISR and DMA_FISR bits
 ///	@{
 #define MCCI_STM32H7_DMA_ISR_RSV28	UINT32_C(0xF0000000)	///< reserved, don't change
@@ -2255,9 +2273,7 @@ extern "C" {
 #define MCCI_STM32H7_DMA_ISR_TEIF	(UINT32_C(1) << 3)	///< transfer error interrupt flag
 #define MCCI_STM32H7_DMA_ISR_DMEIF	(UINT32_C(1) << 2)	///< direct mode error interrupt flag
 #define MCCI_STM32H7_DMA_ISR_FEIF	(UINT32_C(1) << 0)	///< FIFO error interrupt flag
-
-#define MCCI_STM32H7_DMA_ISR_SHIFT	6			///< ISR stream shift
-#define MCCI_STM32H7_DMA_ISR_MASK	(UINT32_C(0x1D) << 0)	///< ISR stream mask
+#define MCCI_STM32H7_DMA_ISR_MASK	UINT32_C(0x3D)		///< ISR stream mask
 ///	@}
 
 /// \name DMA_SCR bits
@@ -2309,6 +2325,7 @@ extern "C" {
 ///	@{
 #define MCCI_STM32H7_DMA_SFCR_RSV8	UINT32_C(0xFFFFFF00)	///< reserved, don't change
 #define MCCI_STM32H7_DMA_SFCR_FEIE	(UINT32_C(1) << 7)	///< FIFO error interrupt enable
+#define MCCI_STM32H7_DMA_SFCR_RSV6	(UINT32_C(1) << 6)	///< reserved, don't change
 #define MCCI_STM32H7_DMA_SFCR_FS	(UINT32_C(7) << 3)	///< FIFO status
 #define MCCI_STM32H7_DMA_SFCR_FS_LESS_1P4	(UINT32_C(0) << 3)	///< 0 < fifo_level < 1/4
 #define MCCI_STM32H7_DMA_SFCR_FS_LESS_1P2	(UINT32_C(1) << 3)	///< 1/4 <= fifo_level < 1/2
@@ -2782,6 +2799,390 @@ extern "C" {
 #define MCCI_STM32H7_I2C_TXDR_TXDATA	(UINT32_C(0xFF) << 0)	///< 8-bit transmit data
 ///	@}
 
+
+/****************************************************************************\
+|
+|	Timer Control Registers
+|
+\****************************************************************************/
+
+/// \name Timer offsets
+///	@{
+#define	MCCI_STM32H7_TIM_CR1		UINT32_C(0x00)	///< offset to TIM control register 1
+#define MCCI_STM32H7_TIM_CR2		UINT32_C(0x04)	///< offset to TIM control register 2
+#define	MCCI_STM32H7_TIM_SMCR		UINT32_C(0x08)	///< offset to TIM slave mode control register
+#define MCCI_STM32H7_TIM_DIER		UINT32_C(0x0C)	///< offset to TIM DMA/interrupt enable register
+#define MCCI_STM32H7_TIM_SR		UINT32_C(0x10)	///< offset to TIM status register
+#define MCCI_STM32H7_TIM_EGR		UINT32_C(0x14)	///< offset to TIM event generation register
+#define MCCI_STM32H7_TIM_CCMR1		UINT32_C(0x18)	///< offset to TIM capture/compare mode register 1
+#define MCCI_STM32H7_TIM_CCMR2		UINT32_C(0x1C)	///< offset to TIM capture/compare mode register 2
+#define MCCI_STM32H7_TIM_CCER		UINT32_C(0x20)	///< offset to TIM capture/compare enable register
+#define MCCI_STM32H7_TIM_CNT		UINT32_C(0x24)	///< offset to TIM counter register
+#define MCCI_STM32H7_TIM_PSC		UINT32_C(0x28)	///< offset to TIM prescaler register
+#define MCCI_STM32H7_TIM_ARR		UINT32_C(0x2C)	///< offset to TIM auto-reload register
+#define MCCI_STM32H7_TIM_RCR		UINT32_C(0x30)	///< offset to TIM repetition counter register
+#define MCCI_STM32H7_TIM_CCR1		UINT32_C(0x34)	///< offset to TIM capture/compare register 1
+#define MCCI_STM32H7_TIM_CCR2		UINT32_C(0x38)	///< offset to TIM capture/compare register 2
+#define MCCI_STM32H7_TIM_CCR3		UINT32_C(0x3C)	///< offset to TIM capture/compare register 3
+#define MCCI_STM32H7_TIM_CCR4		UINT32_C(0x40)	///< offset to TIM capture/compare register 4
+#define MCCI_STM32H7_TIM_BDTR		UINT32_C(0x44)	///< offset to TIM break and dead-time register
+#define MCCI_STM32H7_TIM_DCR		UINT32_C(0x48)	///< offset to TIM DMA control register
+#define MCCI_STM32H7_TIM_DMAR		UINT32_C(0x4C)	///< offset to TIM DMA address register
+#define MCCI_STM32H7_TIM_CCMR3		UINT32_C(0x54)	///< offset to TIM capture/compare mode register 3
+#define MCCI_STM32H7_TIM_CCR5		UINT32_C(0x58)	///< offset to TIM capture/compare register 5
+#define MCCI_STM32H7_TIM_CCR6		UINT32_C(0x5C)	///< offset to TIM capture/compare register 6
+#define MCCI_STM32H7_TIM_AF1		UINT32_C(0x60)	///< offset to TIM Alternate function option register 1
+#define MCCI_STM32H7_TIM_AF2		UINT32_C(0x64)	///< offset to TIM Alternate function option register 2
+#define MCCI_STM32H7_TIM_TISEL		UINT32_C(0x68)	///< offset to TIM timer input selection register
+///	@}
+
+/// \name TIM_CR1 bits
+///	@{
+#define MCCI_STM32H7_TIM_CR1_RSV12	UINT32_C(0xFFFFF000)	///< reserved, don't change
+#define MCCI_STM32H7_TIM_CR1_UIFREMAP	(UINT32_C(1) << 11)	///< UIF status bit remapping
+#define MCCI_STM32H7_TIM_CR1_RSV10	(UINT32_C(1) << 10)	///< reserved, don't change
+#define MCCI_STM32H7_TIM_CR1_CKD	(UINT32_C(0x3) << 8)	///< Clock division
+#define MCCI_STM32H7_TIM_CR1_CKD_N(n)	((n) << 8)		///<
+#define MCCI_STM32H7_TIM_CR1_ARPE	(UINT32_C(1) << 7)	///< Auto-reload preload enable
+#define MCCI_STM32H7_TIM_CR1_CMS	(UINT32_C(0x3) << 5)	///< Center-aligned mode selection
+#define MCCI_STM32H7_TIM_CR1_CMS_N(n)	((n) << 5)		///<
+#define MCCI_STM32H7_TIM_CR1_DIR	(UINT32_C(1) << 4)	///< Direction
+#define MCCI_STM32H7_TIM_CR1_OPM	(UINT32_C(1) << 3)	///< One pulse mode
+#define MCCI_STM32H7_TIM_CR1_URS	(UINT32_C(1) << 2)	///< Update request source
+#define MCCI_STM32H7_TIM_CR1_UDIS	(UINT32_C(1) << 1)	///< Update disable
+#define MCCI_STM32H7_TIM_CR1_CEN	(UINT32_C(1) << 0)	///< Counter enable
+///	@}
+
+/// \name TIM_CR2 bits
+///	@{
+#define MCCI_STM32H7_TIM_CR2_RSV24	UINT32_C(0xFF000000)	///< reserved, don't change
+#define MCCI_STM32H7_TIM_CR2_MMS2	(UINT32_C(0xF) << 20)	///< Master mode selection 2
+#define MCCI_STM32H7_TIM_CR2_MMS2_N(n)	((n) << 20)		///<
+#define MCCI_STM32H7_TIM_CR2_RSV19	(UINT32_C(1) << 19)	///< reserved, don't change
+#define MCCI_STM32H7_TIM_CR2_OIS6	(UINT32_C(1) << 18)	///< Output Idle state 6 (OC6 output)
+#define MCCI_STM32H7_TIM_CR2_RSV17	(UINT32_C(1) << 17)	///< reserved, don't change
+#define MCCI_STM32H7_TIM_CR2_OIS5	(UINT32_C(1) << 16)	///< Output Idle state 5 (OC5 output)
+#define MCCI_STM32H7_TIM_CR2_RSV15	(UINT32_C(1) << 15)	///< reserved, don't change
+#define MCCI_STM32H7_TIM_CR2_OIS4	(UINT32_C(1) << 14)	///< Output Idle state 4 (OC4 output)
+#define MCCI_STM32H7_TIM_CR2_OIS3N	(UINT32_C(1) << 13)	///< Output Idle state 3 (OC3N output)
+#define MCCI_STM32H7_TIM_CR2_OIS3	(UINT32_C(1) << 12)	///< Output Idle state 3 (OC3 output)
+#define MCCI_STM32H7_TIM_CR2_OIS2N	(UINT32_C(1) << 11)	///< Output Idle state 2 (OC2N output)
+#define MCCI_STM32H7_TIM_CR2_OIS2	(UINT32_C(1) << 10)	///< Output Idle state 2 (OC2 output)
+#define MCCI_STM32H7_TIM_CR2_OIS1N	(UINT32_C(1) << 9)	///< Output Idle state 1 (OC1N output)
+#define MCCI_STM32H7_TIM_CR2_OIS1	(UINT32_C(1) << 8)	///< Output Idle state 1 (OC1 output)
+#define MCCI_STM32H7_TIM_CR2_TI1S	(UINT32_C(1) << 7)	///< TI1 selection
+#define MCCI_STM32H7_TIM_CR2_MMS	(UINT32_C(0x7) << 4)	///< Master mode selection
+#define MCCI_STM32H7_TIM_CR2_MMS_N(n)	((n) << 4)		///<
+#define MCCI_STM32H7_TIM_CR2_CCDS	(UINT32_C(1) << 3)	///< Capture/compare DMA selection
+#define MCCI_STM32H7_TIM_CR2_CCUS	(UINT32_C(1) << 2)	///< Capture/compare control update selection
+#define MCCI_STM32H7_TIM_CR2_RSV1	(UINT32_C(1) << 1)	///< reserved, don't change
+#define MCCI_STM32H7_TIM_CR2_CCPC	(UINT32_C(1) << 0)	///< Capture/compare preloaded control
+///	@}
+
+/// \name TIM_SMCR bits
+///	@{
+#define MCCI_STM32H7_TIM_SMCR_RSV22	UINT32_C(0xFFC00000)	///< reserved, don't change
+#define MCCI_STM32H7_TIM_SMCR_TS3	(UINT32_C(0x3) << 20)	///< Trigger selection
+#define MCCI_STM32H7_TIM_SMCR_TS3_N(n)	((n) << 20)		///<
+#define MCCI_STM32H7_TIM_SMCR_RSV17	(UINT32_C(7) << 17)	///< reserved, don't change
+#define MCCI_STM32H7_TIM_SMCR_SMS3	(UINT32_C(1) << 16)	///< Slave mode selection
+#define MCCI_STM32H7_TIM_SMCR_ETP	(UINT32_C(1) << 15)	///< External trigger polarity
+#define MCCI_STM32H7_TIM_SMCR_ECE	(UINT32_C(1) << 14)	///< External clock enable
+#define MCCI_STM32H7_TIM_SMCR_ETPS	(UINT32_C(0x3) << 12)	///< External trigger prescaler
+#define MCCI_STM32H7_TIM_SMCR_ETPS_N(n)	((n) << 12)		///<
+#define MCCI_STM32H7_TIM_SMCR_ETF	(UINT32_C(0xF) << 8)	///< External trigger filter
+#define MCCI_STM32H7_TIM_SMCR_ETF_N(n)	((n) << 8)		///<
+#define MCCI_STM32H7_TIM_SMCR_MSM	(UINT32_C(1) << 7)	///< Master/slave mode
+#define MCCI_STM32H7_TIM_SMCR_TS0	(UINT32_C(0x7) << 4)	///< Trigger selection
+#define MCCI_STM32H7_TIM_SMCR_TS0_N(n)	((n) << 4)		///<
+#define MCCI_STM32H7_TIM_SMCR_RSV3	(UINT32_C(1) << 3)	///< reserved, don't change
+#define MCCI_STM32H7_TIM_SMCR_SMS0	(UINT32_C(0x7) << 0)	///< Slave mode selection
+#define MCCI_STM32H7_TIM_SMCR_SMS0_N(n)	((n) << 0)		///<
+
+#define MCCI_STM32H7_TIM_SMCR_TS	(MCCI_STM32H7_TIM_SMCR_TS3 | MCCI_STM32H7_TIM_SMCR_TS0)	///< Trigger selection
+#define MCCI_STM32H7_TIM_SMCR_TS_N(n)	(MCCI_STM32H7_TIM_SMCR_TS3_N((n) >> 3) | MCCI_STM32H7_TIM_SMCR_TS0_N((n) & UINT32_C(0x7)))
+#define MCCI_STM32H7_TIM_SMCR_SMS	(MCCI_STM32H7_TIM_SMCR_SMS3 | MCCI_STM32H7_TIM_SMCR_SMS0)	///< Trigger selection
+#define MCCI_STM32H7_TIM_SMCR_SMS_N(n)	((((n) >> 3) << 16) | MCCI_STM32H7_TIM_SMCR_SMS0_N((n) & UINT32_C(0x7)))
+///	@}
+
+/// \name TIM_DIER bits
+///	@{
+#define MCCI_STM32H7_TIM_DIER_RSV15	UINT32_C(0xFFFF8000)	///< reserved, don't change
+#define MCCI_STM32H7_TIM_DIER_TDE	(UINT32_C(1) << 14)	///< Trigger DMA request enable
+#define MCCI_STM32H7_TIM_DIER_COMDE	(UINT32_C(1) << 13)	///< COM DMA request enable
+#define MCCI_STM32H7_TIM_DIER_CC4DE	(UINT32_C(1) << 12)	///< Capture/Compare 4 DMA request enable
+#define MCCI_STM32H7_TIM_DIER_CC3DE	(UINT32_C(1) << 11)	///< Capture/Compare 3 DMA request enable
+#define MCCI_STM32H7_TIM_DIER_CC2DE	(UINT32_C(1) << 10)	///< Capture/Compare 2 DMA request enable
+#define MCCI_STM32H7_TIM_DIER_CC1DE	(UINT32_C(1) << 9)	///< Capture/Compare 1 DMA request enable
+#define MCCI_STM32H7_TIM_DIER_UDE	(UINT32_C(1) << 8)	///< Update DMA request enable
+#define MCCI_STM32H7_TIM_DIER_BIE	(UINT32_C(1) << 7)	///< Break interrupt enable
+#define MCCI_STM32H7_TIM_DIER_TIE	(UINT32_C(1) << 6)	///< Trigger interrupt enable
+#define MCCI_STM32H7_TIM_DIER_COMIE	(UINT32_C(1) << 5)	///< COM interrupt enable
+#define MCCI_STM32H7_TIM_DIER_CC4IE	(UINT32_C(1) << 4)	///< Capture/Compare 4 interrupt enable
+#define MCCI_STM32H7_TIM_DIER_CC3IE	(UINT32_C(1) << 3)	///< Capture/Compare 3 interrupt enable
+#define MCCI_STM32H7_TIM_DIER_CC2IE	(UINT32_C(1) << 2)	///< Capture/Compare 2 interrupt enable
+#define MCCI_STM32H7_TIM_DIER_CC1IE	(UINT32_C(1) << 1)	///< Capture/Compare 1 interrupt enable
+#define MCCI_STM32H7_TIM_DIER_UIE	(UINT32_C(1) << 0)	///< Update interrupt enable
+///	@}
+
+/// \name TIM_SR bits
+///	@{
+#define MCCI_STM32H7_TIM_SR_RSV18	UINT32_C(0xFFFC0000)	///< reserved, don't change
+#define MCCI_STM32H7_TIM_SR_CC6IF	(UINT32_C(1) << 17)	///< Compare 6 interrupt flag
+#define MCCI_STM32H7_TIM_SR_CC5IF	(UINT32_C(1) << 16)	///< Compare 5 interrupt flag
+#define MCCI_STM32H7_TIM_SR_RSV14	(UINT32_C(3) << 14)	///< reserved, don't change
+#define MCCI_STM32H7_TIM_SR_SBIF	(UINT32_C(1) << 13)	///< System Break interrupt flag
+#define MCCI_STM32H7_TIM_SR_CC4OF	(UINT32_C(1) << 12)	///< Capture/Compare 4 overcapture flag
+#define MCCI_STM32H7_TIM_SR_CC3OF	(UINT32_C(1) << 11)	///< Capture/Compare 3 overcapture flag
+#define MCCI_STM32H7_TIM_SR_CC2OF	(UINT32_C(1) << 10)	///< Capture/Compare 2 overcapture flag
+#define MCCI_STM32H7_TIM_SR_CC1OF	(UINT32_C(1) << 9)	///< Capture/Compare 1 overcapture flag
+#define MCCI_STM32H7_TIM_SR_B2IF	(UINT32_C(1) << 8)	///< Break 2 interrupt flag
+#define MCCI_STM32H7_TIM_SR_BIF		(UINT32_C(1) << 7)	///< Break interrupt flag
+#define MCCI_STM32H7_TIM_SR_TIF		(UINT32_C(1) << 6)	///< Trigger interrupt flag
+#define MCCI_STM32H7_TIM_SR_COMIF	(UINT32_C(1) << 5)	///< COM interrupt flag
+#define MCCI_STM32H7_TIM_SR_CC4IF	(UINT32_C(1) << 4)	///< Capture/Compare 4 interrupt flag
+#define MCCI_STM32H7_TIM_SR_CC3IF	(UINT32_C(1) << 3)	///< Capture/Compare 3 interrupt flag
+#define MCCI_STM32H7_TIM_SR_CC2IF	(UINT32_C(1) << 2)	///< Capture/Compare 2 interrupt flag
+#define MCCI_STM32H7_TIM_SR_CC1IF	(UINT32_C(1) << 1)	///< Capture/Compare 1 interrupt flag
+#define MCCI_STM32H7_TIM_SR_UIF		(UINT32_C(1) << 0)	///< Update interrupt flag
+///	@}
+
+/// \name TIM_EGR bits
+///	@{
+#define MCCI_STM32H7_TIM_EGR_RSV8	UINT32_C(0xFFFFFE00)	///< reserved, don't change
+#define MCCI_STM32H7_TIM_EGR_B2G	(UINT32_C(1) << 8)	///< Break 2 generation
+#define MCCI_STM32H7_TIM_EGR_BG		(UINT32_C(1) << 7)	///< Break generation
+#define MCCI_STM32H7_TIM_EGR_TG		(UINT32_C(1) << 6)	///< Trigger generation
+#define MCCI_STM32H7_TIM_EGR_COMG	(UINT32_C(1) << 5)	///< COM generation
+#define MCCI_STM32H7_TIM_EGR_CC4G	(UINT32_C(1) << 4)	///< Capture/Compare 4 generation
+#define MCCI_STM32H7_TIM_EGR_CC3G	(UINT32_C(1) << 3)	///< Capture/Compare 3 generation
+#define MCCI_STM32H7_TIM_EGR_CC2G	(UINT32_C(1) << 2)	///< Capture/Compare 2 generation
+#define MCCI_STM32H7_TIM_EGR_CC1G	(UINT32_C(1) << 1)	///< Capture/Compare 1 generation
+#define MCCI_STM32H7_TIM_EGR_UG		(UINT32_C(1) << 0)	///< Update generation
+///	@}
+
+/// \name TIM_CNT bits
+///	@{
+#define MCCI_STM32H7_TIM_CNT_UIFCPY	(UINT32_C(1) << 8)	///< UIF copy
+#define MCCI_STM32H7_TIM_CNT_RSV16	UINT32_C(0x7FFF0000)	///< reserved, don't change
+#define MCCI_STM32H7_TIM_CNT_CNT	(UINT32_C(0xFFFF) << 0)	///< Counter value
+///	@}
+
+/// \name TIM_PSC bits
+///	@{
+#define MCCI_STM32H7_TIM_PSC_RSV16	UINT32_C(0xFFFF0000)	///< reserved, don't change
+#define MCCI_STM32H7_TIM_PSC_PSC	(UINT32_C(0xFFFF) << 0)	///< Prescaler value
+///	@}
+
+/// \name TIM_ARR bits
+///	@{
+#define MCCI_STM32H7_TIM_ARR_RSV16	UINT32_C(0xFFFF0000)	///< reserved, don't change
+#define MCCI_STM32H7_TIM_ARR_ARR	(UINT32_C(0xFFFF) << 0)	///< Auto-reload value
+///	@}
+
+/// \name TIM_RCR bits
+///	@{
+#define MCCI_STM32H7_TIM_RCR_RSV16	UINT32_C(0xFFFF0000)	///< reserved, don't change
+#define MCCI_STM32H7_TIM_RCR_REP	(UINT32_C(0xFFFF) << 0)	///< Repetition counter value
+///	@}
+
+/// \name TIM_CCRx bits
+///	@{
+#define MCCI_STM32H7_TIM_CCR_RSV16	UINT32_C(0xFFFF0000)	///< reserved, don't change
+#define MCCI_STM32H7_TIM_CCR_CCR	(UINT32_C(0xFFFF) << 0)	///< Capture/Compare value
+///	@}
+
+/// \name TIM_AF1 bits
+///	@{
+#define MCCI_STM32H7_TIM_AF1_RSV18	UINT32_C(0xFFFC0000)	///< reserved, don't change
+#define MCCI_STM32H7_TIM_AF1_ETRSEL	(UINT32_C(0xF) << 14)	///< ETR source selection
+#define MCCI_STM32H7_TIM_AF1_ETRSEL_N(n) ((n) << 14)		///
+#define MCCI_STM32H7_TIM_AF1_RSV12	(UINT32_C(3) << 12)	///< reserved, don't change
+#define MCCI_STM32H7_TIM_AF1_BKCMP2P	(UINT32_C(1) << 11)	///< BRK COMP2 input polarity
+#define MCCI_STM32H7_TIM_AF1_BKCMP1P	(UINT32_C(1) << 10)	///< BRK COMP1 input polarity
+#define MCCI_STM32H7_TIM_AF1_BKINP	(UINT32_C(1) << 9)	///< BRK BKIN input polarity
+#define MCCI_STM32H7_TIM_AF1_BKDF1BK2E	(UINT32_C(1) << 8)	///< BRK dfsdm1_break[2] enable
+#define MCCI_STM32H7_TIM_AF1_RSV3	(UINT32_C(0x1F) << 3)	///< reserved, don't change
+#define MCCI_STM32H7_TIM_AF1_BKCMP2E	(UINT32_C(1) << 2)	///< BRK COMP2 enable
+#define MCCI_STM32H7_TIM_AF1_BKCMP1E	(UINT32_C(1) << 1)	///< BRK COMP1 enable
+#define MCCI_STM32H7_TIM_AF1_BKINE	(UINT32_C(1) << 0)	///< BRK BKIN input enable
+///	@}
+
+/// \name TIM_AF2 bits
+///	@{
+#define MCCI_STM32H7_TIM_AF2_RSV12	UINT32_C(0xFFFFF000)	///< reserved, don't change
+#define MCCI_STM32H7_TIM_AF2_BKCMP2P	(UINT32_C(1) << 11)	///< BRK COMP2 input polarity
+#define MCCI_STM32H7_TIM_AF2_BKCMP1P	(UINT32_C(1) << 10)	///< BRK COMP1 input polarity
+#define MCCI_STM32H7_TIM_AF2_BKINP	(UINT32_C(1) << 9)	///< BRK BKIN input polarity
+#define MCCI_STM32H7_TIM_AF2_BKDF1BK2E	(UINT32_C(1) << 8)	///< BRK dfsdm1_break[2] enable
+#define MCCI_STM32H7_TIM_AF2_RSV3	(UINT32_C(0x1F) << 3)	///< reserved, don't change
+#define MCCI_STM32H7_TIM_AF2_BKCMP2E	(UINT32_C(1) << 2)	///< BRK COMP2 enable
+#define MCCI_STM32H7_TIM_AF2_BKCMP1E	(UINT32_C(1) << 1)	///< BRK COMP1 enable
+#define MCCI_STM32H7_TIM_AF2_BKINE	(UINT32_C(1) << 0)	///< BRK BKIN input enable
+///	@}
+
+/// \name TIM_TISEL bits
+///	@{
+#define MCCI_STM32H7_TIM_TISEL_RSV28	(UINT32_C(0xF) << 28)	///< reserved, don't change
+#define MCCI_STM32H7_TIM_TISEL_TI4SEL	(UINT32_C(0xF) << 24)	///< selects TI4[0] to TI4[15] input
+#define MCCI_STM32H7_TIM_TISEL_TI4SEL_N(n)	((n) << 24)	///
+#define MCCI_STM32H7_TIM_TISEL_RSV20	(UINT32_C(0xF) << 20)	///< reserved, don't change
+#define MCCI_STM32H7_TIM_TISEL_TI3SEL	(UINT32_C(0xF) << 16)	///< selects TI3[0] to TI3[15] input
+#define MCCI_STM32H7_TIM_TISEL_TI3SEL_N(n)	((n) << 16)	///
+#define MCCI_STM32H7_TIM_TISEL_RSV12	(UINT32_C(0xF) << 12)	///< reserved, don't change
+#define MCCI_STM32H7_TIM_TISEL_TI2SEL	(UINT32_C(0xF) << 8)	///< selects TI2[0] to TI2[15] input
+#define MCCI_STM32H7_TIM_TISEL_TI2SEL_N(n)	((n) << 8)	///
+#define MCCI_STM32H7_TIM_TISEL_RSV4	(UINT32_C(0xF) << 4)	///< reserved, don't change
+#define MCCI_STM32H7_TIM_TISEL_TI1SEL	(UINT32_C(0xF) << 0)	///< selects TI1[0] to TI1[15] input
+#define MCCI_STM32H7_TIM_TISEL_TI1SEL_N(n)	((n) << 0)	///
+///	@}
+
+/****************************************************************************\
+|
+|	Interrupt Number Definition
+|
+\****************************************************************************/
+
+/// \name STM32Hxx interrupt numbers
+///	@{
+#define	MCCI_STM32H7_IRQ_WWDG			UINT32_C(0)	///< Window WatchDog Interrupt ( wwdg1_it, wwdg2_it)
+#define	MCCI_STM32H7_IRQ_PVD_PVM		UINT32_C(1)	///< PVD/PVM through EXTI Line detection Interrupt
+#define	MCCI_STM32H7_IRQ_RTC_TAMP_STAMP_CSS_LSE	UINT32_C(2)	///< Tamper, TimeStamp,	CSS and	LSE interrupts through the EXTI	line
+#define	MCCI_STM32H7_IRQ_RTC_WKUP		UINT32_C(3)	///< RTC Wakeup	interrupt through the EXTI line
+#define	MCCI_STM32H7_IRQ_FLASH			UINT32_C(4)	///< FLASH global Interrupt
+#define	MCCI_STM32H7_IRQ_RCC			UINT32_C(5)	///< RCC global	Interrupt
+#define	MCCI_STM32H7_IRQ_EXTI0			UINT32_C(6)	///< EXTI Line0	Interrupt
+#define	MCCI_STM32H7_IRQ_EXTI1			UINT32_C(7)	///< EXTI Line1	Interrupt
+#define	MCCI_STM32H7_IRQ_EXTI2			UINT32_C(8)	///< EXTI Line2	Interrupt
+#define	MCCI_STM32H7_IRQ_EXTI3			UINT32_C(9)	///< EXTI Line3	Interrupt
+#define	MCCI_STM32H7_IRQ_EXTI4			UINT32_C(10)	///< EXTI Line4	Interrupt
+#define	MCCI_STM32H7_IRQ_DMA1_Stream0		UINT32_C(11)	///< DMA1 Stream 0 global Interrupt
+#define	MCCI_STM32H7_IRQ_DMA1_Stream1		UINT32_C(12)	///< DMA1 Stream 1 global Interrupt
+#define	MCCI_STM32H7_IRQ_DMA1_Stream2		UINT32_C(13)	///< DMA1 Stream 2 global Interrupt
+#define	MCCI_STM32H7_IRQ_DMA1_Stream3		UINT32_C(14)	///< DMA1 Stream 3 global Interrupt
+#define	MCCI_STM32H7_IRQ_DMA1_Stream4		UINT32_C(15)	///< DMA1 Stream 4 global Interrupt
+#define	MCCI_STM32H7_IRQ_DMA1_Stream5		UINT32_C(16)	///< DMA1 Stream 5 global Interrupt
+#define	MCCI_STM32H7_IRQ_DMA1_Stream6		UINT32_C(17)	///< DMA1 Stream 6 global Interrupt
+#define	MCCI_STM32H7_IRQ_ADC			UINT32_C(18)	///< ADC1 and  ADC2 global Interrupts
+#define	MCCI_STM32H7_IRQ_FDCAN1_IT0		UINT32_C(19)	///< FDCAN1 Interrupt line 0
+#define	MCCI_STM32H7_IRQ_FDCAN2_IT0		UINT32_C(20)	///< FDCAN2 Interrupt line 0
+#define	MCCI_STM32H7_IRQ_FDCAN1_IT1		UINT32_C(21)	///< FDCAN1 Interrupt line 1
+#define	MCCI_STM32H7_IRQ_FDCAN2_IT1		UINT32_C(22)	///< FDCAN2 Interrupt line 1
+#define	MCCI_STM32H7_IRQ_EXTI9_5		UINT32_C(23)	///< External Line[9:5]	Interrupts
+#define	MCCI_STM32H7_IRQ_TIM1_BRK		UINT32_C(24)	///< TIM1 Break	Interrupt
+#define	MCCI_STM32H7_IRQ_TIM1_UP		UINT32_C(25)	///< TIM1 Update Interrupt
+#define	MCCI_STM32H7_IRQ_TIM1_TRG_COM		UINT32_C(26)	///< TIM1 Trigger and Commutation Interrupt
+#define	MCCI_STM32H7_IRQ_TIM1_CC		UINT32_C(27)	///< TIM1 Capture Compare Interrupt
+#define	MCCI_STM32H7_IRQ_TIM2			UINT32_C(28)	///< TIM2 global Interrupt
+#define	MCCI_STM32H7_IRQ_TIM3			UINT32_C(29)	///< TIM3 global Interrupt
+#define	MCCI_STM32H7_IRQ_TIM4			UINT32_C(30)	///< TIM4 global Interrupt
+#define	MCCI_STM32H7_IRQ_I2C1_EV		UINT32_C(31)	///< I2C1 Event	Interrupt
+#define	MCCI_STM32H7_IRQ_I2C1_ER		UINT32_C(32)	///< I2C1 Error	Interrupt
+#define	MCCI_STM32H7_IRQ_I2C2_EV		UINT32_C(33)	///< I2C2 Event	Interrupt
+#define	MCCI_STM32H7_IRQ_I2C2_ER		UINT32_C(34)	///< I2C2 Error	Interrupt
+#define	MCCI_STM32H7_IRQ_SPI1			UINT32_C(35)	///< SPI1 global Interrupt
+#define	MCCI_STM32H7_IRQ_SPI2			UINT32_C(36)	///< SPI2 global Interrupt
+#define	MCCI_STM32H7_IRQ_USART1			UINT32_C(37)	///< USART1 global Interrupt
+#define	MCCI_STM32H7_IRQ_USART2			UINT32_C(38)	///< USART2 global Interrupt
+#define	MCCI_STM32H7_IRQ_USART3			UINT32_C(39)	///< USART3 global Interrupt
+#define	MCCI_STM32H7_IRQ_EXTI15_10		UINT32_C(40)	///< External Line[15:10] Interrupts
+#define	MCCI_STM32H7_IRQ_RTC_Alarm		UINT32_C(41)	///< RTC Alarm (A and B) through EXTI Line Interrupt
+#define	MCCI_STM32H7_IRQ_DFSDM2			UINT32_C(42)	///< DFSDM2 global Interrupt
+#define	MCCI_STM32H7_IRQ_TIM8_BRK_TIM12		UINT32_C(43)	///< TIM8 Break	Interrupt and TIM12 global interrupt
+#define	MCCI_STM32H7_IRQ_TIM8_UP_TIM13		UINT32_C(44)	///< TIM8 Update Interrupt and TIM13 global interrupt
+#define	MCCI_STM32H7_IRQ_TIM8_TRG_COM_TIM14	UINT32_C(45)	///< TIM8 Trigger and Commutation Interrupt and	TIM14 global interrupt
+#define	MCCI_STM32H7_IRQ_TIM8_CC		UINT32_C(46)	///< TIM8 Capture Compare Interrupt
+#define	MCCI_STM32H7_IRQ_DMA1_Stream7		UINT32_C(47)	///< DMA1 Stream7 Interrupt
+#define	MCCI_STM32H7_IRQ_FMC			UINT32_C(48)	///< FMC global	Interrupt
+#define	MCCI_STM32H7_IRQ_SDMMC1			UINT32_C(49)	///< SDMMC1 global Interrupt
+#define	MCCI_STM32H7_IRQ_TIM5			UINT32_C(50)	///< TIM5 global Interrupt
+#define	MCCI_STM32H7_IRQ_SPI3			UINT32_C(51)	///< SPI3 global Interrupt
+#define	MCCI_STM32H7_IRQ_UART4			UINT32_C(52)	///< UART4 global Interrupt
+#define	MCCI_STM32H7_IRQ_UART5			UINT32_C(53)	///< UART5 global Interrupt
+#define	MCCI_STM32H7_IRQ_TIM6_DAC		UINT32_C(54)	///< TIM6 global and DAC1&2 underrun error  interrupts
+#define	MCCI_STM32H7_IRQ_TIM7			UINT32_C(55)	///< TIM7 global interrupt
+#define	MCCI_STM32H7_IRQ_DMA2_Stream0		UINT32_C(56)	///<   DMA2 Stream 0 global Interrupt
+#define	MCCI_STM32H7_IRQ_DMA2_Stream1		UINT32_C(57)	///<   DMA2 Stream 1 global Interrupt
+#define	MCCI_STM32H7_IRQ_DMA2_Stream2		UINT32_C(58)	///<   DMA2 Stream 2 global Interrupt
+#define	MCCI_STM32H7_IRQ_DMA2_Stream3		UINT32_C(59)	///<   DMA2 Stream 3 global Interrupt
+#define	MCCI_STM32H7_IRQ_DMA2_Stream4		UINT32_C(60)	///<   DMA2 Stream 4 global Interrupt
+#define	MCCI_STM32H7_IRQ_FDCAN_CAL		UINT32_C(63)	///< FDCAN Calibration unit Interrupt
+#define	MCCI_STM32H7_IRQ_DFSDM1_FLT4		UINT32_C(64)	///< DFSDM Filter4 Interrupt
+#define	MCCI_STM32H7_IRQ_DFSDM1_FLT5		UINT32_C(65)	///< DFSDM Filter5 Interrupt
+#define	MCCI_STM32H7_IRQ_DFSDM1_FLT6		UINT32_C(66)	///< DFSDM Filter6 Interrupt
+#define	MCCI_STM32H7_IRQ_DFSDM1_FLT7		UINT32_C(67)	///< DFSDM Filter7 Interrupt
+#define	MCCI_STM32H7_IRQ_DMA2_Stream5		UINT32_C(68)	///< DMA2 Stream 5 global interrupt
+#define	MCCI_STM32H7_IRQ_DMA2_Stream6		UINT32_C(69)	///< DMA2 Stream 6 global interrupt
+#define	MCCI_STM32H7_IRQ_DMA2_Stream7		UINT32_C(70)	///< DMA2 Stream 7 global interrupt
+#define	MCCI_STM32H7_IRQ_USART6			UINT32_C(71)	///< USART6 global interrupt
+#define	MCCI_STM32H7_IRQ_I2C3_EV		UINT32_C(72)	///< I2C3 event	interrupt
+#define	MCCI_STM32H7_IRQ_I2C3_ER		UINT32_C(73)	///< I2C3 error	interrupt
+#define	MCCI_STM32H7_IRQ_OTG_HS_EP1_OUT		UINT32_C(74)	///< USB OTG HS	End Point 1 Out	global interrupt
+#define	MCCI_STM32H7_IRQ_OTG_HS_EP1_IN		UINT32_C(75)	///< USB OTG HS	End Point 1 In global interrupt
+#define	MCCI_STM32H7_IRQ_OTG_HS_WKUP		UINT32_C(76)	///< USB OTG HS	Wakeup through EXTI interrupt
+#define	MCCI_STM32H7_IRQ_OTG_HS			UINT32_C(77)	///< USB OTG HS	global interrupt
+#define	MCCI_STM32H7_IRQ_DCMI_PSSI		UINT32_C(78)	///< DCMI and PSSI global interrupt
+#define	MCCI_STM32H7_IRQ_CRYP			UINT32_C(79)	///< CRYP crypto global	interrupt
+#define	MCCI_STM32H7_IRQ_HASH_RNG		UINT32_C(80)	///< HASH and RNG global interrupt
+#define	MCCI_STM32H7_IRQ_FPU			UINT32_C(81)	///< FPU global	interrupt
+#define	MCCI_STM32H7_IRQ_UART7			UINT32_C(82)	///< UART7 global interrupt
+#define	MCCI_STM32H7_IRQ_UART8			UINT32_C(83)	///< UART8 global interrupt
+#define	MCCI_STM32H7_IRQ_SPI4			UINT32_C(84)	///< SPI4 global Interrupt
+#define	MCCI_STM32H7_IRQ_SPI5			UINT32_C(85)	///< SPI5 global Interrupt
+#define	MCCI_STM32H7_IRQ_SPI6			UINT32_C(86)	///< SPI6 global Interrupt
+#define	MCCI_STM32H7_IRQ_SAI1			UINT32_C(87)	///< SAI1 global Interrupt
+#define	MCCI_STM32H7_IRQ_LTDC			UINT32_C(88)	///< LTDC global Interrupt
+#define	MCCI_STM32H7_IRQ_LTDC_ER		UINT32_C(89)	///< LTDC Error	global Interrupt
+#define	MCCI_STM32H7_IRQ_DMA2D			UINT32_C(90)	///< DMA2D global Interrupt
+#define	MCCI_STM32H7_IRQ_SAI2			UINT32_C(91)	///< SAI2 global Interrupt
+#define	MCCI_STM32H7_IRQ_OCTOSPI1		UINT32_C(92)	///< OCTOSPI1 global interrupt
+#define	MCCI_STM32H7_IRQ_LPTIM1			UINT32_C(93)	///< LP	TIM1 interrupt
+#define	MCCI_STM32H7_IRQ_CEC			UINT32_C(94)	///< HDMI-CEC global Interrupt
+#define	MCCI_STM32H7_IRQ_I2C4_EV		UINT32_C(95)	///< I2C4 Event	Interrupt
+#define	MCCI_STM32H7_IRQ_I2C4_ER		UINT32_C(96)	///< I2C4 Error	Interrupt
+#define	MCCI_STM32H7_IRQ_SPDIF_RX		UINT32_C(97)	///< SPDIF-RX global Interrupt
+#define	MCCI_STM32H7_IRQ_DMAMUX1_OVR		UINT32_C(102)	///< DMAMUX1 Overrun interrupt
+#define	MCCI_STM32H7_IRQ_DFSDM1_FLT0		UINT32_C(110)	///< DFSDM Filter1 Interrupt
+#define	MCCI_STM32H7_IRQ_DFSDM1_FLT1		UINT32_C(111)	///< DFSDM Filter2 Interrupt
+#define	MCCI_STM32H7_IRQ_DFSDM1_FLT2		UINT32_C(112)	///< DFSDM Filter3 Interrupt
+#define	MCCI_STM32H7_IRQ_DFSDM1_FLT3		UINT32_C(113)	///< DFSDM Filter4 Interrupt
+#define	MCCI_STM32H7_IRQ_SWPMI1			UINT32_C(115)	///< Serial Wire Interface 1 global interrupt
+#define	MCCI_STM32H7_IRQ_TIM15			UINT32_C(116)	///< TIM15 global Interrupt
+#define	MCCI_STM32H7_IRQ_TIM16			UINT32_C(117)	///< TIM16 global Interrupt
+#define	MCCI_STM32H7_IRQ_TIM17			UINT32_C(118)	///< TIM17 global Interrupt
+#define	MCCI_STM32H7_IRQ_MDIOS_WKUP		UINT32_C(119)	///< MDIOS Wakeup  Interrupt
+#define	MCCI_STM32H7_IRQ_MDIOS			UINT32_C(120)	///< MDIOS global Interrupt
+#define	MCCI_STM32H7_IRQ_JPEG			UINT32_C(121)	///< JPEG global Interrupt
+#define	MCCI_STM32H7_IRQ_MDMA			UINT32_C(122)	///< MDMA global Interrupt
+#define	MCCI_STM32H7_IRQ_SDMMC2			UINT32_C(124)	///< SDMMC2 global Interrupt
+#define	MCCI_STM32H7_IRQ_HSEM1			UINT32_C(125)	///< HSEM1 global Interrupt
+#define	MCCI_STM32H7_IRQ_DAC2			UINT32_C(127)	///< DAC2 global Interrupt
+#define	MCCI_STM32H7_IRQ_DMAMUX2_OVR		UINT32_C(128)	///< DMAMUX2 Overrun interrupt
+#define	MCCI_STM32H7_IRQ_BDMA2_Channel0		UINT32_C(129)	///< BDMA2 Channel 0 global Interrupt
+#define	MCCI_STM32H7_IRQ_BDMA2_Channel1		UINT32_C(130)	///< BDMA2 Channel 1 global Interrupt
+#define	MCCI_STM32H7_IRQ_BDMA2_Channel2		UINT32_C(131)	///< BDMA2 Channel 2 global Interrupt
+#define	MCCI_STM32H7_IRQ_BDMA2_Channel3		UINT32_C(132)	///< BDMA2 Channel 3 global Interrupt
+#define	MCCI_STM32H7_IRQ_BDMA2_Channel4		UINT32_C(133)	///< BDMA2 Channel 4 global Interrupt
+#define	MCCI_STM32H7_IRQ_BDMA2_Channel5		UINT32_C(134)	///< BDMA2 Channel 5 global Interrupt
+#define	MCCI_STM32H7_IRQ_BDMA2_Channel6		UINT32_C(135)	///< BDMA2 Channel 6 global Interrupt
+#define	MCCI_STM32H7_IRQ_BDMA2_Channel7		UINT32_C(136)	///< BDMA2 Channel 7 global Interrupt
+#define	MCCI_STM32H7_IRQ_COMP			UINT32_C(137)	///< COMP global Interrupt
+#define	MCCI_STM32H7_IRQ_LPTIM2			UINT32_C(138)	///< LP	TIM2 global interrupt
+#define	MCCI_STM32H7_IRQ_LPTIM3			UINT32_C(139)	///< LP	TIM3 global interrupt
+#define	MCCI_STM32H7_IRQ_UART9			UINT32_C(140)	///< UART9 global interrupt
+#define	MCCI_STM32H7_IRQ_USART10		UINT32_C(141)	///< USART10 global interrupt
+#define	MCCI_STM32H7_IRQ_LPUART1		UINT32_C(142)	///< LP	UART1 interrupt
+#define	MCCI_STM32H7_IRQ_WWDG_RST		UINT32_C(143)	///< Window Watchdog Event interrupt
+#define	MCCI_STM32H7_IRQ_CRS			UINT32_C(144)	///< Clock Recovery Global Interrupt
+#define	MCCI_STM32H7_IRQ_ECC			UINT32_C(145)	///< ECC diagnostic Global Interrupt
+#define	MCCI_STM32H7_IRQ_DTS			UINT32_C(147)	///< Digital Temperature Sensor	Global Interrupt
+#define	MCCI_STM32H7_IRQ_WAKEUP_PIN		UINT32_C(149)	///< Interrupt for all 6 wake-up pins
+#define	MCCI_STM32H7_IRQ_OCTOSPI2		UINT32_C(150)	///< OctoSPI2 global interrupt
+#define	MCCI_STM32H7_IRQ_OTFDEC1		UINT32_C(151)	///< OTFDEC1 global interrupt
+#define	MCCI_STM32H7_IRQ_OTFDEC2		UINT32_C(152)	///< OTFDEC2 global interrupt
+#define	MCCI_STM32H7_IRQ_GFXMMU			UINT32_C(153)	///< GFXMMU global interrupt
+#define	MCCI_STM32H7_IRQ_BDMA1			UINT32_C(154)	///< BDMA1 for DFSM global interrupt
+///	@}
 
 /****************************************************************************\
 |
