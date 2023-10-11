@@ -3,10 +3,10 @@
 Module:	mccibootloaderboard_model491x_platforminterface.c
 
 Function:
-	gk_McciBootloaderPlatformInterface for MCCI Catena 4801 boards.
+	gk_McciBootloaderPlatformInterface for MCCI Catena 491x boards.
 
 Copyright and License:
-	This file copyright (C) 2021 by
+	This file copyright (C) 2023 by
 
 		MCCI Corporation
 		3520 Krums Corners Road
@@ -15,7 +15,7 @@ Copyright and License:
 	See accompanying LICENSE file for copyright and license information.
 
 Author:
-	Terry Moore, MCCI Corporation	March 2021
+	Dhinesh Kumar Pitchai, MCCI Corporation	September 2023
 
 */
 

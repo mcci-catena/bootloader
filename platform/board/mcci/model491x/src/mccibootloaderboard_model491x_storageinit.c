@@ -6,7 +6,7 @@ Function:
 	McciBootloaderBoard_Model491x_storageInit()
 
 Copyright and License:
-	This file copyright (C) 2021 by
+	This file copyright (C) 2023 by
 
 		MCCI Corporation
 		3520 Krums Corners Road
@@ -15,7 +15,7 @@ Copyright and License:
 	See accompanying LICENSE file for copyright and license information.
 
 Author:
-	Terry Moore, MCCI Corporation	March 2021
+	Dhinesh Kumar Pitchai, MCCI Corporation	September 2023
 
 */
 
@@ -60,7 +60,7 @@ storagePowerOn(void)
 		MCCI_STM32L0_REG_RCC_IOPENR_IOPHEN
 		);
 
-	// turn on power to the storage chip (4801) by making PH1 an output and
+	// turn on power to the storage chip (491x) by making PH1 an output and
 	// driving it to a one.
 	McciArm_putRegMasked(
 		MCCI_STM32L0_REG_GPIOH + MCCI_STM32L0_GPIO_MODER,

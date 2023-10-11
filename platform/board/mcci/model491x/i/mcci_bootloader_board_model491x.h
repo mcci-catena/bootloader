@@ -3,10 +3,10 @@
 Module:	mcci_bootloader_board_model491x.h
 
 Function:
-	Definitions for bootloader on MCCI Catena 4801.
+	Definitions for bootloader on MCCI Catena 491x boards.
 
 Copyright and License:
-	This file copyright (C) 2021 by
+	This file copyright (C) 2023 by
 
 		MCCI Corporation
 		3520 Krums Corners Road
@@ -15,7 +15,7 @@ Copyright and License:
 	See accompanying LICENSE file for copyright and license information.
 
 Author:
-	Terry Moore, MCCI Corporation	March 2021
+	Dhinesh Kumar Pitchai, MCCI Corporation	September 2023
 
 */
 

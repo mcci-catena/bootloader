@@ -6,7 +6,7 @@ Function:
 	Definitions for bootloader on MCCI Catena 51xx.
 
 Copyright and License:
-	This file copyright (C) 2021 by
+	This file copyright (C) 2023 by
 
 		MCCI Corporation
 		3520 Krums Corners Road
@@ -15,7 +15,7 @@ Copyright and License:
 	See accompanying LICENSE file for copyright and license information.
 
 Author:
-	Terry Moore, MCCI Corporation	March 2021
+	Dhinesh Kumar Pitchai, MCCI Corporation	October 2023
 
 */
 
