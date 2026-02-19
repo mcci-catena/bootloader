@@ -422,6 +422,16 @@ If you prefer, you can use forward slashes and `~`-notation for your home direct
 CROSS_COMPILE=~/AppData/Local/arduino15/packages/mcci/tools/arm-none-eabi-gcc/6-2017-q2-update/bin/arm-none-eabi- make
 ```
 
+#### Generating documentation
+
+To generate API documentation using [Doxygen](https://www.doxygen.org/):
+
+```bash
+make doxygen
+```
+
+Output goes to `doc/doxygen/`. No cross-compiler is needed; run `doxygen` directly if `CROSS_COMPILE` is not set. Documentation is also published automatically to [GitHub Pages](https://mcci-catena.github.io/bootloader/).
+
 ### Installing the bootloader
 
 Use ST-LINK and download using the -bin option after signing, using address 0x08000000:
