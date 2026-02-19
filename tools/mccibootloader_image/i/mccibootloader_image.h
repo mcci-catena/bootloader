@@ -414,25 +414,24 @@ static_assert(
 	);
 
 ///
-/// \brief concrete page-zero type for STM32H7 SOCs.
+/// \brief concrete page-zero type for Cortex-M7 CPUs with 240 vectors.
 ///
-/// \details The STM32H7 SOCs have hundreds of vectors, but less than 240 (including
-///	the 16 CPU vectors).  So we can make everything fit in the first 1k of the
-///	image, by putting the AppInfo at in the last 64 bytes of the 1k block.
-///	We could optimize this on an SOC-by-SOC basis, but that seems like wasted
-///	effort. We therefore act as if there are 16 CPU + 224 NVIC vectors == 240
-///	in all; this leaves 64 bytes free at the end of the 1k vector page.
-///	This structure is the concrete representation.
+/// \details Some Cortex-M7 SOCs have fewer than 240 vectors (16 CPU +
+///	up to 224 NVIC interrupts). In these cases, everything fits in the
+///	first 1k of the image, with the AppInfo in the last 64 bytes of
+///	the 1k block. We reserve 240 vector slots regardless of the actual
+///	interrupt count; this wastes some space between the end of the
+///	vectors and the start of the AppInfo block, but avoids SOC-by-SOC
+///	optimization.
 ///
-///	For example, the STM32H7A3 has 154 NVIC interrupts, so it has 170 vectors.
-///	We still reserve 240 vectors, which wastes (240-170)*4 = 280 bytes between
-///	the end of the vectors and the start of the AppInfo block.
+///	For example, the STM32H7A3 has 154 NVIC interrupts, so it has 170
+///	vectors. Reserving 240 wastes (240-170)*4 = 280 bytes.
 ///
 typedef McciBootloader_CortexAbstract_PageZero_Wire_t<240>
-	McciBootloader_Stm32h7_PageZero_Wire_t;
+	McciBootloader_CortexM7Compact_PageZero_Wire_t;
 
 static_assert(
-	sizeof(McciBootloader_Stm32h7_PageZero_Wire_t) == 1024,
+	sizeof(McciBootloader_CortexM7Compact_PageZero_Wire_t) == 1024,
 	"Page zero size wrong"
 	);
 

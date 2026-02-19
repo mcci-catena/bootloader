@@ -50,7 +50,13 @@ mccibootloader_image [OPTION]... INPUTFILE [OPTION]... [OUTPUTFILE] [OPTION]...
 
 ## Description
 
-This program computes hashes and signs binary images for use with the MCCI bootloader. Conforming Cortex M-series images contain metadata in a special structure of type `McciBootloader_AppInfo_t`, located at byte offsets 0xC0 though 0xFF, called the `AppInfo` object.
+This program computes hashes and signs binary images for use with the MCCI bootloader. Conforming Cortex M-series images contain metadata in a special structure of type `McciBootloader_AppInfo_t`, called the `AppInfo` object. The tool automatically probes for the `AppInfo` at the architecture-appropriate offset:
+
+| Architecture | Vectors | AppInfo offset |
+|---|---|---|
+| Cortex-M0/M0+ | 48 | 0xC0 (192) |
+| Cortex-M7 (240 vectors) | 240 | 0x3C0 (960) |
+| Cortex-M7 (256 vectors) | 256 | 0x400 (1024) |
 
 It operates by reading an input image, modifying it in memory, and then writing the image to a new file. Optionally, it will update the input image in place.
 
@@ -74,6 +80,8 @@ The following options are defined. Note that options can be mixed with the input
 <dd>Set the application version according to the argument.</dd>
 <dt><code>-s</code>, <code>--sign</code></dt>
 <dd>Compute the hash (as with <code>-h</code>, and then sign. A key file must be provided.</dd>
+<dt><code>-D</code>, <code>--debug</code></dt>
+<dd>Enable debug output (additional detail beyond <code>--verbose</code>).</dd>
 <dt><code>-v</code>, <code>--verbose</code></dt>
 <dd>Print a running commentary on what's being done.</dd>
 <dt><code>--version</code></dt>
@@ -87,6 +95,7 @@ When run with the verbose flag, `mccibootloader_image` outputs useful informatio
 ```console
 Program settings:
      --verbose: true
+       --debug: false
         --hash: true
         --sign: true
     --add-time: true
