@@ -454,7 +454,7 @@ bool App_t::probeHeader(
 const McciBootloader_AppInfoOffset_t vAppInfoOffsets[] =
 	{
 	{ "cm0+", 	offsetof(McciBootloader_CortexM0_PageZero_Wire_t, PageZero.AppInfo) },
-	{ "stm32h7",	offsetof(McciBootloader_Stm32h7_PageZero_Wire_t, PageZero.AppInfo) },
+	{ "cm7(240)",	offsetof(McciBootloader_CortexM7Compact_PageZero_Wire_t, PageZero.AppInfo) },
 	{ "cm7",	offsetof(McciBootloader_CortexM7_PageZero_Wire_t, PageZero.AppInfo) },
 	};
 

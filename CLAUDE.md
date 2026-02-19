@@ -97,7 +97,7 @@ Entry point: `McciBootloader_main()` in `src/mccibootloader_main.c`. Implements 
 
 ### Image format
 
-Applications must include an `McciBootloader_AppInfo_t` struct (64 bytes) at offset 0xC0 in the image (after the 192-byte vector table), plus 160 bytes of authentication data (hash + signature) appended to the image.
+Applications must include a 64-byte `McciBootloader_AppInfo_t` struct immediately after the vector table, plus 160 bytes of authentication data (hash + signature) appended to the image. The AppInfo offset depends on the target architecture: 0xC0 (192) for Cortex-M0/M0+ (48 vectors), 0x3C0 (960) for Cortex-M7 with 240 vectors, 0x400 (1024) for Cortex-M7 with 256 vectors. The `mccibootloader_image` tool probes all three offsets automatically.
 
 ### Git submodules
 
