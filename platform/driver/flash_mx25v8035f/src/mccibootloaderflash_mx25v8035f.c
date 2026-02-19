@@ -153,7 +153,7 @@ Definition:
 
 Description:
 	This function reads a buffer from the specified flash
-	byte offset. There are no alignment constraings.
+	byte offset. There are no alignment constraints.
 
 Returns:
 	No explicit result.

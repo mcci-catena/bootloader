@@ -60,8 +60,8 @@ Definition:
 		);
 
 Description:
-	This routine initalizes zero RAM, copies init data to RAM, and sets
-	up the hardawre. Key hardware setup: clocks, potentially the debug UART,
+	This routine initializes zero RAM, copies init data to RAM, and sets
+	up the hardware. Key hardware setup: clocks, potentially the debug UART,
 	and brown-out detect.
 
 Returns:

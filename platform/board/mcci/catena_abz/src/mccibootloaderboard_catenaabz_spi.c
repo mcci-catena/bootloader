@@ -142,7 +142,7 @@ McciBootloaderBoard_CatenaAbz_spiInit(void)
 
 	// setup SPI_CR1
 	// since we reset above, we don't have to worry about anything
-	// exept non-default settings
+	// except non-default settings
 	McciArm_putRegOr(
 		MCCI_STM32L0_REG_SPI2 + MCCI_STM32L0_SPI_CR1,
 		(
@@ -153,7 +153,7 @@ McciBootloaderBoard_CatenaAbz_spiInit(void)
 
 	// setup SPI_CR2
 	// since we reset above, we don't have to worry about anything
-	// exept non-default settings
+	// except non-default settings
 	McciArm_putRegOr(
 		MCCI_STM32L0_REG_SPI2 + MCCI_STM32L0_SPI_CR2,
 		MCCI_STM32L0_SPI_CR2_SSOE		/* enable the nss output */
@@ -189,7 +189,7 @@ Description:
 	This API writes and reads data from the SPI bus, optionally leaving the
 	target device selected.
 
-	nBytes bytes of data are transferred from the buffer atpTx to the SPI
+	nBytes bytes of data are transferred from the buffer at pTx to the SPI
 	bus, and received from the SPI bus to pRx.
 
 	The API defines pRx and pTx as optional; if NULL, bytes are discarded
