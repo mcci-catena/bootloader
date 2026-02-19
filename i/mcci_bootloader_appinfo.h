@@ -44,14 +44,14 @@ extern "C" {
 ///
 /// \details
 ///	This information block appears at a well known location somewhere
-///	in each app image. It's intended to be somewhat architecturaly
+///	in each app image. It's intended to be somewhat architecturally
 ///	neutral, but until we have two supported architectures, we
 ///	won't really have a basis for discussion.
 ///
 struct McciBootloader_AppInfo_s
 	{
 	uint32_t	magic;				///< the format identifier.
-	uint32_t	size;				///< size of this stucture, in bytes
+	uint32_t	size;				///< size of this structure, in bytes
 	uint32_t	targetAddress;			///< the target load address
 	uint32_t	imagesize;			///< size of the app, in bytes.
 							///   Must be multiple of 4.
