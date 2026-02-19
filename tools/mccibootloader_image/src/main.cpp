@@ -160,6 +160,10 @@ void App_t::scanArgs(int argc, char **argv)
 			{
 			this->fVerbose = fBool;
 			}
+		else if (boolArg == "-D" || boolArg == "--debug")
+			{
+			this->fDebug = fBool;
+			}
 		else if (boolArg == "-h" || boolArg == "--hash")
 			{
 			this->fHash = fBool;
@@ -260,6 +264,7 @@ void App_t::scanArgs(int argc, char **argv)
 		std::cout << std::boolalpha;
 		std::cout << "Program settings:\n"
 		          << "     --verbose: " << this->fVerbose << "\n"
+		          << "       --debug: " << this->fDebug << "\n"
 		          << "        --hash: " << this->fHash << "\n"
 		          << "        --sign: " << this->fSign << "\n"
 		          << "    --add-time: " << this->fAddTime << "\n"
@@ -289,7 +294,7 @@ void App_t::usage(const string &message)
 		}
 	usage.append("usage: ");
 	usage.append(this->progname);
-	usage.append(" -[vsh k{keyfile} c{comment} -V{app-version}] --[version sign hash app-version {version} comment {comment} dry-run add-time force-binary] infile [outfile]\n");
+	usage.append(" -[vsh k{keyfile} c{comment} -V{app-version}] --[version sign hash app-version {version} comment {comment} dry-run add-time force-binary verbose debug] infile [outfile]\n");
 	fprintf(stderr, "%s\n", usage.c_str());
 	exit(EXIT_FAILURE);
 	}
@@ -416,24 +421,87 @@ void dumpAppInfo(
 	std::cout << "\n";
 	}
 
-void App_t::addHeader()
+bool App_t::probeHeader(
+	size_t appInfoOffset,
+	McciBootloader_AppInfo_Wire_t &fileAppInfo,
+	uint8_t * &pFileAppInfoOut
+	)
 	{
-	McciBootloader_AppInfo_Wire_t fileAppInfo;
-	static const uint8_t zeros[sizeof(fileAppInfo)] = { 0 };
-	auto const pFileAppInfo = &this->fileimage.at(offsetof(McciBootloader_CortexPageZero_Wire_t, PageZero.AppInfo));
+	// set pFileAppInfo to a pointer to the appinfo in the memory-mapped image of the file.
+	auto const pFileAppInfo = &this->fileimage.at(appInfoOffset);
+
+	// copy the data to a convenient place so we can work on it.
 	memcpy(&fileAppInfo, pFileAppInfo, sizeof(fileAppInfo));
 
 	// dump header if verbose
-	if (this->fVerbose)
-		dumpAppInfo("AppInfo from input", fileAppInfo);
+	if (this->fDebug)
+		dumpAppInfo("App_t::probeHeader(): AppInfo from input", fileAppInfo);	// if the file's appinfo looks good, use it
 
-	// an appinfo with defaults.
+	// Check the minimum information. NB: this check effectively requires that a valid heder contain:
+	// a good magic number and a good size. Once we see that, the outer loop will stop looking.
+	if (fileAppInfo.magic.get() == fileAppInfo.kMagic &&
+	    fileAppInfo.size.get() == sizeof(fileAppInfo))
+		{
+		pFileAppInfoOut = pFileAppInfo;
+		return true;
+		}
+	else
+		{
+		return false;
+		}
+	}
+
+const McciBootloader_AppInfoOffset_t vAppInfoOffsets[] =
+	{
+	{ "cm0+", 	offsetof(McciBootloader_CortexM0_PageZero_Wire_t, PageZero.AppInfo) },
+	{ "stm32h7",	offsetof(McciBootloader_Stm32h7_PageZero_Wire_t, PageZero.AppInfo) },
+	{ "cm7",	offsetof(McciBootloader_CortexM7_PageZero_Wire_t, PageZero.AppInfo) },
+	};
+
+void App_t::addHeader()
+	{
+	McciBootloader_AppInfo_Wire_t fileAppInfo;
+	const McciBootloader_AppInfoOffset_t * pEntry;
+	uint8_t *pFileAppInfo;
+
+	// search for an AppInfo_Wire_t object.
+	pEntry = nullptr;
+	for (auto const &Entry : vAppInfoOffsets)
+		{
+		if (this->probeHeader(Entry.appInfoOffset, fileAppInfo, pFileAppInfo))
+			{
+			pEntry = &Entry;
+			break;
+			}
+		}
+
+	if (pEntry == nullptr)
+		{
+		this->fatal("could not find valid AppInfo structure");
+		}
+
+	// dump header if verbose
+	if (this->fVerbose)
+		{
+		std::ostringstream msg;
+		msg	<< "AppInfo for architecture "
+			<< pEntry->pModelName
+			<< " found at offset 0x"
+			<< std::hex
+			<< pEntry->appInfoOffset
+			;
+
+		dumpAppInfo(
+			msg.str(),
+			fileAppInfo
+			);
+		}
+
+	// appInfo starts as an instance of an appinfo with defaults.
 	McciBootloader_AppInfo_Wire_t appInfo;
 
 	// if the file's appinfo looks good, use it
-	if (fileAppInfo.magic.get() == fileAppInfo.kMagic &&
-	    fileAppInfo.size.get() == sizeof(fileAppInfo) &&
-	    fileAppInfo.targetAddress.get() != 0)
+	if (fileAppInfo.targetAddress.get() != 0)
 	    	{
 		appInfo = fileAppInfo;
 
@@ -466,13 +534,6 @@ void App_t::addHeader()
 			{
 			this->fSize = appInfo.imagesize.get();
 			}
-		}
-	// otherwise make a new one
-	else if (memcmp(pFileAppInfo, zeros, sizeof(zeros)) == 0)
-		{
-		this->verbose("AppInfo is zero, creating new one");
-		appInfo.targetAddress.put(appInfo.kBootloaderAddress);
-		appInfo.imagesize.put(this->fSize);
 		}
 	// looks fishy: refuse to operate on the file
 	else
