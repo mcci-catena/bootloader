@@ -7,3 +7,4 @@
 build
 *.hide
 doc/doxygen
+Doxyfile.bak

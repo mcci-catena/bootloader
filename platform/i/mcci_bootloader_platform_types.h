@@ -113,7 +113,7 @@ typedef bool
 ///
 typedef void
 (McciBootloaderPlatform_SetUpdateFlagFn_t)(
-	bool
+	bool state
 	);
 
 ///
@@ -314,19 +314,19 @@ typedef enum McciBootloaderPlatform_ARMv6M_SvcRq_e
 	/// Fetch pointer to \c uint32_t "update" flag in EEPROM. \c arg1 is pointer to cell to
 	/// receive pointer.
 	McciBootloaderPlatform_ARMv6M_SvcRq_GetUpdatePointer = UINT32_C(0x01000000),
-	/// Call \ref mcci_tweetnacl_hashblocks_sha512_init. \c arg1 is pointer to hash block.
+	/// Call \c mcci_tweetnacl_hashblocks_sha512_init(). \c arg1 is pointer to hash block.
 	McciBootloaderPlatform_ARMv6M_SvcRq_HashInit  /* = UINT32_C(0x01000001) */,
 
-	/// Call \ref mcci_tweetnacl_hashblocks_sha512. \c arg1 points to argument.
+	/// Call \c mcci_tweetnacl_hashblocks_sha512(). \c arg1 points to argument.
 	/// \see McciBootloaderPlatform_ARMv6M_SvcRq_HashBlocks_Arg_t
 	McciBootloaderPlatform_ARMv6M_SvcRq_HashBlocks  /* = UINT32_C(0x01000002) */,
 
-	/// Call \ref mcci_tweetnacl_hashblocks_finish. \c arg1 points to
+	/// Call \c mcci_tweetnacl_hashblocks_finish(). \c arg1 points to
 	/// argument.
 	/// \see McciBootloaderPlatform_ARMv6M_SvcRq_HashFinish_Arg_t
 	McciBootloaderPlatform_ARMv6M_SvcRq_HashFinish  /* = UINT32_C(0x01000003) */,
 
-	/// Call \ref mcci_tweetnacl_verify64. \c arg1 and \c arg2 are the pointers
+	/// Call \c mcci_tweetnacl_verify64(). \c arg1 and \c arg2 are the pointers;
 	/// result is set to verifyFailure for failure.
 	McciBootloaderPlatform_ARMv6M_SvcRq_Verify64  /* = UINT32_C(0x01000004) */,
 	} McciBootloaderPlatform_ARMv6M_SvcRq_t;
