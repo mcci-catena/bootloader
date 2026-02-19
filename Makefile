@@ -264,6 +264,22 @@ INCLUDES_libmcci_tweetnacl :=			\
 	$_					\
 # end INCLUDES_libmcci_tweetnacl
 
+##############################################################################
+#
+#	doxygen documentation
+#
+##############################################################################
+
+.PHONY: doxygen clean-doxygen
+
+doxygen:
+	doxygen
+
+clean-doxygen:
+	rm -rf doc/doxygen
+
+clean: clean-doxygen
+
 # post processing
 include mk/tail.mk
 
