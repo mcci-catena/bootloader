@@ -1,6 +1,6 @@
 /*
 
-Module:	mccibootloaderboard_catenaabz_storage.c
+Module:	mccibootloaderboard_stm32h7b3_storage.c
 
 Function:
 	Storage driver for STM32H7B3 boards
@@ -82,7 +82,7 @@ Definition:
 
 Description:
 	This function reads a buffer from the specified flash
-	byte offset. There are no alignment constraings.
+	byte offset. There are no alignment constraints.
 
 Returns:
 	true if success
@@ -103,4 +103,4 @@ McciBootloaderBoard_Stm32h7b3_storageRead(
 	return true;
 	}
 
-/**** end of mccibootloaderboard_catenaabz_storage.c ****/
+/**** end of mccibootloaderboard_stm32h7b3_storage.c ****/

@@ -3,7 +3,7 @@
 Module:	mccibootloaderboard_stm32h7b3_platforminterface.c
 
 Function:
-	gk_McciBootloaderPlatformInterface for MCCI Catena 4801 boards.
+	gk_McciBootloaderPlatformInterface for STM32h7B3 boards.
 
 Copyright and License:
 	This file copyright (C) 2021 by
