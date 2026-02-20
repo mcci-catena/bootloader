@@ -1,3 +1,4 @@
+.claude
 .vscode
 ~$*
 *.map
@@ -6,3 +7,4 @@
 build
 *.hide
 doc/doxygen
+Doxyfile.bak

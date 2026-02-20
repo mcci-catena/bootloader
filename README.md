@@ -52,7 +52,7 @@
 
 ## Introduction
 
-The MCCI&reg; trusted bootloader provides enhanced system integrity for IoT devices, by confirms system integrity at startup, and allowing field updating STM32L0 systems using public-key authentication of the firmware images.
+The MCCI&reg; trusted bootloader provides enhanced system integrity for IoT devices, by confirming system integrity at startup, and allowing field updating of STM32L0 systems using public-key authentication of the firmware images.
 
 The bootloader is designed with makers, subject matter experts, and experimenters in mind, so that it is easy to deploy open-source field-updatable devices based on small CPUs like the STM32L0. It is readily integrated with the Arduino IDE or other build environments.
 
@@ -98,7 +98,7 @@ A simple tool, [`mccibootloader_image`][1] is provided for preparing and signing
 
 To simplify the development workflow, `mccibootloader_image` works directly on ELF files produced by the linker, and writes ELF files compatible with other tools in the toolchain. The same tool is used for signing bootloader images and signing application images.
 
-For convenience, `mccibootloader_image` reads key-files prepared in OpenSSH format. Thus, `ssh-keygen` can be used used to generate the key files.
+For convenience, `mccibootloader_image` reads key-files prepared in OpenSSH format. Thus, `ssh-keygen` can be used to generate the key files.
 
 In development, a standard "test signing" key is used; this is not secure, but it avoids a special mode in the bootloader to disable signing. (We feel that this makes it less likely that the special mode will accidentally be left on at ship time.)
 
@@ -114,7 +114,7 @@ The bootloader does not provide any confidentiality at all for the application i
 
 The bootloader does not prevent someone with physical access to a device from putting arbitrary software in that device. It cannot; an STLINK can always be used and the device reset to factory.
 
-The bootloader does not check signatures of the application before launching it. It considers a valid SHA512 hash to be to good enough authority to launch the app, because it considers that the app would not be in the flash unless its signature had been verified. Remote code execution could take advantage of this to modify the application maliciously, and then update the hash.
+The bootloader does not check signatures of the application before launching it. It considers a valid SHA512 hash to be good enough authority to launch the app, because it considers that the app would not be in the flash unless its signature had been verified. Remote code execution could take advantage of this to modify the application maliciously, and then update the hash.
 
 If an adversary can force a remote code execution attack, the bootloader can probably be compromised; but remote code execution also effectively takes over the system, unless the MPU is used; and that's much more intrusive. We feel that should be at a layer above the bootloader.
 
@@ -129,7 +129,7 @@ This section describes how MCCI deploys the boot loader in our MCCI Catena&reg; 
 The boot loader occupies up to 20k of flash, starting at the base of the flash region.
 
 - The STM32 on-chip boot loader requires that the vector table be at the beginning of flash, so it makes more sense for the boot loader to be entirely at the beginning of flash.
-- The bootloader actually take less than 0x3000 bytes, so it could fit in 12k bytes, leaving more flash for applications. We reserve 20k on MCCI systems both for future-proofing and to allow enhanced bootloaders with debugging, in-built serial download, and so forth.
+- The bootloader actually takes less than 0x3000 bytes, so it could fit in 12k bytes, leaving more flash for applications. We reserve 20k on MCCI systems both for future-proofing and to allow enhanced bootloaders with debugging, in-built serial download, and so forth.
 
 On the STM32L0, after programming, MCCI marks the boot loader's memory region as write-protected by default, by setting `FLASH_WRPROT1` bits 0..4 (as appropriate for the actual size of the bootloader). This protects the bootloader against erasure by anything except mass erase.
 
@@ -239,9 +239,9 @@ The bootloader and all application images contain AppInfo blocks at offset 192 t
 | 12..15 | `imageSize` | size of image in bytes | Does not include hash and signature data.
 | 16..19 | `authSize` | `0xC0` | size of authentication info at end of image |
 | 20..23 | `version` | version | Semantic version of app. Byte 23 is major version, 22 is minor version, 21 is patch, and 20 (if non-zero) is the pre-release indictor. Note that prior to comparing semantic versions in this format, you must decrement the LSB modulo 256, so that pre-release 0x00 is greater than any non-zero pre-release value.
-| 24..31 | `posixTime` |  seconds since epoch | Normal Posix time; expressed as a 64-bit integer to avoid the year 2037 problem.
+| 24..31 | `posixTime` |  seconds since epoch | Normal Posix time; expressed as a 64-bit integer to avoid the year 2038 problem.
 | 32..47 | `comment` | UTF8 text, zero-padded | A comment, such as the program name.
-| 47..63 | `reserved32` | reserved, zero | Reserved for future use.
+| 48..63 | `reserved32` | reserved, zero | Reserved for future use.
 
 ### Signature block overview
 
@@ -332,7 +332,7 @@ The hash buffer at `*pHash` is updated to reflect the data in `pMessage[]`. All 
 
 ### Finish a hash operation
 
-The request `McciBootloaderPlatform_ARMv6M_SvcRq_HashBlocks` finishes a
+The request `McciBootloaderPlatform_ARMv6M_SvcRq_HashFinish` finishes a
 hash operation. It interprets `arg1` as a pointer to a structure of type `McciBootloaderPlatform_ARMv6M_SvcRq_HashFinish_Arg_t`. This structure has the following layout:
 
 ```c
@@ -356,7 +356,7 @@ The following table summarizes the bootloader's decisions.
 |  (4)  |  OK   |   OK   |  "update" |   OK    |  -     |  Load update image, clear flag & reevaluate. | Power failure during flash will bring us up in some App NG state, but Update Flag will still be "update"
 |  (5)  |  OK   |   NG   |  "update" |  OK   |  - | See (4). | This state is hit after a power fail in (4).
 |  (6)  |  OK   |   NG   |  "update" |  NG   |  OK | Load fallback image, clear flag, reevaluate. |
-|  (7)  |  OK   |   NG   |  "go"    |  -    |  OK    |  Load fallback image, clear flag & and reevaluate | Note that we do not load the update image in this case, even if it looks good, because we have not ben requested to do so.
+|  (7)  |  OK   |   NG   |  "go"    |  -    |  OK    |  Load fallback image, clear flag & and reevaluate | Note that we do not load the update image in this case, even if it looks good, because we have not been requested to do so.
 |  (8)  |  OK   |   NG   |  "go"  |   OK    |  NG    | Load update image, clear flag, reevaluate. | This is the only case in which we'll load the update image when the update flag is not set. The justification is that it allows us to potentially return the system to a working state.
 |  (9)  |  OK   |   NG   |   -    |   NG    |  NG    |  Clear flag, halt with indication
 
@@ -380,6 +380,8 @@ The bootloader should be hashed and signed by `mccibootloader_image`; the signin
 
 ### Building
 
+Clone this repository with `--recursive` to get the required submodules, or run `git submodule update --init` after cloning.
+
 Install GNU Make if not present (on Windows, use [scoop](https://scoop.sh)).
 
 If on Windows, install [git](https://git-scm.com/downloads) bash.
@@ -392,7 +394,7 @@ If you already have entries in that list, use a comma (`,`) to separate the entr
 
 Next, open the board manager. `Tools>Board:...`, and get up to the top of the menu that pops out -- it will give you a list of boards. Search for `MCCI` in the search box and select `MCCI Catena STM32 Boards`. An `[Install]` button will appear to the right; click it.
 
-If you don't already have the bootloader image tool installed, you'll need to build it first. Change directory to `tools/mccibootloader_image` and following the instructions to build the image tool (if not already built).
+If you don't already have the bootloader image tool installed, you'll need to build it first. Change directory to `tools/mccibootloader_image` and follow the instructions to build the image tool (if not already built).
 
 Find the compiler directory and prefix for the target. The Arduino forum explains how this is done, see for example [this post](https://forum.arduino.cc/index.php?topic=616372.0).
 
@@ -419,6 +421,16 @@ If you prefer, you can use forward slashes and `~`-notation for your home direct
 ```bash
 CROSS_COMPILE=~/AppData/Local/arduino15/packages/mcci/tools/arm-none-eabi-gcc/6-2017-q2-update/bin/arm-none-eabi- make
 ```
+
+#### Generating documentation
+
+To generate API documentation using [Doxygen](https://www.doxygen.org/):
+
+```bash
+make doxygen
+```
+
+Output goes to `doc/doxygen/`. No cross-compiler is needed; run `doxygen` directly if `CROSS_COMPILE` is not set. Documentation is also published automatically to [GitHub Pages](https://mcci-catena.github.io/bootloader/).
 
 ### Installing the bootloader
 
