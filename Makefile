@@ -356,6 +356,19 @@ SOURCES_libmcci_bootloader_stm32h7b3 :=					\
 	$_/src/mccibootloaderboard_stm32h7b3_systeminit.c		\
 	$_/src/mccibootloaderboard_stm32h7b3_vectors.c			\
 # end SOURCES_libmcci_bootloader_stm32h7b3
+#	doxygen documentation
+#
+##############################################################################
+
+.PHONY: doxygen clean-doxygen
+
+doxygen:
+	doxygen
+
+clean-doxygen:
+	rm -rf doc/doxygen
+
+clean: clean-doxygen
 
 # post processing
 include mk/tail.mk

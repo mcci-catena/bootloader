@@ -75,4 +75,4 @@ gk_McciBootloaderPlatformInterface =
 
 
 
-/**** end of mccibootloaderboard_catenaabz_platforminterface.c ****/
+/**** end of mccibootloaderboard_catena4801_platforminterface.c ****/

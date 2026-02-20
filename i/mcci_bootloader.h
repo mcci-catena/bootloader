@@ -46,7 +46,7 @@ MCCI_BOOTLOADER_BEGIN_DECLS
 
 /****************************************************************************\
 |
-|	Boot eror codes
+|	Boot error codes
 |
 \****************************************************************************/
 
@@ -55,7 +55,7 @@ enum McciBootloaderError_e
 	McciBootloaderError_OK = 0,		///< successful
 	McciBootloaderError_BootloaderNotValid,	///< bootloader image isn't valid
 	McciBootloaderError_ResetClockNotValid,	///< post-reset clock not valid
-	McciBootloaderError_NoAppImage,		///< app image not valid, no fallback avialable.
+	McciBootloaderError_NoAppImage,		///< app image not valid, no fallback available.
 	McciBootloaderError_EraseFailed,	///< erase failed
 	McciBootloaderError_ReadFailed,		///< storage read failed during program
 	McciBootloaderError_FlashWriteFailed,	///< flash write failed during programming

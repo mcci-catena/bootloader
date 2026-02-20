@@ -1,11 +1,11 @@
-/* mccibootloader_main.h	Tue Jul 14 2020 11:31:05 tmm */
+/* mccibootloader_main.c	Tue Jul 14 2020 11:31:05 tmm */
 
 /*
 
-Module:  mccibootloader_main.h
+Module:  mccibootloader_main.c
 
 Function:
-	Format of on-media data for the MCCI bootloader.
+	Entry point for the MCCI bootloader.
 
 Version:
 	V0.1.0	Tue Jul 14 2020 11:31:05 tmm	Edit level 1
