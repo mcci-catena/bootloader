@@ -1,6 +1,6 @@
 /*
 
-Module:	mccibootloaderboard_catena491x_storageinit.c
+Module:	mccibootloaderboard_model491x_storageinit.c
 
 Function:
 	McciBootloaderBoard_Model491x_storageInit()
