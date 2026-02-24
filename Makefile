@@ -92,7 +92,7 @@ BOOTLOADERS += McciBootloader_491x
 
 LIBS_McciBootloader_491x :=				\
 	${BOOTLOADER_LIBS_ABZ}				\
-	${T_OBJDIR}/libmcci_bootloader_catena491x.a	\
+	${T_OBJDIR}/libmcci_bootloader_model491x.a	\
 ### end LIBS_McciBootloader_491x
 
 LDSCRIPT_McciBootloader_491x	:=	$(BOOTLOADER_LDSCRIPT_ABZ)
@@ -247,26 +247,26 @@ SOURCES_libmcci_bootloader_catena4801 :=				\
 
 ##############################################################################
 #
-#	The catena491x library
+#	The model491x library
 #
 ##############################################################################
 
-LIBRARIES += libmcci_bootloader_catena491x
+LIBRARIES += libmcci_bootloader_model491x
 
-_ := platform/board/mcci/catena491x
+_ := platform/board/mcci/model491x
 
-CFLAGS_OPT_libmcci_bootloader_catena491x += -Os
+CFLAGS_OPT_libmcci_bootloader_model491x += -Os
 
-INCLUDES_libmcci_bootloader_catena491x :=				\
+INCLUDES_libmcci_bootloader_model491x :=				\
 	$(INCLUDES_libmcci_bootloader_catena_abz)			\
 	platform/driver/flash_mx25v8035f/i				\
 	$_/i								\
-# end INCLUDES_libmcci_bootloader_catena491x
+# end INCLUDES_libmcci_bootloader_model491x
 
-SOURCES_libmcci_bootloader_catena491x :=				\
-	$_/src/mccibootloaderboard_catena491x_platforminterface.c	\
-	$_/src/mccibootloaderboard_catena491x_storageinit.c		\
-# end SOURCES_libmcci_bootloader_catena491x
+SOURCES_libmcci_bootloader_model491x :=				\
+	$_/src/mccibootloaderboard_model491x_platforminterface.c	\
+	$_/src/mccibootloaderboard_model491x_storageinit.c		\
+# end SOURCES_libmcci_bootloader_model491x
 
 ##############################################################################
 #
