@@ -1,0 +1,187 @@
+/*
+
+Module:	mccibootloaderboard_stm32h7b3_annunciator.c
+
+Function:
+	Annunciator (LED flashing) functions for STM32H7B3 boards
+
+Copyright and License:
+	This file copyright (C) 2021 by
+
+		MCCI Corporation
+		3520 Krums Corners Road
+		Ithaca, NY  14850
+
+	See accompanying LICENSE file for copyright and license information.
+
+Author:
+	ChaeHee Won, MCCI Corporation	June 2021
+
+*/
+
+#include "mcci_bootloader_board_stm32h7b3.h"
+
+#include "mcci_bootloader.h"
+
+/****************************************************************************\
+|
+|	Manifest constants & typedefs.
+|
+\****************************************************************************/
+
+typedef struct Stm32h7b3_Annuciator_s Stm32h7b3_Annuciator_t;
+
+typedef enum
+	{
+	stNoChange = -1, ///< internal: don't change state.
+	stInitial,	///< not initialized
+	stIdle,		///< not displaying
+	stLedOn,	///< light is on
+	stBitGap,	///< displaying bit gap
+	stByteGap,	///< displaying byte gap
+	} AnnunciatorBitState_t;
+
+struct Stm32h7b3_Annuciator_s
+	{
+	uint32_t		tick;
+	uint32_t		display;
+	uint32_t		value;
+	uint32_t		bittime;
+	uint32_t		timer;
+	McciBootloaderState_t	bootState;
+	AnnunciatorBitState_t	bitState;
+	};
+
+/****************************************************************************\
+|
+|	Read-only data.
+|
+\****************************************************************************/
+
+
+
+/****************************************************************************\
+|
+|	Variables.
+|
+\****************************************************************************/
+
+static Stm32h7b3_Annuciator_t annunciator;
+
+void
+McciBootloaderBoard_Stm32h7b3_annunciatorInit(
+	void
+	)
+	{
+	/// enable interrupts
+	McciArm_setPRIMASK(0);
+	annunciator.bittime = 100; // 100 ms per bit.
+	annunciator.bitState = stIdle;
+	}
+
+void
+McciBootloaderBoard_Stm32h7b3_annunciatorIndicateState(
+	McciBootloaderState_t state
+	)
+	{
+	if (state != 0)
+		{
+		uint32_t display = ((uint32_t)state << 1) | 1;
+		unsigned nBits;
+		// always put at least 2 bits
+		for (nBits = 31; nBits > 2; --nBits)
+			{
+			if (display & (UINT32_C(1) << nBits))
+				break;
+			}
+
+		// if display is 2^k-1, then add a bit, so we have
+		// a time contrast on long pulses.
+		if (((display + 1) & display) == 0)
+			++nBits;
+
+		annunciator.display = (uint32_t)display << (31 - nBits);
+		}
+	else
+		annunciator.display = 0;
+	}
+
+static bool
+nextBit(void)
+	{
+	bool fNextBit = !!(annunciator.value & UINT32_C(0x80000000));
+	annunciator.value <<= 1;
+	if (annunciator.value == 0)
+		return false;
+
+	McciBootloaderBoard_Stm32h7b3_setLed();
+	annunciator.timer = annunciator.tick + annunciator.bittime * (1 + 2 * fNextBit);
+	return true;
+	}
+
+void
+McciBootloaderBoard_Stm32h7b3_handleSysTick(
+	void
+	)
+	{
+	const uint32_t now = annunciator.tick + 1;
+	annunciator.tick = now;
+	AnnunciatorBitState_t nextState = stNoChange;
+
+	switch (annunciator.bitState)
+		{
+	default:
+	case stInitial:
+		nextState = stInitial;
+		annunciator.bitState = stInitial;
+		return;
+
+	case stIdle:
+		if (annunciator.display != 0)
+			{
+			annunciator.value = annunciator.display;
+			nextBit();
+			nextState = stLedOn;
+			}
+		break;
+
+	case stLedOn:
+		if ((int32_t)(now - annunciator.timer) >= 0)
+			{
+			McciBootloaderBoard_Stm32h7b3_clearLed();
+			annunciator.timer = now + annunciator.bittime;
+			nextState = stBitGap;
+			}
+		break;
+
+	case stBitGap:
+		if ((int32_t)(now - annunciator.timer) >= 0)
+			{
+			if (nextBit())
+				nextState = stLedOn;
+			else
+				{
+				nextState = stByteGap;
+				annunciator.timer = now + 2 * annunciator.bittime;
+				}
+			}
+
+	case stByteGap:
+		if ((int32_t)(now - annunciator.timer) >= 0)
+			{
+			annunciator.value = annunciator.display;
+			if (nextBit())
+				nextState = stLedOn;
+			else
+				{
+				nextState = stIdle;
+				}
+			}
+		break;
+		}
+
+	if (nextState != stNoChange)
+		annunciator.bitState = nextState;
+	}
+
+/**** end of mccibootloaderboard_stm32h7b3_annunciator.c ****/
