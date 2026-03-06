@@ -45,12 +45,12 @@ g_McciBootloader_WorkingRamBase = g_McciBootloader_SocRamTop - gk_McciBootloader
 /* size of app */
 gk_McciBootloader_AppSize       = gk_McciBootloader_FlashSize - (gk_McciBootloader_BootSize + gk_McciBootloader_MfgSize);
 /* bootloader Eeprom */
-gk_McciBootloader_BootEepromSize  = 4;
-g_McciBootloader_BootEepromBase  = g_McciBootloader_SocEepromBase
+gk_McciBootloaderBoard_CatenaAbz_EepromSize  = 4;
+g_McciBootloaderBoard_CatenaAbz_EepromBase  = g_McciBootloader_SocEepromBase
                                  + gk_McciBootloader_SocEepromSize
-                                 - gk_McciBootloader_BootEepromSize
+                                 - gk_McciBootloaderBoard_CatenaAbz_EepromSize
                                  ;
-g_McciBootloader_BootEepromTop   = g_McciBootloader_BootEepromBase + gk_McciBootloader_BootEepromSize;
+g_McciBootloaderBoard_CatenaAbz_EepromTop   = g_McciBootloaderBoard_CatenaAbz_EepromBase + gk_McciBootloaderBoard_CatenaAbz_EepromSize;
 
 /* initial stack pointer: top of RAM */
 g_McciBootloader_StackTop       = g_McciBootloader_SocRamBase + g_McciBootloader_SocRamSize;
@@ -68,8 +68,8 @@ MEMORY
         {
         FLASH (rx)      : ORIGIN = gk_McciBootloader_BootBase,
                           LENGTH = gk_McciBootloader_BootSize
-        EEPROM (rw)     : ORIGIN = g_McciBootloader_BootEepromBase,
-                          LENGTH = gk_McciBootloader_BootEepromSize
+        EEPROM (rw)     : ORIGIN = g_McciBootloaderBoard_CatenaAbz_EepromBase,
+                          LENGTH = gk_McciBootloaderBoard_CatenaAbz_EepromSize
         RAM (xrw)       : ORIGIN = g_McciBootloader_WorkingRamBase,
                           LENGTH = gk_McciBootloader_WorkingRamSize
         }
