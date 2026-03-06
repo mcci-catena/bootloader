@@ -1,9 +1,9 @@
 /*
 
-Module:	mccibootloaderboard_stm32h7b3_storage.c
+Module:	mccibootloaderboard_stm32h7b3i_dk_storage.c
 
 Function:
-	Storage driver for STM32H7B3 boards
+	Storage driver for STM32H7B3I_DK boards
 
 Copyright and License:
 	This file copyright (C) 2021 by
@@ -19,7 +19,7 @@ Author:
 
 */
 
-#include "mcci_bootloader_board_stm32h7b3.h"
+#include "mcci_bootloader_board_stm32h7b3i_dk.h"
 #include <string.h>
 
 /****************************************************************************\
@@ -44,7 +44,7 @@ Author:
 \****************************************************************************/
 
 McciBootloaderStorageAddress_t
-McciBootloaderBoard_Stm32h7b3_getPrimaryStorageAddress(
+McciBootloaderBoard_Stm32h7b3iDk_getPrimaryStorageAddress(
 	void
 	)
 	{
@@ -52,7 +52,7 @@ McciBootloaderBoard_Stm32h7b3_getPrimaryStorageAddress(
 	}
 
 McciBootloaderStorageAddress_t
-McciBootloaderBoard_Stm32h7b3_getFallbackStorageAddress(
+McciBootloaderBoard_Stm32h7b3iDk_getFallbackStorageAddress(
 	void
 	)
 	{
@@ -60,7 +60,7 @@ McciBootloaderBoard_Stm32h7b3_getFallbackStorageAddress(
 	}
 
 void
-McciBootloaderBoard_Stm32h7b3_storageInit(
+McciBootloaderBoard_Stm32h7b3iDk_storageInit(
 	void
 	)
 	{
@@ -68,13 +68,13 @@ McciBootloaderBoard_Stm32h7b3_storageInit(
 
 /*
 
-Name:	McciBootloaderBoard_Stm32h7b3_storageRead()
+Name:	McciBootloaderBoard_Stm32h7b3iDk_storageRead()
 
 Function:
 	Read a buffer from the specified flash byte address
 
 Definition:
-	bool McciBootloaderBoard_Stm32h7b3_storageRead(
+	bool McciBootloaderBoard_Stm32h7b3iDk_storageRead(
 		McciBootloaderStorageAddress_t Address,
 		uint8_t *pBuffer,
 		size_t nBuffer
@@ -90,7 +90,7 @@ Returns:
 */
 
 bool
-McciBootloaderBoard_Stm32h7b3_storageRead(
+McciBootloaderBoard_Stm32h7b3iDk_storageRead(
 	McciBootloaderStorageAddress_t Address,
 	uint8_t *pBuffer,
 	size_t nBuffer
@@ -103,4 +103,4 @@ McciBootloaderBoard_Stm32h7b3_storageRead(
 	return true;
 	}
 
-/**** end of mccibootloaderboard_stm32h7b3_storage.c ****/
+/**** end of mccibootloaderboard_stm32h7b3i_dk_storage.c ****/

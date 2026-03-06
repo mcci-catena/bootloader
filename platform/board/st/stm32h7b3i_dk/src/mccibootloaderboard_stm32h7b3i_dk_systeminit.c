@@ -1,10 +1,10 @@
 /*
 
-Module:	mccibootloaderboard_stm32h7b3_systeminit.c
+Module:	mccibootloaderboard_stm32h7b3i_dk_systeminit.c
 
 Function:
-	McciBootloaderBoard_Stm32h7b3_systemInit() and system init logic for
-	STM32H7B3 boards
+	McciBootloaderBoard_Stm32h7b3iDk_systemInit() and system init logic for
+	STM32H7B3I_DK boards
 
 Copyright and License:
 	This file copyright (C) 2021 by
@@ -20,7 +20,7 @@ Author:
 
 */
 
-#include "mcci_bootloader_board_stm32h7b3.h"
+#include "mcci_bootloader_board_stm32h7b3i_dk.h"
 
 #include "mcci_bootloader.h"
 #include "mcci_bootloader_stm32h7.h"
@@ -64,16 +64,16 @@ delayTick(void);
 
 /*
 
-Name:	McciBootloaderBoard_Stm32h7b3_systemInit()
+Name:	McciBootloaderBoard_Stm32h7b3iDk_systemInit()
 
 Function:
-	Initialize STM32H7B3 module for bootloader.
+	Initialize STM32H7B3I_DK module for bootloader.
 
 Definition:
 	McciBootloaderPlatform_SystemInitFn_t
-		McciBootloaderBoard_Stm32h7b3_systemInit;
+		McciBootloaderBoard_Stm32h7b3iDk_systemInit;
 
-	void McciBootloaderBoard_Stm32h7b3_systemInit(
+	void McciBootloaderBoard_Stm32h7b3iDk_systemInit(
 		void
 		);
 
@@ -91,7 +91,7 @@ Notes:
 */
 
 void
-McciBootloaderBoard_Stm32h7b3_systemInit(
+McciBootloaderBoard_Stm32h7b3iDk_systemInit(
 	void
 	)
 	{
@@ -178,7 +178,7 @@ McciBootloaderBoard_Stm32h7b3_systemInit(
 	}
 
 void
-McciBootloaderBoard_Stm32h7b3_setLed(void)
+McciBootloaderBoard_Stm32h7b3iDk_setLed(void)
 	{
 	McciArm_putReg(
 		MCCI_BOOTLOADER_LED_GPIO + MCCI_STM32H7_GPIO_BSRR,
@@ -187,7 +187,7 @@ McciBootloaderBoard_Stm32h7b3_setLed(void)
 	}
 
 void
-McciBootloaderBoard_Stm32h7b3_clearLed(void)
+McciBootloaderBoard_Stm32h7b3iDk_clearLed(void)
 	{
 	McciArm_putReg(
 		MCCI_BOOTLOADER_LED_GPIO + MCCI_STM32H7_GPIO_BSRR,
@@ -196,7 +196,7 @@ McciBootloaderBoard_Stm32h7b3_clearLed(void)
 	}
 
 void
-McciBootloaderBoard_Stm32h7b3_delayMs(uint32_t ms)
+McciBootloaderBoard_Stm32h7b3iDk_delayMs(uint32_t ms)
 	{
 	for (++ms; ms > 0; --ms)
 		{
@@ -215,7 +215,7 @@ delayTick(void)
 	}
 
 void
-McciBootloaderBoard_Stm32h7b3_fail(
+McciBootloaderBoard_Stm32h7b3iDk_fail(
 	McciBootloaderError_t errorCode
 	)
 	{
@@ -230,12 +230,12 @@ McciBootloaderBoard_Stm32h7b3_fail(
 		McciArm_disableInterrupts();
 		timeToReboot = 60 * 1000;
 
-		McciBootloaderBoard_Stm32h7b3_annunciatorIndicateState(errorCode);
+		McciBootloaderBoard_Stm32h7b3iDk_annunciatorIndicateState(errorCode);
 
 		for (; timeToReboot > 0; --timeToReboot)
 			{
 			delayTick();
-			McciBootloaderBoard_Stm32h7b3_handleSysTick();
+			McciBootloaderBoard_Stm32h7b3iDk_handleSysTick();
 			}
 
 		McciArm_DataSynchBarrier();
@@ -267,8 +267,8 @@ static void fastBlinkForever(void)
 			MCCI_BOOTLOADER_LED_GPIO + MCCI_STM32H7_GPIO_ODR,
 			rOdr
 			);
-		McciBootloaderBoard_Stm32h7b3_delayMs(100);
+		McciBootloaderBoard_Stm32h7b3iDk_delayMs(100);
 		}
 	}
 
-/**** end of mccibootloaderboard_stm32h7b3_systeminit.c ****/
+/**** end of mccibootloaderboard_stm32h7b3i_dk_systeminit.c ****/

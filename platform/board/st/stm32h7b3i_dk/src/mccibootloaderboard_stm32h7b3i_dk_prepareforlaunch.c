@@ -1,9 +1,9 @@
 /*
 
-Module:	mccibootloaderboard_catenaabz_prepareforlaunch.c
+Module:	mccibootloaderboard_stm32h7b3i_dk_prepareforlaunch.c
 
 Function:
-	McciBootloaderBoard_Stm32h7b3_prepareForLaunch()
+	McciBootloaderBoard_Stm32h7b3iDk_prepareForLaunch()
 
 Copyright and License:
 	This file copyright (C) 2021 by
@@ -19,7 +19,7 @@ Author:
 
 */
 
-#include "mcci_bootloader_board_stm32h7b3.h"
+#include "mcci_bootloader_board_stm32h7b3i_dk.h"
 
 /****************************************************************************\
 |
@@ -46,13 +46,13 @@ Author:
 
 /*
 
-Name:	McciBootloaderBoard_Stm32h7b3_prepareForLaunch()
+Name:	McciBootloaderBoard_Stm32h7b3iDk_prepareForLaunch()
 
 Function:
 	Platform interface: prepare for launch
 
 Definition:
-	void McciBootloaderBoard_Stm32h7b3_prepareForLaunch(
+	void McciBootloaderBoard_Stm32h7b3iDk_prepareForLaunch(
 		void
 		);
 
@@ -68,7 +68,7 @@ Notes:
 */
 
 void
-McciBootloaderBoard_Stm32h7b3_prepareForLaunch(
+McciBootloaderBoard_Stm32h7b3iDk_prepareForLaunch(
 	void
 	)
 	{
@@ -82,4 +82,4 @@ McciBootloaderBoard_Stm32h7b3_prepareForLaunch(
 	McciBootloader_Stm32h7_prepareForLaunch();
 	}
 
-/**** end of mccibootloaderboard_catenaabz_prepareforlaunch.c ****/
+/**** end of mccibootloaderboard_stm32h7b3i_dk_prepareforlaunch.c ****/

@@ -1,9 +1,9 @@
 /*
 
-Module:	mccibootloaderboard_stm32h7b3_annunciator.c
+Module:	mccibootloaderboard_stm32h7b3i_dk_annunciator.c
 
 Function:
-	Annunciator (LED flashing) functions for STM32H7B3 boards
+	Annunciator (LED flashing) functions for STM32H7B3I_DK boards
 
 Copyright and License:
 	This file copyright (C) 2021 by
@@ -19,7 +19,7 @@ Author:
 
 */
 
-#include "mcci_bootloader_board_stm32h7b3.h"
+#include "mcci_bootloader_board_stm32h7b3i_dk.h"
 
 #include "mcci_bootloader.h"
 
@@ -29,7 +29,7 @@ Author:
 |
 \****************************************************************************/
 
-typedef struct Stm32h7b3_Annuciator_s Stm32h7b3_Annuciator_t;
+typedef struct Stm32h7b3iDk_Annuciator_s Stm32h7b3iDk_Annuciator_t;
 
 typedef enum
 	{
@@ -41,7 +41,7 @@ typedef enum
 	stByteGap,	///< displaying byte gap
 	} AnnunciatorBitState_t;
 
-struct Stm32h7b3_Annuciator_s
+struct Stm32h7b3iDk_Annuciator_s
 	{
 	uint32_t		tick;
 	uint32_t		display;
@@ -66,10 +66,10 @@ struct Stm32h7b3_Annuciator_s
 |
 \****************************************************************************/
 
-static Stm32h7b3_Annuciator_t annunciator;
+static Stm32h7b3iDk_Annuciator_t annunciator;
 
 void
-McciBootloaderBoard_Stm32h7b3_annunciatorInit(
+McciBootloaderBoard_Stm32h7b3iDk_annunciatorInit(
 	void
 	)
 	{
@@ -80,7 +80,7 @@ McciBootloaderBoard_Stm32h7b3_annunciatorInit(
 	}
 
 void
-McciBootloaderBoard_Stm32h7b3_annunciatorIndicateState(
+McciBootloaderBoard_Stm32h7b3iDk_annunciatorIndicateState(
 	McciBootloaderState_t state
 	)
 	{
@@ -114,13 +114,13 @@ nextBit(void)
 	if (annunciator.value == 0)
 		return false;
 
-	McciBootloaderBoard_Stm32h7b3_setLed();
+	McciBootloaderBoard_Stm32h7b3iDk_setLed();
 	annunciator.timer = annunciator.tick + annunciator.bittime * (1 + 2 * fNextBit);
 	return true;
 	}
 
 void
-McciBootloaderBoard_Stm32h7b3_handleSysTick(
+McciBootloaderBoard_Stm32h7b3iDk_handleSysTick(
 	void
 	)
 	{
@@ -148,7 +148,7 @@ McciBootloaderBoard_Stm32h7b3_handleSysTick(
 	case stLedOn:
 		if ((int32_t)(now - annunciator.timer) >= 0)
 			{
-			McciBootloaderBoard_Stm32h7b3_clearLed();
+			McciBootloaderBoard_Stm32h7b3iDk_clearLed();
 			annunciator.timer = now + annunciator.bittime;
 			nextState = stBitGap;
 			}
@@ -184,4 +184,4 @@ McciBootloaderBoard_Stm32h7b3_handleSysTick(
 		annunciator.bitState = nextState;
 	}
 
-/**** end of mccibootloaderboard_stm32h7b3_annunciator.c ****/
+/**** end of mccibootloaderboard_stm32h7b3i_dk_annunciator.c ****/

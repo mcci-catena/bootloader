@@ -1,9 +1,9 @@
 /*
 
-Module:	mcci_bootloader_board_stm32h7b3.h
+Module:	mcci_bootloader_board_stm32h7b3i_dk.h
 
 Function:
-	Top-level platform interface for STM32H7B3.
+	Top-level platform interface for STM32H7B3I_DK.
 
 Copyright and License:
 	This file copyright (C) 2021 by
@@ -19,8 +19,8 @@ Author:
 
 */
 
-#ifndef _mcci_bootloader_board_stm32h7b3_h_
-#define _mcci_bootloader_board_stm32h7b3_h_	/* prevent multiple includes */
+#ifndef _mcci_bootloader_board_stm32h7b3i_dk_h_
+#define _mcci_bootloader_board_stm32h7b3i_dk_h_	/* prevent multiple includes */
 
 #pragma once
 
@@ -40,8 +40,8 @@ Author:
 # include "mcci_stm32h7xx.h"
 #endif
 
-#ifndef _mcci_bootloader_board_stm32h7b3_request_h_
-# include "mcci_bootloader_board_stm32h7b3_request.h"
+#ifndef _mcci_bootloader_board_stm32h7b3i_dk_request_h_
+# include "mcci_bootloader_board_stm32h7b3i_dk_request.h"
 #endif
 
 MCCI_BOOTLOADER_BEGIN_DECLS
@@ -55,7 +55,7 @@ MCCI_BOOTLOADER_BEGIN_DECLS
 ///
 /// \brief the maximum image size is 1024k bytes at the bank2 flash
 ///
-#define	MCCI_BOOTLOADER_BOARD_STM32H7B3_STORAGE_IMAGE_SIZE	\
+#define	MCCI_BOOTLOADER_BOARD_STM32H7B3I_DK_STORAGE_IMAGE_SIZE	\
 	(UINT32_C(1024) * 1024)
 
 ///
@@ -79,49 +79,49 @@ extern void *gk_McciBootloader_FallbackBase;
 \****************************************************************************/
 
 McciBootloaderPlatform_SystemInitFn_t
-McciBootloaderBoard_Stm32h7b3_systemInit;
+McciBootloaderBoard_Stm32h7b3iDk_systemInit;
 
 McciBootloaderPlatform_PrepareForLaunchFn_t
-McciBootloaderBoard_Stm32h7b3_prepareForLaunch;
+McciBootloaderBoard_Stm32h7b3iDk_prepareForLaunch;
 
 McciBootloaderPlatform_FailFn_t MCCI_BOOTLOADER_NORETURN_PFX
-McciBootloaderBoard_Stm32h7b3_fail
+McciBootloaderBoard_Stm32h7b3iDk_fail
 MCCI_BOOTLOADER_NORETURN_SFX;
 
 McciBootloaderPlatform_DelayMsFn_t
-McciBootloaderBoard_Stm32h7b3_delayMs;
+McciBootloaderBoard_Stm32h7b3iDk_delayMs;
 
 McciBootloaderPlatform_GetUpdateFlagFn_t
-McciBootloaderBoard_Stm32h7b3_getUpdate;
+McciBootloaderBoard_Stm32h7b3iDk_getUpdate;
 
 McciBootloaderPlatform_SetUpdateFlagFn_t
-McciBootloaderBoard_Stm32h7b3_setUpdate;
+McciBootloaderBoard_Stm32h7b3iDk_setUpdate;
 
 McciBootloaderPlatform_StorageInitFn_t
-McciBootloaderBoard_Stm32h7b3_storageInit;
+McciBootloaderBoard_Stm32h7b3iDk_storageInit;
 
 McciBootloaderPlatform_StorageReadFn_t
-McciBootloaderBoard_Stm32h7b3_storageRead;
+McciBootloaderBoard_Stm32h7b3iDk_storageRead;
 
 McciBootloaderPlatform_GetPrimaryStorageAddressFn_t
-McciBootloaderBoard_Stm32h7b3_getPrimaryStorageAddress;
+McciBootloaderBoard_Stm32h7b3iDk_getPrimaryStorageAddress;
 
 McciBootloaderPlatform_GetFallbackStorageAddressFn_t
-McciBootloaderBoard_Stm32h7b3_getFallbackStorageAddress;
+McciBootloaderBoard_Stm32h7b3iDk_getFallbackStorageAddress;
 
 McciBootloaderPlatform_AnnunciatorInitFn_t
-McciBootloaderBoard_Stm32h7b3_annunciatorInit;
+McciBootloaderBoard_Stm32h7b3iDk_annunciatorInit;
 
 McciBootloaderPlatform_AnnunciatorIndicateStateFn_t
-McciBootloaderBoard_Stm32h7b3_annunciatorIndicateState;
+McciBootloaderBoard_Stm32h7b3iDk_annunciatorIndicateState;
 
-void McciBootloaderBoard_Stm32h7b3_clearLed(void);
-void McciBootloaderBoard_Stm32h7b3_handleSysTick(void);
-void McciBootloaderBoard_Stm32h7b3_setLed(void);
+void McciBootloaderBoard_Stm32h7b3iDk_clearLed(void);
+void McciBootloaderBoard_Stm32h7b3iDk_handleSysTick(void);
+void McciBootloaderBoard_Stm32h7b3iDk_setLed(void);
 
-McciBootloaderBoard_Stm32h7b3_Request_t *
-McciBootloaderBoard_Stm32h7b3_getRequestPointer(void);
+McciBootloaderBoard_Stm32h7b3iDk_Request_t *
+McciBootloaderBoard_Stm32h7b3iDk_getRequestPointer(void);
 
 MCCI_BOOTLOADER_END_DECLS
 
-#endif /* _mcci_bootloader_board_stm32h7b3_h_ */
+#endif /* _mcci_bootloader_board_stm32h7b3i_dk_h_ */

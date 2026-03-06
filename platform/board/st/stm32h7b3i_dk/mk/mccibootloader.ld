@@ -3,7 +3,7 @@
 Module: mccibootloader.ld
 
 Function:
-        Input linker script for MCCI bootloader for STM32H7B3
+        Input linker script for MCCI bootloader for STM32H7B3I_DK
 
 Copyright notice:
         This file copyright (C) 2021 by

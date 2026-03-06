@@ -1,6 +1,6 @@
 /*
 
-Module:	mccibootloaderboard_stm32h7b3_platforminterface.c
+Module:	mccibootloaderboard_stm32h7b3i_dk_platforminterface.c
 
 Function:
 	gk_McciBootloaderPlatformInterface for STM32h7B3 boards.
@@ -19,7 +19,7 @@ Author:
 
 */
 
-#include "mcci_bootloader_board_stm32h7b3.h"
+#include "mcci_bootloader_board_stm32h7b3i_dk.h"
 
 /****************************************************************************\
 |
@@ -37,20 +37,20 @@ Author:
 const McciBootloaderPlatform_Interface_t
 gk_McciBootloaderPlatformInterface =
 	{
-	.pSystemInit = McciBootloaderBoard_Stm32h7b3_systemInit,
-	.pPrepareForLaunch = McciBootloaderBoard_Stm32h7b3_prepareForLaunch,
-	.pFail = McciBootloaderBoard_Stm32h7b3_fail,
-	.pDelayMs = McciBootloaderBoard_Stm32h7b3_delayMs,
-	.pGetUpdate = McciBootloaderBoard_Stm32h7b3_getUpdate,
-	.pSetUpdate = McciBootloaderBoard_Stm32h7b3_setUpdate,
+	.pSystemInit = McciBootloaderBoard_Stm32h7b3iDk_systemInit,
+	.pPrepareForLaunch = McciBootloaderBoard_Stm32h7b3iDk_prepareForLaunch,
+	.pFail = McciBootloaderBoard_Stm32h7b3iDk_fail,
+	.pDelayMs = McciBootloaderBoard_Stm32h7b3iDk_delayMs,
+	.pGetUpdate = McciBootloaderBoard_Stm32h7b3iDk_getUpdate,
+	.pSetUpdate = McciBootloaderBoard_Stm32h7b3iDk_setUpdate,
 	.pSystemFlashErase = McciBootloader_Stm32h7_systemFlashErase,
 	.pSystemFlashWrite = McciBootloader_Stm32h7_systemFlashWrite,
 	.Storage =
 		{
-		.pInit = McciBootloaderBoard_Stm32h7b3_storageInit,
-		.pRead = McciBootloaderBoard_Stm32h7b3_storageRead,
-		.pGetPrimaryAddress = McciBootloaderBoard_Stm32h7b3_getPrimaryStorageAddress,
-		.pGetFallbackAddress = McciBootloaderBoard_Stm32h7b3_getFallbackStorageAddress,
+		.pInit = McciBootloaderBoard_Stm32h7b3iDk_storageInit,
+		.pRead = McciBootloaderBoard_Stm32h7b3iDk_storageRead,
+		.pGetPrimaryAddress = McciBootloaderBoard_Stm32h7b3iDk_getPrimaryStorageAddress,
+		.pGetFallbackAddress = McciBootloaderBoard_Stm32h7b3iDk_getFallbackStorageAddress,
 		},
 	.Spi =
 		{
@@ -59,8 +59,8 @@ gk_McciBootloaderPlatformInterface =
 		},
 	.Annunciator =
 		{
-		.pInit = McciBootloaderBoard_Stm32h7b3_annunciatorInit,
-		.pIndicateState = McciBootloaderBoard_Stm32h7b3_annunciatorIndicateState,
+		.pInit = McciBootloaderBoard_Stm32h7b3iDk_annunciatorInit,
+		.pIndicateState = McciBootloaderBoard_Stm32h7b3iDk_annunciatorIndicateState,
 		},
 	};
 
@@ -71,4 +71,4 @@ gk_McciBootloaderPlatformInterface =
 \****************************************************************************/
 
 
-/**** end of mccibootloaderboard_stm32h7b3_platforminterface.c ****/
+/**** end of mccibootloaderboard_stm32h7b3i_dk_platforminterface.c ****/

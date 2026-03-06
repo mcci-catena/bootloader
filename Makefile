@@ -99,18 +99,18 @@ LDSCRIPT_McciBootloader_46xx	:=	$(BOOTLOADER_LDSCRIPT_ABZ)
 
 ##############################################################################
 #
-#	The stm32h7b3 bootloader
+#	The stm32h7b3i_dk bootloader
 #
 ##############################################################################
 
-BOOTLOADERS += McciBootloader_stm32h7b3
+BOOTLOADERS += McciBootloader_stm32h7b3i_dk
 
-LIBS_McciBootloader_stm32h7b3 :=			\
+LIBS_McciBootloader_stm32h7b3i_dk :=			\
 	${T_OBJDIR}/libmcci_bootloader_stm32h7.a	\
-	${T_OBJDIR}/libmcci_bootloader_stm32h7b3.a	\
-### end LIBS_McciBootloader_stm32h7b3
+	${T_OBJDIR}/libmcci_bootloader_stm32h7b3i_dk.a	\
+### end LIBS_McciBootloader_stm32h7b3i_dk
 
-LDSCRIPT_McciBootloader_stm32h7b3 := $(abspath platform/board/st/stm32h7b3/mk/mccibootloader.ld)
+LDSCRIPT_McciBootloader_stm32h7b3i_dk := $(abspath platform/board/st/stm32h7b3i_dk/mk/mccibootloader.ld)
 
 ##############################################################################
 #
@@ -332,30 +332,33 @@ SOURCES_libmcci_bootloader_stm32h7 :=					\
 
 ##############################################################################
 #
-#	The stm32h7b3 library
+#	The stm32h7b3i_dk library
 #
 ##############################################################################
 
-LIBRARIES += libmcci_bootloader_stm32h7b3
+LIBRARIES += libmcci_bootloader_stm32h7b3i_dk
 
-_ := platform/board/st/stm32h7b3
+_ := platform/board/st/stm32h7b3i_dk
 
-CFLAGS_OPT_libmcci_bootloader_stm32h7b3 += -Os
+CFLAGS_OPT_libmcci_bootloader_stm32h7b3i_dk += -Os
 
-INCLUDES_libmcci_bootloader_stm32h7b3 :=				\
+INCLUDES_libmcci_bootloader_stm32h7b3i_dk :=				\
 	$(INCLUDES_libmcci_bootloader_stm32h7)				\
 	$_/i								\
-# end INCLUDES_libmcci_bootloader_stm32h7b3
+# end INCLUDES_libmcci_bootloader_stm32h7b3i_dk
 
-SOURCES_libmcci_bootloader_stm32h7b3 :=					\
-	$_/src/mccibootloaderboard_stm32h7b3_annunciator.c		\
-	$_/src/mccibootloaderboard_stm32h7b3_request.c			\
-	$_/src/mccibootloaderboard_stm32h7b3_platforminterface.c	\
-	$_/src/mccibootloaderboard_stm32h7b3_prepareforlaunch.c		\
-	$_/src/mccibootloaderboard_stm32h7b3_storage.c			\
-	$_/src/mccibootloaderboard_stm32h7b3_systeminit.c		\
-	$_/src/mccibootloaderboard_stm32h7b3_vectors.c			\
-# end SOURCES_libmcci_bootloader_stm32h7b3
+SOURCES_libmcci_bootloader_stm32h7b3i_dk :=				\
+	$_/src/mccibootloaderboard_stm32h7b3i_dk_annunciator.c		\
+	$_/src/mccibootloaderboard_stm32h7b3i_dk_request.c		\
+	$_/src/mccibootloaderboard_stm32h7b3i_dk_platforminterface.c	\
+	$_/src/mccibootloaderboard_stm32h7b3i_dk_prepareforlaunch.c	\
+	$_/src/mccibootloaderboard_stm32h7b3i_dk_storage.c		\
+	$_/src/mccibootloaderboard_stm32h7b3i_dk_systeminit.c		\
+	$_/src/mccibootloaderboard_stm32h7b3i_dk_vectors.c		\
+# end SOURCES_libmcci_bootloader_stm32h7b3i_dk
+
+##############################################################################
+#
 #	doxygen documentation
 #
 ##############################################################################
