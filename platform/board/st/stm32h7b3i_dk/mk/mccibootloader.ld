@@ -45,7 +45,7 @@ gk_McciBootloader_SocOtpSize    = 1K;
 /* size of boot loader (8K * 4 sector) */
 gk_McciBootloader_BootSize      = 32K;
 /* size of boot request image (8K * 1 sector) */
-gk_McciBootloader_RequestSize   = 8K;
+gk_McciBootloaderBoard_Stm32h7b3iDk_UpdateRequestSize = 8K;
 /* size of mfg page (8K * 1 sector) */
 gk_McciBootloader_MfgSize       = 8K;
 
@@ -64,16 +64,16 @@ g_McciBootloader_WorkingRamBase = g_McciBootloader_StackBase - gk_McciBootloader
 /* where things are */
 gk_McciBootloader_BootBase      = gk_McciBootloader_FlashBase;
 gk_McciBootloader_BootTop       = gk_McciBootloader_BootBase + gk_McciBootloader_BootSize;
-gk_McciBootloader_RequestBase   = gk_McciBootloader_BootTop;
-gk_McciBootloader_RequestTop    = gk_McciBootloader_RequestBase + gk_McciBootloader_RequestSize;
-gk_McciBootloader_MfgBase       = gk_McciBootloader_RequestTop;
+gk_McciBootloaderBoard_Stm32h7b3iDk_UpdateRequestBase = gk_McciBootloader_BootTop;
+gk_McciBootloaderBoard_Stm32h7b3iDk_UpdateRequestTop = gk_McciBootloaderBoard_Stm32h7b3iDk_UpdateRequestBase + gk_McciBootloaderBoard_Stm32h7b3iDk_UpdateRequestSize;
+gk_McciBootloader_MfgBase       = gk_McciBootloaderBoard_Stm32h7b3iDk_UpdateRequestTop;
 gk_McciBootloader_MfgTop        = gk_McciBootloader_MfgBase + gk_McciBootloader_MfgSize;
 
 gk_McciBootloader_AppBase       = gk_McciBootloader_FlashBase + 64K;
 gk_McciBootloader_AppTop        = gk_McciBootloader_AppBase + gk_McciBootloader_AppSize;
 
-gk_McciBootloader_UpdateBase    = gk_McciBootloader_FlashBase + 1M;
-gk_McciBootloader_FallbackBase  = gk_McciBootloader_FlashBase + 1M + 512K;
+gk_McciBootloaderBoard_Stm32h7b3iDk_UpdateImageBase = gk_McciBootloader_FlashBase + 1M;
+gk_McciBootloaderBoard_Stm32h7b3iDk_FallbackImageBase = gk_McciBootloader_FlashBase + 1M + 512K;
 
 /* the memory areas */
 MEMORY

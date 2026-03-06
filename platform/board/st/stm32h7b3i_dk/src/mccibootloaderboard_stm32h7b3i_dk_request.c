@@ -67,7 +67,7 @@ McciBootloaderBoard_Stm32h7b3iDk_getRequestPointer(void)
 
 	/* convert to a pointer to the request */
 	pRequest = (McciBootloaderBoard_Stm32h7b3iDk_Request_t *)
-			&gk_McciBootloader_RequestBase;
+			&gk_McciBootloaderBoard_Stm32h7b3iDk_UpdateRequestBase[0];
 	if (pRequest->MagicBegin == MCCI_BOOTLOADER_STM32H7B3I_DK_REQUEST_MAGIC_BEGIN &&
 	    pRequest->MagicEnd == MCCI_BOOTLOADER_STM32H7B3I_DK_REQUEST_MAGIC_END)
 		{
@@ -105,7 +105,7 @@ McciBootloaderBoard_Stm32h7b3iDk_setUpdate(bool fRequest)
 	if (pRequest->fUpdateRequest == value)
 		return;
 
-	pRequestBase = &gk_McciBootloader_RequestBase;
+	pRequestBase = &gk_McciBootloaderBoard_Stm32h7b3iDk_UpdateRequestBase[0];
 	McciBootloader_Stm32h7_systemFlashErase(pRequestBase, sizeof(*pRequest));
 	if (fRequest)
 		{

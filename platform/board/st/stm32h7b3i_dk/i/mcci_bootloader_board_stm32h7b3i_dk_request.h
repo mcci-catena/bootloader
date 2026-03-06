@@ -37,11 +37,13 @@ typedef struct McciBootloaderBoard_Stm32h7b3iDk_Request_s
 McciBootloaderBoard_Stm32h7b3iDk_Request_t;
 
 ///
-/// \brief layout of STM32H7B3I_DK update request image
+/// \brief base address of the update request region in flash.
 ///
-/// We place an image of this at the end of the application image.
+/// \details Defined by the linker script. Declared as uint8_t[] so
+///	the symbol's address is the flash address (linker-defined symbols
+///	are addresses, not variables).
 ///
-extern void *gk_McciBootloader_RequestBase;
+extern volatile const uint8_t gk_McciBootloaderBoard_Stm32h7b3iDk_UpdateRequestBase[];
 
 struct McciBootloaderBoard_Stm32h7b3iDk_Request_s
 	{

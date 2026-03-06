@@ -48,7 +48,7 @@ McciBootloaderBoard_Stm32h7b3iDk_getPrimaryStorageAddress(
 	void
 	)
 	{
-	return (McciBootloaderStorageAddress_t) &gk_McciBootloader_UpdateBase;
+	return (McciBootloaderStorageAddress_t) &gk_McciBootloaderBoard_Stm32h7b3iDk_UpdateImageBase[0];
 	}
 
 McciBootloaderStorageAddress_t
@@ -56,7 +56,7 @@ McciBootloaderBoard_Stm32h7b3iDk_getFallbackStorageAddress(
 	void
 	)
 	{
-	return (McciBootloaderStorageAddress_t) &gk_McciBootloader_FallbackBase;
+	return (McciBootloaderStorageAddress_t) &gk_McciBootloaderBoard_Stm32h7b3iDk_FallbackImageBase[0];
 	}
 
 void

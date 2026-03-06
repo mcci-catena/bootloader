@@ -59,17 +59,18 @@ MCCI_BOOTLOADER_BEGIN_DECLS
 	(UINT32_C(1024) * 1024)
 
 ///
-/// \brief base address of the update image
+/// \brief base address of the update image in flash bank 2.
 ///
-/// \details The update block begins at the bank2.
+/// \details Defined by the linker script.
 ///
-extern void *gk_McciBootloader_UpdateBase;
+extern const uint8_t gk_McciBootloaderBoard_Stm32h7b3iDk_UpdateImageBase[];
 
 ///
-/// \brief we put the fallback image at the bank2 512k to 1024k, in case anyone
-///	needs special things in page zero.
+/// \brief base address of the fallback image (bank 2, 512k to 1024k).
 ///
-extern void *gk_McciBootloader_FallbackBase;
+/// \details Defined by the linker script.
+///
+extern const uint8_t gk_McciBootloaderBoard_Stm32h7b3iDk_FallbackImageBase[];
 
 
 /****************************************************************************\
