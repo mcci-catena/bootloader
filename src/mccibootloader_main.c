@@ -142,14 +142,14 @@ Implementation notes:
 void
 McciBootloader_main(void)
         {
-        const uint32_t bootloaderSize = McciBootloader_codeSize(&gk_McciBootloader_BootBase, &gk_McciBootloader_BootTop);
+        const uint32_t bootloaderSize = McciBootloader_codeSize(&gk_McciBootloader_BootBase[0], &gk_McciBootloader_BootTop[0]);
 
         /* run the platform entry code. This must be minimal, if it exists at all */
         McciBootloaderPlatform_entry();
 
         /* our first job is to check the hash of the boot loader */
         if (! McciBootloader_checkCodeValid(
-                        &gk_McciBootloader_BootBase,
+                        &gk_McciBootloader_BootBase[0],
                         bootloaderSize
                         ))
                 {
@@ -159,7 +159,7 @@ McciBootloader_main(void)
 
         const McciBootloader_AppInfo_t * const pBootloaderAppInfo =
                 McciBootloaderPlatform_getAppInfo(
-                                &gk_McciBootloader_BootBase,
+                                &gk_McciBootloader_BootBase[0],
                                 bootloaderSize
                                 );
 
@@ -187,8 +187,8 @@ McciBootloader_main(void)
 
         /* next, we check the hash of the application */
         bool const appOk = McciBootloader_checkCodeValid(
-                                &gk_McciBootloader_AppBase,
-                                McciBootloader_codeSize(&gk_McciBootloader_AppBase, &gk_McciBootloader_AppTop)
+                                &gk_McciBootloader_AppBase[0],
+                                McciBootloader_codeSize(&gk_McciBootloader_AppBase[0], &gk_McciBootloader_AppTop[0])
                                 );
 
         /* check the update flag */
@@ -198,7 +198,7 @@ McciBootloader_main(void)
         if (appOk && ! fFirmwareUpdatePending)
                 {
                 /* Case (2): looks like we're good to launch the application */
-                McciBootloaderPlatform_startApp(&gk_McciBootloader_AppBase);
+                McciBootloaderPlatform_startApp(&gk_McciBootloader_AppBase[0]);
                 }
 
         /* initialize the storage and annunciator drivers */
@@ -230,7 +230,7 @@ McciBootloader_main(void)
                         /* consume the storage flag; don't check again until asked */
                         McciBootloaderPlatform_setUpdateFlag(false);
                         /* launch existing app */
-                        McciBootloaderPlatform_startApp(&gk_McciBootloader_AppBase);
+                        McciBootloaderPlatform_startApp(&gk_McciBootloader_AppBase[0]);
                         }
 
                 /* check for case (4) */
@@ -254,7 +254,7 @@ McciBootloader_main(void)
                         {
                         /* definitely (4) or (5): launch the application */
                         McciBootloaderPlatform_setUpdateFlag(false);
-                        McciBootloaderPlatform_startApp(&gk_McciBootloader_AppBase);
+                        McciBootloaderPlatform_startApp(&gk_McciBootloader_AppBase[0]);
                         }
                 else
                         {
@@ -308,7 +308,7 @@ McciBootloader_main(void)
                                 /* cases (6), (7), (8) */
                                 /* consume the storage flag; don't check again until asked */
                                 McciBootloaderPlatform_setUpdateFlag(false);
-                                McciBootloaderPlatform_startApp(&gk_McciBootloader_AppBase);
+                                McciBootloaderPlatform_startApp(&gk_McciBootloader_AppBase[0]);
                                 }
                         }
 

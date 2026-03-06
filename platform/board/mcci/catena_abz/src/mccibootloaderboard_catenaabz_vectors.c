@@ -48,7 +48,7 @@ gk_McciBootloader_CortexVectors =
 	    {
 	    .CortexVectors.vectors =
 		{
-		[0] = /* stack pointer */	(uint32_t) &g_McciBootloader_StackTop,
+		[0] = /* stack pointer */	(uint32_t) &g_McciBootloader_StackTop[0],
 		[1] = /* entry point */		(uint32_t) McciBootloader_main,
 		[2] = /* NMI */			(uint32_t) McciBootloaderBoard_CatenaAbz_NotHandled,
 		[3] = /* HardFault */		(uint32_t) McciBootloaderBoard_CatenaAbz_NotHandled,
@@ -102,7 +102,7 @@ gk_McciBootloader_CortexVectors =
 		.magic = MCCI_BOOTLOADER_APP_INFO_MAGIC,
 		.size = sizeof(McciBootloader_AppInfo_t),
 		.targetAddress = (uint32_t) &gk_McciBootloader_CortexVectors,
-		.imagesize = (uint32_t) &gk_McciBootloader_ImageSize,
+		.imagesize = (uint32_t) &gk_McciBootloader_ImageSize[0],
 		.authsize = sizeof(McciBootloader_SignatureBlock_t),
 		}
 	    }
