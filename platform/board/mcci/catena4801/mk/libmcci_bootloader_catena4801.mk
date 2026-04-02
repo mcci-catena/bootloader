@@ -4,6 +4,11 @@
 #
 ##############################################################################
 
+# get the pre-conditions
+include platform/board/mcci/catena_abz/mk/libmcci_bootloader_catena_abz.mk
+include platform/driver/flash_mx25v8035f/mk/libmcci_bootloader_flash_mx25v8035f.mk
+
+# set things up
 LIBRARIES += libmcci_bootloader_catena4801
 
 _ := platform/board/mcci/catena4801

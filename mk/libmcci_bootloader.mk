@@ -4,6 +4,9 @@
 #
 ##############################################################################
 
+ifeq ($(_GUARD_libmcci_bootloader.mk),)
+_GUARD_libmcci_bootloader.mk := 1	# prevent multiple includes.
+
 #
 # common library
 #
@@ -27,3 +30,7 @@ INCLUDES_libmcci_bootloader =				\
 
 CFLAGS_OPT_libmcci_bootloader ?= -Os
 
+# we always need TweetNacl
+include pkgsrc/mk/mcci_tweetnacl.mk
+
+endif # _GUARD_libmcci_bootloader.mk
