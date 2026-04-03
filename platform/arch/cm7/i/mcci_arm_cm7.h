@@ -281,15 +281,15 @@ extern "C" {
 #define	MCCI_CM7_SCB_CID3		(MCCI_CM7_SCB + 0x2FC)
 ///	@}
 
-/// \name MPU registers
+/// \name FPU registers
 ///	@{
-#define	MCCI_CM7_MPU			UINT32_C(0xE000EF30)
-#define	MCCI_CM7_MPU_FPCCR		(MCCI_CM7_MPU + 0x04)	//<
-#define	MCCI_CM7_MPU_FPCAR		(MCCI_CM7_MPU + 0x08)	//<
-#define	MCCI_CM7_MPU_FPDSCR		(MCCI_CM7_MPU + 0x0C)	//<
-#define	MCCI_CM7_MPU_MVFR0		(MCCI_CM7_MPU + 0x10)	//<
-#define	MCCI_CM7_MPU_MVFR1		(MCCI_CM7_MPU + 0x14)	//<
-#define	MCCI_CM7_MPU_MVFR2		(MCCI_CM7_MPU + 0x18)	//<
+#define	MCCI_CM7_FPU			UINT32_C(0xE000EF30)
+#define	MCCI_CM7_FPU_FPCCR		(MCCI_CM7_FPU + 0x04)	///<
+#define	MCCI_CM7_FPU_FPCAR		(MCCI_CM7_FPU + 0x08)	///<
+#define	MCCI_CM7_FPU_FPDSCR		(MCCI_CM7_FPU + 0x0C)	///<
+#define	MCCI_CM7_FPU_MVFR0		(MCCI_CM7_FPU + 0x10)	///<
+#define	MCCI_CM7_FPU_MVFR1		(MCCI_CM7_FPU + 0x14)	///<
+#define	MCCI_CM7_FPU_MVFR2		(MCCI_CM7_FPU + 0x18)	///<
 ///	@}
 
 /****************************************************************************\
