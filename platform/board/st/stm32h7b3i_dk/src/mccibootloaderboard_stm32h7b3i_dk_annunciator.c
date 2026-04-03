@@ -165,6 +165,7 @@ McciBootloaderBoard_Stm32h7b3iDk_handleSysTick(
 				annunciator.timer = now + 2 * annunciator.bittime;
 				}
 			}
+		break;
 
 	case stByteGap:
 		if ((int32_t)(now - annunciator.timer) >= 0)
