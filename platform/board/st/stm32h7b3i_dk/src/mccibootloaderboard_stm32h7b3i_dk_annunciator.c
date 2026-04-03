@@ -29,7 +29,7 @@ Author:
 |
 \****************************************************************************/
 
-typedef struct Stm32h7b3iDk_Annuciator_s Stm32h7b3iDk_Annuciator_t;
+typedef struct Stm32h7b3iDk_Annunciator_s Stm32h7b3iDk_Annunciator_t;
 
 typedef enum
 	{
@@ -41,7 +41,7 @@ typedef enum
 	stByteGap,	///< displaying byte gap
 	} AnnunciatorBitState_t;
 
-struct Stm32h7b3iDk_Annuciator_s
+struct Stm32h7b3iDk_Annunciator_s
 	{
 	uint32_t		tick;
 	uint32_t		display;
@@ -66,7 +66,7 @@ struct Stm32h7b3iDk_Annuciator_s
 |
 \****************************************************************************/
 
-static Stm32h7b3iDk_Annuciator_t annunciator;
+static Stm32h7b3iDk_Annunciator_t annunciator;
 
 void
 McciBootloaderBoard_Stm32h7b3iDk_annunciatorInit(

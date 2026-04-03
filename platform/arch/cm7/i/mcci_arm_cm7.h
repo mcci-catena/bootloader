@@ -358,10 +358,10 @@ extern "C" {
 #define	MCCI_CM7_SCB_VTOR_TBLOFF		UINT32_C(0xFFFFFF80)	///<
 ///	@}
 
-/// \name SCB AIRCR fields (Appplication Interrupt and Reset Control)
+/// \name SCB AIRCR fields (Application Interrupt and Reset Control)
 ///	@{
 #define	MCCI_CM7_SCB_AIRCR_VECTKEY		(UINT32_C(0xFFFF) << 16)	///< Vector key
-#define	MCCI_CM7_SCB_AIRCR_VECTKEY_VALUE	(UINT32_C(0x05FA) << 16)	///< Value to write to unlock regster.
+#define	MCCI_CM7_SCB_AIRCR_VECTKEY_VALUE	(UINT32_C(0x05FA) << 16)	///< Value to write to unlock register.
 #define	MCCI_CM7_SCB_AIRCR_ENDIANNESS		(UINT32_C(1) << 15)		///< 0=little, 1=big endian
 #define	MCCI_CM7_SCB_AIRCR_PRIGROUP		(UINT32_C(7) << 8)		///< Priority grouping position
 #define	MCCI_CM7_SCB_AIRCR_PRIGROUP_N(n)	((n) << 8)			///<
@@ -450,7 +450,7 @@ McciCm7_SCB_SHPR_getMask(
 
 /// \name Cortex-M Processor Exceptions Numbers
 ///	@{
-#define	MCCI_CM7_IRQ_BASE		UINT32_C(256)				///< Cortext-M Processor Exception Number Base
+#define	MCCI_CM7_IRQ_BASE		UINT32_C(256)				///< Cortex-M Processor Exception Number Base
 #define	MCCI_CM7_IRQ_NonMaskableInt	(MCCI_CM7_IRQ_BASE + UINT32_C(2))	///< Non Maskable Interrupt
 #define	MCCI_CM7_IRQ_HardFault		(MCCI_CM7_IRQ_BASE + UINT32_C(3))	///< Cortex-M Hard Fault
 #define	MCCI_CM7_IRQ_MemoryManagement	(MCCI_CM7_IRQ_BASE + UINT32_C(4))	///< Cortex-M Memory Management	Interrupt
@@ -555,7 +555,7 @@ McciArm_putRegClearSet(uint32_t reg, uint32_t clearVal, uint32_t setVal)
 /// \brief store to cm7 register under mask
 ///
 /// \param [in] reg register to be modified
-/// \param [in] maskVal mask of bits to be modifed
+/// \param [in] maskVal mask of bits to be modified
 /// \param [in] modVal where \p maskVal is 1, provides values of bits
 ///
 /// \note this is subtly different than \ref McciArm_putRegClearSet,

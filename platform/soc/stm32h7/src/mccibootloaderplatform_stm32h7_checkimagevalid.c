@@ -74,7 +74,7 @@ Description:
 
 Returns:
 	non-NULL pointer to the AppInfo block if the image passes all the
-	checks, NLL if it fails any.
+	checks, NULL if it fails any.
 
 Notes:
 

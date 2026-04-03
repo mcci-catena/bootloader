@@ -70,13 +70,13 @@ Returns:
 	No explicit result.
 
 Notes:
-	On a Cortex M0+ or similar processor, pAppBase points to the vectors
+	On a Cortex-M7 or similar processor, pAppBase points to the vectors
 	of the app being invoked. The first dword is the stack pointer, and
 	the second dword is the start address.
 
 	In a full implementation, the bootloader should shutdown all
 	peripherals it has setup, and establish a default condition for
-	launching the app. In principal, the app should be entered as if
+	launching the app. In principle, the app should be entered as if
 	it had received control from a reset. This is to some degree a
 	matter of taste and design rather than a logical requirement.
 

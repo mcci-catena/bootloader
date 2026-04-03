@@ -80,7 +80,7 @@ Definition:
 Description:
 	We set up the CPU for reset state.
 
-	We then then enable GPIOs for the LED (pin PI3) and initiaize SysTick.
+	We then enable GPIOs for the LED (pin PI3) and initialize SysTick.
 
 Returns:
 	No explicit result.

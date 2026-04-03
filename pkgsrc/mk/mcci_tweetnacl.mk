@@ -4,6 +4,9 @@
 #
 ##############################################################################
 
+ifeq ($(_GUARD_mcci_tweetnacl.mk),)
+_GUARD_mcci_tweetnacl.mk := 1	# prevent multiple includes.
+
 LIBRARIES += libmcci_tweetnacl
 
 _ := pkgsrc/mcci_tweetnacl/src
@@ -24,3 +27,4 @@ INCLUDES_libmcci_tweetnacl :=			\
 	$_					\
 # end INCLUDES_libmcci_tweetnacl
 
+endif # _GUARD_mcci_tweetnacl.mk

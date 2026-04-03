@@ -4,8 +4,8 @@
 #
 ##############################################################################
 
-ifeq ($(_GUARD_libmcci_bootloader_flash_mv25v8035f.mk),)
-_GUARD_libmcci_bootloader_flash_mv25v8035f.mk := 1	# prevent multiple includes.
+ifeq ($(_GUARD_libmcci_bootloader_flash_mx25v8035f.mk),)
+_GUARD_libmcci_bootloader_flash_mx25v8035f.mk := 1	# prevent multiple includes.
 
 LIBRARIES += libmcci_bootloader_flash_mx25v8035f
 
@@ -24,4 +24,4 @@ SOURCES_libmcci_bootloader_flash_mx25v8035f :=				\
 	$_/src/mccibootloaderflash_mx25v8035f.c				\
 # end SOURCES_libmcci_bootloader_flash_mx25v8035f
 
-endif # _GUARD_libmcci_bootloader_flash_mv25v8035f.mk
+endif # _GUARD_libmcci_bootloader_flash_mx25v8035f.mk

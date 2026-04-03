@@ -3,7 +3,7 @@
 Module:	mccibootloader_stm32h7_prepareforlaunch.c
 
 Function:
-	McciBootloader_Stm32l0_prepareForLaunch()
+	McciBootloader_Stm32h7_prepareForLaunch()
 
 Copyright and License:
 	This file copyright (C) 2021 by
@@ -59,7 +59,7 @@ Definition:
 		);
 
 Description:
-	Reset all the peripherals, and switch back to default MSI clock.
+	Reset all the peripherals, and switch back to default HSI clock.
 
 Returns:
 	No explicit result.

@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# Module:  Makefile
+# Module:  Makefile-stm32h7.mk
 #
 # Function:
 #	GNU make building the bootloader

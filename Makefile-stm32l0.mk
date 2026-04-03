@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# Module:  Makefile
+# Module:  Makefile-stm32l0.mk
 #
 # Function:
 #	GNU make building the bootloader
