@@ -51,11 +51,7 @@ PROJECT_NAME           = "MCCI Trusted Bootloader"
 PROJECT_NUMBER         =
 
 # Using the PROJECT_BRIEF tag one can provide an optional one line description
-<<<<<<< HEAD
-# for a project that appears at the top of each page and should give viewer a
-=======
 # for a project that appears at the top of each page and should give viewers a
->>>>>>> devel
 # quick idea about the purpose of the project. Keep the description short.
 
 PROJECT_BRIEF          = "Simple trusted bootloader and tools for small embedded systems"
