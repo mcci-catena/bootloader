@@ -1,4 +1,4 @@
-# MCCI Trusted Bootloader for STM32L0 with Firmware Update
+# MCCI Trusted Bootloader for STM32 with Firmware Update
 
 <!--
   This TOC uses the VS Code markdown TOC extension AlanWalk.markdown-toc.
@@ -52,7 +52,7 @@
 
 ## Introduction
 
-The MCCI&reg; trusted bootloader provides enhanced system integrity for IoT devices, by confirming system integrity at startup, and allowing field updating of STM32L0 systems using public-key authentication of the firmware images.
+The MCCI&reg; trusted bootloader provides enhanced system integrity for IoT devices, by confirming system integrity at startup, and allowing field updating of STM32-based systems using public-key authentication of the firmware images.
 
 The bootloader is designed with makers, subject matter experts, and experimenters in mind, so that it is easy to deploy open-source field-updatable devices based on small CPUs like the STM32L0. It is readily integrated with the Arduino IDE or other build environments.
 
@@ -66,7 +66,7 @@ Although it is *not* a "secure bootloader" in the commonly accepted sense, it is
 - The code is simple and easily audited.
 - The cryptographic code is identically the simple and auditable public-domain TweetNaCl package, without any source changes.
 
-Its hardware requirements are modest. Beyond an STM32L0 CPU, it requires an external storage device large enough to store the fallback image and the update image. The bootloader itself is 10k, though we allow up to 20k for future growth.
+Its hardware requirements are modest. Beyond an STM32 CPU (currently STM32L0 or STM32H7), it requires an external storage device large enough to store the fallback image and the update image. On the STM32L0, the bootloader itself is 10k, though we allow up to 20k for future growth; on the STM32H7, up to 32k is reserved.
 
 We've attempted to code the boot loader for clarity and ease of understanding and review. No conditional compiles are used in the C files. The bootloader supplies its own link script. A "platform interface" structure separates the business logic of the bootloader from the low-level hardware-dependent functions.
 
@@ -92,7 +92,7 @@ The bootloader enables the SPI flash, including handling external regulators on 
 
 The bootloader manipulates the boot LED to indicate lengthy activities and failure modes.
 
-The bootloader does not use the CMSIS include files or the ST HAL; these are large, complex and difficult to review. Instead, the ARM reference manual and STM32L0 SOC manuals were used to prepare simple header files with the required information.
+The bootloader does not use the CMSIS include files or the ST HAL; these are large, complex and difficult to review. Instead, the ARM reference manuals and STM32 SOC manuals were used to prepare simple header files with the required information.
 
 A simple tool, [`mccibootloader_image`][1] is provided for preparing and signing images.
 
@@ -120,7 +120,7 @@ If an adversary can force a remote code execution attack, the bootloader can pro
 
 Signature checks are slow -- about 10 seconds on an STM32L0 at 32 MHz. This is acceptable in MCCI's use cases, as it only happens during a firmware update.
 
-Although coded for portability, the initial release of the bootloader is specific to the STM32L0. The biggest limitation that we're aware of is in the build system, which is not yet prepared for multiple targets.
+The bootloader was initially developed for the STM32L0 (Cortex-M0+) and has since been ported to the STM32H7 (Cortex-M7). The STM32H7 port targets the ST STM32H7B3I-DK Discovery Kit.
 
 ## MCCI / STM32L0 Deployment Details
 
@@ -199,7 +199,7 @@ The following abstract drivers are provided by the platform:
 
 ### Application Image Structure
 
-Boot images always have the following structure (on Cortex M0).
+Boot images always have the following structure (shown for Cortex-M0+; Cortex-M7 is similar but with more vectors).
 
 Images are generally 256-byte aligned (once placed at final address).
 
@@ -408,6 +408,13 @@ Do a build, setting `CROSS_COMPILE` to point to the compiler directory and tool 
 
 ```bash
 CROSS_COMPILE='compiler_path_and_prefix' make
+```
+
+The top-level `Makefile` builds all targets (STM32L0 and STM32H7). To build only one target family, use the per-family makefile:
+
+```bash
+CROSS_COMPILE='compiler_path_and_prefix' make -f Makefile-stm32l0.mk
+CROSS_COMPILE='compiler_path_and_prefix' make -f Makefile-stm32h7.mk
 ```
 
 #### Windows Build Example
