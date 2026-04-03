@@ -611,7 +611,7 @@ McciArm_setMSP(
 /// \return current value of PRIMASK register
 ///
 /// \note only bit 0 is implemented on CM7 CPUs. If cleared, it enables
-///	interrupts; if set it enables interrupts.
+///	interrupts; if set it disables interrupts.
 ///
 __attribute__((__always_inline__)) static inline
 uint32_t
@@ -631,7 +631,7 @@ McciArm_getPRIMASK(
 /// \param [in] primask new value of PRIMASK register
 ///
 /// \note only bit 0 is implemented on CM7 CPUs. If cleared, it enables
-///	interrupts; if set it enables interrupts.
+///	interrupts; if set it disables interrupts.
 ///
 __attribute__((__always_inline__)) static inline
 void
