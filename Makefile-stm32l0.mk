@@ -6,7 +6,7 @@
 #	GNU make building the bootloader
 #
 # Copyright notice:
-#	This file copyright (C) 2020 by
+#	This file copyright (C) 2020, 2026 by
 #
 #		MCCI Corporation
 #		3520 Krums Corners Road

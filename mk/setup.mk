@@ -6,7 +6,7 @@
 #	GNU make setup for builds in the bootloader project
 #
 # Copyright notice:
-#	This file copyright (C) 2017, 2020 by
+#	This file copyright (C) 2017, 2020, 2026 by
 #
 #		MCCI Corporation
 #		3520 Krums Corners Road

@@ -6,7 +6,7 @@ Function:
         Input linker script for MCCI bootloader for STM32
 
 Copyright notice:
-        This file copyright (C) 2017, 2020, 2021 by
+        This file copyright (C) 2017, 2020, 2021, 2026 by
 
                 MCCI Corporation
                 3520 Krums Corners Road

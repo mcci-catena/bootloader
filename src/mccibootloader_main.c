@@ -11,7 +11,7 @@ Version:
 	V0.1.0	Tue Jul 14 2020 11:31:05 tmm	Edit level 1
 
 Copyright notice:
-	This file copyright (C) 2020 by
+	This file copyright (C) 2020, 2026 by
 
 		MCCI Corporation
 		3520 Krums Corners Road

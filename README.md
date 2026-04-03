@@ -515,7 +515,7 @@ The STM32L0 has a watchdog timer that can be enabled in hardware by the option b
 
 ### Copyright and License
 
-Except as explicitly noted, content created by MCCI in this repository tree is copyright (C) 2021, MCCI Corporation.
+Except as explicitly noted, content created by MCCI in this repository tree is copyright (C) 2021, 2026, MCCI Corporation.
 
 The bootloader and top-level wrappers are released under the terms of the attached [GNU General Public License, version 2](./LICENSE.md). `LICENSE.md` is taken directly from the [FSF website](http://www.gnu.org/licenses/old-licenses/gpl-2.0.md).
 
