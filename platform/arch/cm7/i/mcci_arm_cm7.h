@@ -328,8 +328,6 @@ extern "C" {
 #define MCCI_CM7_SYSTICK_CALIB_TENMS		UINT32_C(0x00FFFFFF)	///< if non-zero, use this as reload value for 10ms ticks
 ///	@}
 
-/// \name NVIC IPR bits
-
 /// \name SCB CPUID fields
 /// 	@{
 #define	MCCI_CM7_SCB_CPUID_IMPLEMENTER		(UINT32_C(0xFF) << 24)	///< Implementer code
