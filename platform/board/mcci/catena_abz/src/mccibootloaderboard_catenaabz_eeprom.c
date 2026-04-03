@@ -47,11 +47,12 @@ Author:
 McciBootloaderBoard_CatenaAbz_Eeprom_t *
 McciBootloaderBoard_CatenaAbz_getEepromPointer()
 	{
-	extern void *g_McciBootloader_BootEepromBase;
+	/// \brief base address of the bootloader EEPROM region (linker-defined).
+	extern volatile uint8_t g_McciBootloaderBoard_CatenaAbz_EepromBase[];
 
 	/* convert to a pointer to the eeprom */
 	return (McciBootloaderBoard_CatenaAbz_Eeprom_t *)
-			&g_McciBootloader_BootEepromBase;
+			&g_McciBootloaderBoard_CatenaAbz_EepromBase[0];
 	}
 
 bool

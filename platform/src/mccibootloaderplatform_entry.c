@@ -79,14 +79,14 @@ McciBootloaderPlatform_entry(
 	void
 	)
 	{
-	const size_t nData = McciBootloader_codeSize(&g_McciBootloader_DataBase, &g_McciBootloader_DataTop);
-	const size_t nBss = McciBootloader_codeSize(&g_McciBootloader_BssBase, &g_McciBootloader_BssTop);
+	const size_t nData = McciBootloader_codeSize(&g_McciBootloader_DataBase[0], &g_McciBootloader_DataTop[0]);
+	const size_t nBss = McciBootloader_codeSize(&g_McciBootloader_BssBase[0], &g_McciBootloader_BssTop[0]);
 
 	/* copy the initialized data */
-	memcpy(&g_McciBootloader_DataBase, &gk_McciBootloader_DataImageBase, nData);
+	memcpy(&g_McciBootloader_DataBase[0], &gk_McciBootloader_DataImageBase[0], nData);
 
 	/* zero BSS */
-	memset(&g_McciBootloader_BssBase, 0, nBss);
+	memset(&g_McciBootloader_BssBase[0], 0, nBss);
 
 	/* call the platform init function */
 	McciBootloaderPlatform_systemInit();

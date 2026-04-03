@@ -11,7 +11,7 @@ Version:
 	V0.1.0	Tue Jul 14 2020 11:31:05 tmm	Edit level 1
 
 Copyright notice:
-	This file copyright (C) 2020 by
+	This file copyright (C) 2020, 2026 by
 
 		MCCI Corporation
 		3520 Krums Corners Road
@@ -83,24 +83,40 @@ enum McciBootloaderState_e
 |
 \****************************************************************************/
 
-extern const void *gk_McciBootloader_BootBase;
-extern const void *gk_McciBootloader_BootTop;
-extern const void *gk_McciBootloader_ImageSize;
+/// \brief base address of the bootloader in flash (linker-defined).
+extern const uint8_t gk_McciBootloader_BootBase[];
+/// \brief first address past end of the bootloader in flash (linker-defined).
+extern const uint8_t gk_McciBootloader_BootTop[];
+/// \brief bootloader image size in bytes (linker-computed integer; use as
+///	\c (uint32_t) \c &gk_McciBootloader_ImageSize[0] to get the value).
+extern const uint8_t gk_McciBootloader_ImageSize[];
 
-extern const void *gk_McciBootloader_AppBase;
-extern const void *gk_McciBootloader_AppTop;
-extern const void *gk_McciBootloader_MfgBase;
-extern const void *gk_McciBootloader_MfgTop;
+/// \brief base address of the application region in flash (linker-defined).
+extern const uint8_t gk_McciBootloader_AppBase[];
+/// \brief first address past end of the application region (linker-defined).
+extern const uint8_t gk_McciBootloader_AppTop[];
+/// \brief base address of the manufacturing data region in flash (linker-defined).
+extern const uint8_t gk_McciBootloader_MfgBase[];
+/// \brief first address past end of the manufacturing data region (linker-defined).
+extern const uint8_t gk_McciBootloader_MfgTop[];
 
-extern void *g_McciBootloader_SocRamBase;
-extern void *g_McciBootloader_SocRamTop;
+/// \brief base address of the SoC RAM (linker-defined).
+extern uint8_t g_McciBootloader_SocRamBase[];
+/// \brief first address past end of the SoC RAM (linker-defined).
+extern uint8_t g_McciBootloader_SocRamTop[];
 
-extern const void *gk_McciBootloader_DataImageBase;
-extern void *g_McciBootloader_DataBase;
-extern void *g_McciBootloader_DataTop;
-extern void *g_McciBootloader_BssBase;
-extern void *g_McciBootloader_BssTop;
-extern void *g_McciBootloader_StackTop;
+/// \brief address in flash of the initializer data for the .data section (linker-defined).
+extern const uint8_t gk_McciBootloader_DataImageBase[];
+/// \brief base address of the .data section in RAM (linker-defined).
+extern uint8_t g_McciBootloader_DataBase[];
+/// \brief first address past end of the .data section in RAM (linker-defined).
+extern uint8_t g_McciBootloader_DataTop[];
+/// \brief base address of the .bss section in RAM (linker-defined).
+extern uint8_t g_McciBootloader_BssBase[];
+/// \brief first address past end of the .bss section in RAM (linker-defined).
+extern uint8_t g_McciBootloader_BssTop[];
+/// \brief initial stack pointer value (top of stack, linker-defined).
+extern uint8_t g_McciBootloader_StackTop[];
 
 /****************************************************************************\
 |

@@ -3,10 +3,10 @@
 Module: mccibootloader.ld
 
 Function:
-        Input linker script for MCCI bootloader for STM32
+        Input linker script for MCCI bootloader for STM32H7B3I_DK
 
 Copyright notice:
-        This file copyright (C) 2017, 2020, 2021, 2026 by
+        This file copyright (C) 2021 by
 
                 MCCI Corporation
                 3520 Krums Corners Road
@@ -17,7 +17,7 @@ Copyright notice:
         See accompanying LICENSE file for license information.
 
 Author:
-        Terry Moore, MCCI Corporation	July 2020
+	ChaeHee Won, MCCI Corporation	June 2021
 
 */
 
@@ -25,51 +25,63 @@ ENTRY(McciBootloader_main)
 
 /* the gross memory characteristics */
 g_McciBootloader_SocRamBase     = 0x20000000;
-g_McciBootloader_SocRamSize     = 20K;
-g_McciBootloader_SocRamTop         = g_McciBootloader_SocRamBase + g_McciBootloader_SocRamSize;
+g_McciBootloader_SocRamSize     = 128K;
+g_McciBootloader_SocRamTop      = g_McciBootloader_SocRamBase + g_McciBootloader_SocRamSize;
+
+g_McciBootloader_AxiSramBase     = 0x24000000;
+g_McciBootloader_AxiSramSize     = 1M;
+g_McciBootloader_AxiSramTop      = g_McciBootloader_AxiSramBase + g_McciBootloader_AxiSramSize;
+
+g_McciBootloader_AhbSramBase     = 0x30000000;
+g_McciBootloader_AhbSramSize     = 128K;
+g_McciBootloader_AhbSramTop      = g_McciBootloader_AhbSramBase + g_McciBootloader_AhbSramSize;
 
 gk_McciBootloader_FlashBase     = 0x08000000;
-gk_McciBootloader_FlashSize     = 192K;
+gk_McciBootloader_FlashSize     = 2M;
 
-g_McciBootloader_SocEepromBase  = 0x08080000;
-gk_McciBootloader_SocEepromSize  = 6K;
+g_McciBootloader_SocOtpBase     = 0x08FFF000;
+gk_McciBootloader_SocOtpSize    = 1K;
 
-/* size of boot loader */
-gk_McciBootloader_BootSize      = 20K;
-/* size of mfg page */
-gk_McciBootloader_MfgSize       = 4K;
-/* size and base of bootlooader's ram */
-gk_McciBootloader_WorkingRamSize = 8K;
-g_McciBootloader_WorkingRamBase = g_McciBootloader_SocRamTop - gk_McciBootloader_WorkingRamSize;
+/* size of boot loader (8K * 4 sector) */
+gk_McciBootloader_BootSize      = 32K;
+/* size of boot request image (8K * 1 sector) */
+gk_McciBootloaderBoard_Stm32h7b3iDk_UpdateRequestSize = 8K;
+/* size of mfg page (8K * 1 sector) */
+gk_McciBootloader_MfgSize       = 8K;
 
 /* size of app */
-gk_McciBootloader_AppSize       = gk_McciBootloader_FlashSize - (gk_McciBootloader_BootSize + gk_McciBootloader_MfgSize);
-/* bootloader Eeprom */
-gk_McciBootloaderBoard_CatenaAbz_EepromSize  = 4;
-g_McciBootloaderBoard_CatenaAbz_EepromBase  = g_McciBootloader_SocEepromBase
-                                 + gk_McciBootloader_SocEepromSize
-                                 - gk_McciBootloaderBoard_CatenaAbz_EepromSize
-                                 ;
-g_McciBootloaderBoard_CatenaAbz_EepromTop   = g_McciBootloaderBoard_CatenaAbz_EepromBase + gk_McciBootloaderBoard_CatenaAbz_EepromSize;
+gk_McciBootloader_AppSize       = 512K;
 
 /* initial stack pointer: top of RAM */
-g_McciBootloader_StackTop       = g_McciBootloader_SocRamBase + g_McciBootloader_SocRamSize;
+g_McciBootloader_StackTop       = g_McciBootloader_SocRamTop;
+g_McciBootloader_StackSize      = 4K;
+g_McciBootloader_StackBase      = g_McciBootloader_SocRamTop - g_McciBootloader_StackSize;
+
+/* size and base of bootlooader's ram */
+gk_McciBootloader_WorkingRamSize = 8K;
+g_McciBootloader_WorkingRamBase = g_McciBootloader_StackBase - gk_McciBootloader_WorkingRamSize;
 
 /* where things are */
 gk_McciBootloader_BootBase      = gk_McciBootloader_FlashBase;
 gk_McciBootloader_BootTop       = gk_McciBootloader_BootBase + gk_McciBootloader_BootSize;
-gk_McciBootloader_AppBase       = gk_McciBootloader_BootTop;
-gk_McciBootloader_AppTop        = gk_McciBootloader_AppBase + gk_McciBootloader_AppSize;
-gk_McciBootloader_MfgBase       = gk_McciBootloader_AppTop;
+gk_McciBootloaderBoard_Stm32h7b3iDk_UpdateRequestBase = gk_McciBootloader_BootTop;
+gk_McciBootloaderBoard_Stm32h7b3iDk_UpdateRequestTop = gk_McciBootloaderBoard_Stm32h7b3iDk_UpdateRequestBase + gk_McciBootloaderBoard_Stm32h7b3iDk_UpdateRequestSize;
+gk_McciBootloader_MfgBase       = gk_McciBootloaderBoard_Stm32h7b3iDk_UpdateRequestTop;
 gk_McciBootloader_MfgTop        = gk_McciBootloader_MfgBase + gk_McciBootloader_MfgSize;
+
+gk_McciBootloader_AppBase       = gk_McciBootloader_FlashBase + 64K;
+gk_McciBootloader_AppTop        = gk_McciBootloader_AppBase + gk_McciBootloader_AppSize;
+
+gk_McciBootloaderBoard_Stm32h7b3iDk_UpdateImageBase = gk_McciBootloader_FlashBase + 1M;
+gk_McciBootloaderBoard_Stm32h7b3iDk_FallbackImageBase = gk_McciBootloader_FlashBase + 1M + 512K;
 
 /* the memory areas */
 MEMORY
         {
         FLASH (rx)      : ORIGIN = gk_McciBootloader_BootBase,
                           LENGTH = gk_McciBootloader_BootSize
-        EEPROM (rw)     : ORIGIN = g_McciBootloaderBoard_CatenaAbz_EepromBase,
-                          LENGTH = gk_McciBootloaderBoard_CatenaAbz_EepromSize
+        EEPROM (rw)     : ORIGIN = g_McciBootloader_SocOtpBase,
+                          LENGTH = gk_McciBootloader_SocOtpSize
         RAM (xrw)       : ORIGIN = g_McciBootloader_WorkingRamBase,
                           LENGTH = gk_McciBootloader_WorkingRamSize
         }
@@ -146,6 +158,5 @@ SECTIONS
                 g_McciBootloader_BssTop = .;
                 } > RAM
         }
-
 
 /* end of script */

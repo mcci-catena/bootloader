@@ -6,7 +6,7 @@
 #	GNU make setup for builds in the bootloader project
 #
 # Copyright notice:
-#	This file copyright (C) 2017, 2020 by
+#	This file copyright (C) 2017, 2020, 2026 by
 #
 #		MCCI Corporation
 #		3520 Krums Corners Road
@@ -82,10 +82,18 @@ else
  ${error BUILDTYPE not valid: ${BUILDTYPE}}
 endif
 
+T_BUILDTYPES := release debug
+
 #
 # Set T_OBJDIR to the usual location for building things
 #
-T_OBJDIR = $(T_BUILDTREE)/$(CC_MULTIARCH)/$(T_BUILDTYPE)
+ifeq ($(TARGET_FAMILY),)
+T_INSTALLDIR = $(CC_MULTIARCH)/$(T_BUILDTYPE)
+else
+T_INSTALLDIR = $(TARGET_FAMILY)-$(CC_MULTIARCH)/$(T_BUILDTYPE)
+endif
+
+T_OBJDIR = $(T_BUILDTREE)/$(T_INSTALLDIR)
 
 ##############################################################################
 #
@@ -126,8 +134,6 @@ endif
 
 CFLAGS_BUILDTYPE_release ?= -DNDEBUG
 CFLAGS_BUILDTYPE_debug ?= -g -DDEBUG
-
-CFLAGS_CPU ?= 	-mcpu=cortex-m0plus -mthumb
 
 CFLAGS	=	-Wall -g -Werror ${CFLAGS_OPT}
 CFLAGS  +=	-Werror=missing-prototypes
@@ -224,7 +230,7 @@ T_MCCI_INSTALL_BINGROUP_OPT =	$(patsubst %,-g%,${MCCI_INSTALL_BINGROUP})
 T_MCCI_INSTALL_BINMODE_OPT =	$(patsubst %,-m%,${MCCI_INSTALL_BINMODE})
 
 T_MCCI_INSTALLDIR 	=	$(dir ${MCCI_INSTALLDIR_LOCAL})$(notdir ${MCCI_INSTALLDIR_LOCAL})/
-MCCI_INSTALL_BINDIRS	?=	$(CC_MULTIARCH)/$(T_BUILDTYPE)
+MCCI_INSTALL_BINDIRS	?=	$(T_INSTALLDIR)
 MCCI_INSTALLDIR_BIN	?=	${T_MCCI_INSTALLDIR}bin/${MCCI_INSTALL_BINDIRS}/
 MCCI_INSTALLDIR_LIB	?=	${T_MCCI_INSTALLDIR}lib/*/${MCCI_INSTALL_BINDIRS}/
 MCCI_INSTALLDIR_SCRIPTS	?=	${T_MCCI_INSTALLDIR}bin/

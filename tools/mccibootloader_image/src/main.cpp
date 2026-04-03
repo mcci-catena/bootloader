@@ -209,7 +209,7 @@ void App_t::scanArgs(int argc, char **argv)
 			if (*argv == nullptr)
 				this->usage("missing app-version value");
 
-			this->setAppVersion(string(*argv));
+			this->setAppVersion(string(*argv++));
 			}
 		else if (arg == "--version")
 			{

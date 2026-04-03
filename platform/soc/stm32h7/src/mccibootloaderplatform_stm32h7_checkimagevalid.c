@@ -15,14 +15,14 @@ Copyright and License:
 	See accompanying LICENSE file for copyright and license information.
 
 Author:
-	Terry Moore, MCCI Corporation	March 2021
+	ChaeHee Won, MCCI Corporation	June 2021
 
 */
 
 #include "mcci_bootloader_platform.h"
 
 #include "mcci_bootloader.h"
-#include "mcci_bootloader_cm0plus_appimage.h"
+#include "mcci_bootloader_stm32h7_appimage.h"
 
 #include "mcci_tweetnacl_hash.h"
 #include "mcci_tweetnacl_sign.h"
@@ -74,7 +74,7 @@ Description:
 
 Returns:
 	non-NULL pointer to the AppInfo block if the image passes all the
-	checks, NLL if it fails any.
+	checks, NULL if it fails any.
 
 Notes:
 
@@ -89,7 +89,7 @@ McciBootloaderPlatform_checkImageValid(
 	size_t targetSize
 	)
 	{
-	const McciBootloader_CortexPageZero_t * const pPageZero = pHeader;
+	const McciBootloader_Stm32H7PageZero_t * const pPageZero = pHeader;
 
 	if (nHeader < sizeof(*pPageZero))
 		return NULL;
