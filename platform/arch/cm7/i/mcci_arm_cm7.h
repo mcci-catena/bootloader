@@ -454,7 +454,7 @@ McciCm7_SCB_SHPR_getMask(
 ///	@{
 #define	MCCI_CM7_IRQ_BASE		UINT32_C(256)				///< Cortext-M Processor Exception Number Base
 #define	MCCI_CM7_IRQ_NonMaskableInt	(MCCI_CM7_IRQ_BASE + UINT32_C(2))	///< Non Maskable Interrupt
-#define	MCCI_CM7_IRQ_HardFault		(MCCI_CM7_IRQ_BASE + UINT32_C(3))	///< Cortex-M Memory Management	Interrupt
+#define	MCCI_CM7_IRQ_HardFault		(MCCI_CM7_IRQ_BASE + UINT32_C(3))	///< Cortex-M Hard Fault
 #define	MCCI_CM7_IRQ_MemoryManagement	(MCCI_CM7_IRQ_BASE + UINT32_C(4))	///< Cortex-M Memory Management	Interrupt
 #define	MCCI_CM7_IRQ_BusFault		(MCCI_CM7_IRQ_BASE + UINT32_C(5))	///< Cortex-M Bus Fault	Interrupt
 #define	MCCI_CM7_IRQ_UsageFault		(MCCI_CM7_IRQ_BASE + UINT32_C(6))	///< Cortex-M Usage Fault Interrupt
