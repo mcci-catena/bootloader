@@ -23,10 +23,7 @@
 
 include mk/setup.mk
 
-include platform/board/mcci/catena4801/mk/mcci_bootloader_4801.mk
-include platform/board/mcci/catena46xx/mk/mcci_bootloader_46xx.mk
-
-include platform/board/st/stm32h7b3i_dk/mk/mcci_bootloader_stm32h7b3i_dk.mk
+FAMILY_MAKEFILES := $(wildcard Makefile-*.mk)
 
 ##############################################################################
 #

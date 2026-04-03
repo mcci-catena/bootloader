@@ -82,6 +82,8 @@ else
  ${error BUILDTYPE not valid: ${BUILDTYPE}}
 endif
 
+T_BUILDTYPES := release debug
+
 #
 # Set T_OBJDIR to the usual location for building things
 #

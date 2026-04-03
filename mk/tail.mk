@@ -548,6 +548,66 @@ $(foreach C,$(COLLECTIONS),$(eval $(call MCCI_DOCOLLECTION,$(C))))
 
 ##############################################################################
 #
+# Name: MCCI_DOFAMILY_BUILDTYPE
+#
+# Function:
+#	Macro for generating rules for calling submakes
+#
+# Usage:
+#	$(call MCCI_DOFAMILY_BUILDTYPE, submakefilename, buildtype)
+#
+# Input:
+#	$1		name of the submakefile
+#	$2		the buildtype to be passed to the submakefile
+#
+# Output:
+#	all: is updated with all-$1-$2
+#	clean: is updated with clean-$1-$2
+#	install: is updated with install-$1-$2
+#
+##############################################################################
+
+define MCCI_DOFAMILY_BUILDTYPE
+all-$1-$2:
+	@printf 'build %s (%s)\n' "$1" "$2"
+	$$(MAKEHUSH)$$(MAKE) BUILDTYPE="$2" -f "$1" all --no-print-directory -O
+
+clean-$1-$2:
+	@printf 'clean %s (%s)\n' "$1" "$2"
+	$$(MAKEHUSH)$$(MAKE) BUILDTYPE="$2" -f "$1" clean --no-print-directory -O
+
+install-$1-$2:
+	@printf 'clean %s (%s)\n' "$1" "$2"
+	$$(MAKEHUSH)$$(MAKE) BUILDTYPE="$2" -f "$1" install --no-print-directory -O
+
+all: all-$1-$2
+clean: clean-$1-$2
+endef
+
+define MCCI_DOFAMILY
+$(foreach T, ${T_BUILDTYPES}, $(eval $(call MCCI_DOFAMILY_BUILDTYPE,$1,$(T))))
+
+install install-release: install-$1-release
+
+install-debug: 	install-$1-debug
+
+source-release-$1:
+	@printf 'source-release %s\m' "$1"
+	$$(MAKEHUSH)$(MAKE) -f "$1" source-release --no-print-directory -O
+
+source-release:	source-release-$1
+endef
+
+##############################################################################
+#
+#	Generate the rules for submakes
+#
+##############################################################################
+
+$(foreach F,$(FAMILY_MAKEFILES),$(eval $(call MCCI_DOFAMILY,$(F))))
+
+##############################################################################
+#
 # 	The top-level targets
 #
 ##############################################################################

@@ -22,6 +22,8 @@
 ##############################################################################
 
 TARGET_FAMILY := stm32h7
+MCCIBOOTLOADER_IMAGE_FLAGS=--app-version 1.0.0 --comment Manouria
+
 include mk/setup.mk
 
 include platform/board/st/stm32h7b3i_dk/mk/mcci_bootloader_stm32h7b3i_dk.mk
