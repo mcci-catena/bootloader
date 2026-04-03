@@ -133,8 +133,6 @@ endif
 CFLAGS_BUILDTYPE_release ?= -DNDEBUG
 CFLAGS_BUILDTYPE_debug ?= -g -DDEBUG
 
-CFLAGS_CPU ?= 	-mcpu=cortex-m0plus -mthumb
-
 CFLAGS	=	-Wall -g -Werror ${CFLAGS_OPT}
 CFLAGS  +=	-Werror=missing-prototypes
 CFLAGS	+=	$(CFLAGS_CPU)

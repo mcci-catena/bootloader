@@ -7,6 +7,15 @@
 ifeq ($(_GUARD_libmcci_bootloader_cm0plus.mk),)
 _GUARD_libmcci_bootloader_cm0plus.mk := 1	# prevent multiple includes.
 
+# only one arch-type file can be included.
+ifneq ($(_GUARD_CFLAGS_CPU),)
+ $(error only one CPU architecture file can be included in a single make. Previous include: $(_GUARD_CFLAGS_CPU))
+endif
+_GUARD_CFLAGS_CPU := libmcci_bootloader_cm0plus.mk
+
+# set CPU_FLAGS (but allow command-line overrides)
+CFLAGS_CPU ?= 	-mcpu=cortex-m0plus -mthumb
+
 # requirements
 include mk/libmcci_bootloader.mk
 
