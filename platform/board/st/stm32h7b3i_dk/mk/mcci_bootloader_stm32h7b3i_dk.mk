@@ -13,3 +13,4 @@ LIBS_McciBootloader_stm32h7b3i_dk :=			\
 
 LDSCRIPT_McciBootloader_stm32h7b3i_dk := $(abspath platform/board/st/stm32h7b3i_dk/mk/mccibootloader.ld)
 
+include platform/board/st/stm32h7b3i_dk/mk/libmcci_bootloader_stm32h7b3i_dk.mk

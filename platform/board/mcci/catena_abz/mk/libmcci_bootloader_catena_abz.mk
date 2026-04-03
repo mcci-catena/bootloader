@@ -7,9 +7,10 @@
 ifeq ($(_GUARD_libmcci_bootloader_catena_abz.mk),)
 _GUARD_libmcci_bootloader_catena_abz.mk := 1	# prevent multiple includes.
 
-# prerequuisites
-include platform/soc/stm32l0\mk/libmcci_bootloader_stm32l0.mk
+# prerequisites
+include platform/soc/stm32l0/mk/libmcci_bootloader_stm32l0.mk
 
+# contents
 LIBRARIES += libmcci_bootloader_catena_abz
 
 _ := platform/board/mcci/catena_abz

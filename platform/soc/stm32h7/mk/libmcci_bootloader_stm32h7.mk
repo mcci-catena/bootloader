@@ -4,6 +4,13 @@
 #
 ##############################################################################
 
+ifeq ($(_GUARD_libmcci_bootloader_stm32h7.mk),)
+_GUARD_libmcci_bootloader_stm32h7.mk := 1	# prevent multiple includes.
+
+# requirements
+include platform/arch/cm7/mk/libmcci_bootloader_cm7.mk
+
+# contents
 LIBRARIES += libmcci_bootloader_stm32h7
 
 _ := platform/soc/stm32h7
@@ -25,3 +32,4 @@ SOURCES_libmcci_bootloader_stm32h7 :=					\
 	$_/src/mccibootloaderplatform_stm32h7_startapp.c		\
 # end SOURCES_libmcci_bootloader_stm32h7
 
+endif # _GUARD_libmcci_bootloader_stm32h7.mk

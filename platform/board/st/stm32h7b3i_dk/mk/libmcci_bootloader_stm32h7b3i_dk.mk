@@ -5,6 +5,13 @@
 #
 ##############################################################################
 
+ifeq ($(_GUARD_libmcci_bootloader_stm32h7b3i_dk.mk),)
+_GUARD_libmcci_bootloader_stm32h7b3i_dk.mk := 1	# prevent multiple includes.
+
+# requirements
+include platform/soc/stm32h7/mk/libmcci_bootloader_stm32h7.mk
+
+# contents
 LIBRARIES += libmcci_bootloader_stm32h7b3i_dk
 
 _ := platform/board/st/stm32h7b3i_dk
@@ -25,3 +32,5 @@ SOURCES_libmcci_bootloader_stm32h7b3i_dk :=				\
 	$_/src/mccibootloaderboard_stm32h7b3i_dk_systeminit.c		\
 	$_/src/mccibootloaderboard_stm32h7b3i_dk_vectors.c		\
 # end SOURCES_libmcci_bootloader_stm32h7b3i_dk
+
+endif # _GUARD_libmcci_bootloader_stm32h7b3i_dk.mk

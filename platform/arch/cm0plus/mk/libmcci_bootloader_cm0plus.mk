@@ -7,8 +7,10 @@
 ifeq ($(_GUARD_libmcci_bootloader_cm0plus.mk),)
 _GUARD_libmcci_bootloader_cm0plus.mk := 1	# prevent multiple includes.
 
+# requirements
 include mk/libmcci_bootloader.mk
 
+# contents
 LIBRARIES += libmcci_bootloader_cm0plus
 
 _ := platform/arch/cm0plus

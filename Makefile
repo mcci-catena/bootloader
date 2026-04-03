@@ -23,14 +23,10 @@
 
 include mk/setup.mk
 
-include platform/board/mcci/catena_abz/mk/mcci_bootloader_catena_abz.mk
 include platform/board/mcci/catena4801/mk/mcci_bootloader_4801.mk
 include platform/board/mcci/catena46xx/mk/mcci_bootloader_46xx.mk
-include platform/board/st/stm32h7b3i_dk/mk/mcci_bootloader_stm32h7b3i_dk.mk
 
-include platform/arch/cm7/mk/libmcci_bootloader_cm7.mk
-include platform/soc/stm32h7/mk/libmcci_bootloader_stm32h7.mk
-include platform/board/st/stm32h7b3i_dk/mk/libmcci_bootloader_stm32h7b3i_dk.mk
+include platform/board/st/stm32h7b3i_dk/mk/mcci_bootloader_stm32h7b3i_dk.mk
 
 ##############################################################################
 #
