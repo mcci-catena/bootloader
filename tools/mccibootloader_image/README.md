@@ -194,8 +194,8 @@ For example:
 ```console
 $ ssh-keygen -t ed25519 -C "key desciptive comment" -f outputfile.pem
 Generating public/private ed25519 key pair.
-Enter passphrase (empty for no passphrase): 
-Enter same passphrase again: 
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
 Your identification has been saved in outputfile.pem
 Your public key has been saved in outputfile.pem.pub
 The key fingerprint is:
@@ -262,7 +262,7 @@ if [[ $OPTTESTSIGN -eq 0 ]]; then
     ssh-keygen -p -N '' -f "$PRIVATE_KEY_UNLOCKED_FILE"
     # extreme caution: make sure permissions are still right.
     chmod 600 "$PRIVATE_KEY_UNLOCKED_FILE"
-  
+
     # For Arduino builds, set up a platform.local.test that will refer to the unlocked file
     # so that the arduino builder will use the private key. Do what makes sense for
     # you if using PlatformIO or other build systems.
@@ -291,10 +291,29 @@ fi
 On Windows, we use git bash and use [scoop](https://scoop.sh) to install GNU make and clang.
 
 Make sure to install the pre-requisites below, before make a build.
+
 - scoop install make
 - scoop install llvm
 
 (At time of writing, there was no working gcc available via scoop, although that may have been fixed.) Use `make -j3 -O` to build.
+
+### Windows SDK requirement for UCRT headers
+
+Clang on Windows requires the [Windows SDK](https://developer.microsoft.com/en-us/windows/downloads/windows-sdk/) for UCRT (Universal C Runtime) headers. If clang fails to find standard headers (e.g., `stdio.h`, `stdlib.h`) and you have multiple SDK versions installed under `C:\Program Files (x86)\Windows Kits\10\Include`, set the `INCLUDE` environment variable to point at the correct version. For example:
+
+```
+set INCLUDE=C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\ucrt
+```
+
+Alternatively, you can pass `-isystem` to clang via `CFLAGS`:
+
+```
+make CFLAGS="-isystem \"C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\ucrt\""
+```
+
+Replace `10.0.19041.0` with the SDK version installed on your system.
+
+---
 
 On macOS, we have used either GCC 10 (installed via homebrew) or clang (installed via `xcode-select --install`).
 
@@ -313,7 +332,7 @@ To cross-compile, use the typical mechanism: `CROSS_COMPILE=prefix- make`. This 
 
 Except as explicitly noted, content created by MCCI in this repository tree is copyright (C) 2021, MCCI Corporation.
 
-`mccibooloader_image` and wrappers are released under the attached [license](./LICENSE.md). Commercial licenses and commercial support are available from MCCI Corporation.
+`mccibooloader_image` and wrappers are released under the attached [license](LICENSE.md). Commercial licenses and commercial support are available from MCCI Corporation.
 
 The TweetNaCl and NaCl code is all public domain (including MCCI contributions in those directories).
 
