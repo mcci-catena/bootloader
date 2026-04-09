@@ -93,10 +93,13 @@ platform/board/mcci/
   catena_abz/                 Base board for Murata ABZ (vectors, SPI2, storage, EEPROM, annunciator)
   catena4801/                 4801 variant (platform interface, storage init)
   catena46xx/                 46xx variant (platform interface, storage init)
-  catena_1sj/                 SPI1 driver for Murata 1SJ module (planned, 52xx family)
+  module/
+    murata-1sj/               Murata 1SJ module hardware definition (planned)
+    mcci-model5082/           MCCI Model 5082 module hardware definition (planned)
+  catena_1sj/                 Board base for Murata 1SJ (calls module/murata-1sj) (planned)
   catena52xx/                 5210/5220 variant (planned)
   catena5230/                 5230 variant with NPM1300 PMIC (planned)
-  catena_5082/                Base board for MCCI Model 5082 (planned, 51xx family)
+  catena_5082/                Board base for Model 5082 (calls module/mcci-model5082) (planned)
   catena51xx/                 5120 variant (planned)
 platform/board/st/
   stm32h7b3i_dk/              ST Discovery Kit (vectors, annunciator, platform interface)

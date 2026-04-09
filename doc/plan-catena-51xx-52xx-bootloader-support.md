@@ -55,26 +55,35 @@ The phases below are ordered to get the build skeleton compiling as early as pos
 
 ### Phase 1: Directory Structure
 
-Create all directories at once. No files yet, just the tree.
+Create all directories at once. No files yet, just the tree. The structure has two levels for each new module: a `module/` directory for the hardware module definition, and a `catena_*` directory for the board-level base that wraps it (paralleling how `catena_abz` wraps the Murata ABZ module).
 
 ```
-platform/board/mcci/catena_1sj/
+platform/board/mcci/module/
+    murata-1sj/                 Murata 1SJ module hardware definition (SPI1 pins, etc.)
+        i/
+        mk/
+        src/
+    mcci-model5082/             MCCI Model 5082 module hardware definition
+        i/
+        mk/
+        src/
+platform/board/mcci/catena_1sj/ Board base for 1SJ module (calls module/murata-1sj)
     i/
     mk/
     src/
-platform/board/mcci/catena52xx/
+platform/board/mcci/catena52xx/ 5210/5220 leaf board
     i/
     mk/
     src/
-platform/board/mcci/catena5230/
+platform/board/mcci/catena5230/ 5230 leaf board (PMIC)
     i/
     mk/
     src/
-platform/board/mcci/catena_5082/
+platform/board/mcci/catena_5082/ Board base for Model 5082 (calls module/mcci-model5082)
     i/
     mk/
     src/
-platform/board/mcci/catena51xx/
+platform/board/mcci/catena51xx/ 5120 leaf board
     i/
     mk/
     src/
