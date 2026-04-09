@@ -90,13 +90,18 @@ platform/arch/cm7/            ARM Cortex-M7 specific (image validation, app laun
 platform/soc/stm32l0/         STM32L0 SoC drivers (flash, system init)
 platform/soc/stm32h7/         STM32H7 SoC drivers (flash, system init)
 platform/board/mcci/
-  catena_abz/                 Base board for Murata ABZ (vectors, SPI, storage, EEPROM, annunciator)
+  catena_abz/                 Base board for Murata ABZ (vectors, SPI2, storage, EEPROM, annunciator)
   catena4801/                 4801 variant (platform interface, storage init)
   catena46xx/                 46xx variant (platform interface, storage init)
+  catena_1sj/                 SPI1 driver for Murata 1SJ module (planned, 52xx family)
+  catena52xx/                 5210/5220 variant (planned)
+  catena5230/                 5230 variant with NPM1300 PMIC (planned)
+  catena_5082/                Base board for MCCI Model 5082 (planned, 51xx family)
+  catena51xx/                 5120 variant (planned)
 platform/board/st/
   stm32h7b3i_dk/              ST Discovery Kit (vectors, annunciator, platform interface)
 platform/driver/
-  flash_mx25v8035f/           SPI flash driver (STM32L0 boards)
+  flash_mx25v8035f/           SPI flash driver (all STM32L0 boards, works with MX25R series too)
 ```
 
 Each layer builds as a separate static library. Board-specific libraries provide the concrete `McciBootloaderPlatform_Interface_t` instance.
@@ -154,6 +159,16 @@ Common: `-Wall -Werror -Werror=missing-prototypes -std=gnu11 -nostdlib -mthumb`.
 | Manufacturing | 0x0802F000-0x0802FFFF | 4k |
 
 SPI flash: fallback image at 0x0, update image at 0x40000, user storage at 0x80000.
+
+## Planned: Catena 51xx and 52xx Support
+
+See `doc/plan-catena-51xx-52xx-bootloader-support.md` for the full implementation plan. Key facts:
+
+- **52xx** (Murata 1SJ, STM32L072): SPI flash on SPI1 (PA4-PA7), LED on PB2 (same as ABZ). 5230 has NPM1300 PMIC on I2C2 (PB10/PB11, addr 0x6B) controlling flash power via LOADSW2.
+- **51xx** (Model 5082, STM32L082): SPI flash on SPI2 (PB12-PB15, same as ABZ), LED on PB5. No PMIC.
+- New targets: `McciBootloader_52xx`, `McciBootloader_5230`, `McciBootloader_51xx`.
+- Existing `flash_mx25v8035f` driver works unchanged with MX25R-series flash parts.
+- Same STM32L0 memory layout and SPI flash storage addresses as existing boards.
 
 ## Memory Layout (STM32H7 -- stm32h7b3i_dk)
 
