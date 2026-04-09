@@ -27,12 +27,20 @@ The key hardware differences from existing boards are:
 | Flash chip | MX25V8035F (1MB) | MX25R1635F (2MB) | MX25R8035F (1MB) |
 | PMIC | none | NPM1300 @ 0x6B (5230) | none |
 
+## Module vs. Board Layering
+
+A **module** (`module/murata-1sj`, `module/mcci-model5082`) defines what the hardware IS: pin assignments, peripheral selections, available interfaces. These are header-only -- no `.c` files, just macros and constants describing the module's hardware facts.
+
+A **board base** (`catena_1sj`, `catena_5082`) defines how MCCI USES that module on Catena boards: SPI driver implementation, LED control, annunciator, vectors, EEPROM protocol, storage layout. This parallels how the existing `catena_abz` represents MCCI's common board-level usage conventions for the Murata ABZ boards. If a board doesn't follow the common conventions, a new `platform/board/xyz` collection will be needed to declare the suitable conventions; or the leaf board collection will need to call the module directly.
+
+A **leaf board** (`catena52xx`, `catena5230`, `catena51xx`) provides the product-specific platform interface and storageInit, referencing the board base for shared functions.
+
 ## Code Reuse Strategy
 
 Because the LED and SPI differences split cleanly across the two families:
 
-- **52xx reuses ABZ for**: vectors, annunciator, systeminit, EEPROM, storage addresses, prepareForLaunch, delayMs, fail (all reference PB2 LED -- same pin). **New code**: SPI1 init/transfer only.
-- **51xx reuses ABZ for**: SPI init/transfer, EEPROM, storage addresses, prepareForLaunch, delayMs, fail (all use SPI2 PB12-15 -- same pins). **New code**: vectors, annunciator, systeminit with PB5 LED.
+- **52xx reuses ABZ for**: vectors, annunciator, systeminit, EEPROM, storage addresses, prepareForLaunch, delayMs, fail (all reference PB2 LED -- same pin). **New code**: SPI1 init/transfer only (in `catena_1sj`, using `module/murata-1sj` pin definitions).
+- **51xx reuses ABZ for**: SPI init/transfer, EEPROM, storage addresses, prepareForLaunch, delayMs, fail (all use SPI2 PB12-15 -- same pins). **New code**: vectors, annunciator, systeminit with PB5 LED (in `catena_5082`, using `module/mcci-model5082` pin definitions).
 - **5230 additionally needs**: I2C2 driver, PMIC register writes in storageInit, custom prepareForLaunch to disable LOADSW2.
 
 The existing `flash_mx25v8035f` driver works unchanged -- it uses standard SPI NOR commands and SFDP validation, compatible with both MX25R1635F and MX25R8035F.
@@ -119,26 +127,36 @@ I2C base addresses already defined: `MCCI_STM32L0_REG_I2C1` (0x40005400), `MCCI_
 
 **Checkpoint**: Existing targets still build cleanly.
 
-### Phase 3: Interface Header Files
+### Phase 3: Header Files
 
-Create all new header files. These define function prototypes, types, and constants but no implementations.
+Create all new header files, module headers first (since board base headers depend on them), then board base headers, then leaf board headers.
 
-#### 3.1 `catena_1sj/i/mcci_bootloader_board_catena_1sj.h`
-- Include guard, include `mcci_bootloader_platform.h`
+#### 3a: Module hardware definition headers
+
+These are header-only, defining the module's hardware facts as macros.
+
+#### 3a.1 `module/murata-1sj/i/mcci_bootloader_module_murata_1sj.h`
+- Include guard, include `mcci_stm32l0xx.h`
+- SPI: `SPI1` base, GPIOA, pins 4/5/6/7, AF0, APB2 clock enable/reset bits
+- LED: GPIOB, pin 2, IOPBEN clock bit
+- I2C2: base, GPIOB, pins 10/11, AF6, APB1 clock enable/reset bits (available for boards that need it)
+
+#### 3a.2 `module/mcci-model5082/i/mcci_bootloader_module_model5082.h`
+- Include guard, include `mcci_stm32l0xx.h`
+- SPI: `SPI2` base, GPIOB, pins 12/13/14/15, AF0, APB1 clock enable/reset bits
+- LED: GPIOB, pin 5, IOPBEN clock bit
+- Note: PB2 = RF_RESET on this module (document as "do not use for LED")
+
+#### 3b: Board base headers
+
+#### 3b.1 `catena_1sj/i/mcci_bootloader_board_catena_1sj.h`
+- Include guard, include `mcci_bootloader_platform.h` and `mcci_bootloader_module_murata_1sj.h`
 - Declare `McciBootloaderBoard_Catena1sj_spiInit` (SpiInitFn_t)
 - Declare `McciBootloaderBoard_Catena1sj_spiTransfer` (SpiTransferFn_t)
 
-#### 3.2 `catena52xx/i/mcci_bootloader_board_catena52xx.h`
-- Include `mcci_bootloader_board_catena_abz.h` and `mcci_bootloader_board_catena_1sj.h`
-- Declare `McciBootloaderBoard_Catena52xx_storageInit` (StorageInitFn_t)
-
-#### 3.3 `catena5230/i/mcci_bootloader_board_catena5230.h`
-- Include `mcci_bootloader_board_catena_abz.h` and `mcci_bootloader_board_catena_1sj.h`
-- Declare `McciBootloaderBoard_Catena5230_storageInit` (StorageInitFn_t)
-- Declare `McciBootloaderBoard_Catena5230_prepareForLaunch` (PrepareForLaunchFn_t)
-
-#### 3.4 `catena_5082/i/mcci_bootloader_board_catena_5082.h`
+#### 3b.2 `catena_5082/i/mcci_bootloader_board_catena_5082.h`
 - Model on `mcci_bootloader_board_catena_abz.h`
+- Include `mcci_bootloader_module_model5082.h`
 - All function declarations use `McciBootloaderBoard_Catena5082_` prefix:
   - systemInit, prepareForLaunch, fail, delayMs, setLed, clearLed
   - getUpdate, setUpdate (EEPROM)
@@ -146,10 +164,21 @@ Create all new header files. These define function prototypes, types, and consta
   - annunciatorInit, annunciatorIndicateState, handleSysTick
 - Storage layout constants with `_5082_` prefix (same values as ABZ: 168K image, 64K fallback, 256K update)
 
-#### 3.5 `catena_5082/i/mcci_bootloader_board_catena_5082_eeprom.h`
+#### 3b.3 `catena_5082/i/mcci_bootloader_board_catena_5082_eeprom.h`
 - Copy from `mcci_bootloader_board_catena_abz_eeprom.h` with name changes (`CatenaAbz` -> `Catena5082`)
 
-#### 3.6 `catena51xx/i/mcci_bootloader_board_catena51xx.h`
+#### 3c: Leaf board headers
+
+#### 3c.1 `catena52xx/i/mcci_bootloader_board_catena52xx.h`
+- Include `mcci_bootloader_board_catena_abz.h` and `mcci_bootloader_board_catena_1sj.h`
+- Declare `McciBootloaderBoard_Catena52xx_storageInit` (StorageInitFn_t)
+
+#### 3c.2 `catena5230/i/mcci_bootloader_board_catena5230.h`
+- Include `mcci_bootloader_board_catena_abz.h` and `mcci_bootloader_board_catena_1sj.h`
+- Declare `McciBootloaderBoard_Catena5230_storageInit` (StorageInitFn_t)
+- Declare `McciBootloaderBoard_Catena5230_prepareForLaunch` (PrepareForLaunchFn_t)
+
+#### 3c.3 `catena51xx/i/mcci_bootloader_board_catena51xx.h`
 - Include `mcci_bootloader_board_catena_5082.h`
 - Declare `McciBootloaderBoard_Catena51xx_storageInit` (StorageInitFn_t)
 
