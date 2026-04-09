@@ -49,9 +49,46 @@ Storage layout: same as ABZ (fallback at 64K, update at 256K). Works for both 1M
 
 ---
 
-## Phase 0: SoC Header Updates
+## Implementation Phases
 
-### 0.1 Add I2C register definitions to `platform/soc/stm32l0/i/mcci_stm32l0xx.h`
+The phases below are ordered to get the build skeleton compiling as early as possible. Stub functions satisfy the linker first; real implementations fill in later. Each phase ends with a build checkpoint.
+
+### Phase 1: Directory Structure
+
+Create all directories at once. No files yet, just the tree.
+
+```
+platform/board/mcci/catena_1sj/
+    i/
+    mk/
+    src/
+platform/board/mcci/catena52xx/
+    i/
+    mk/
+    src/
+platform/board/mcci/catena5230/
+    i/
+    mk/
+    src/
+platform/board/mcci/catena_5082/
+    i/
+    mk/
+    src/
+platform/board/mcci/catena51xx/
+    i/
+    mk/
+    src/
+```
+
+### Phase 2: SoC Hardware Header Updates
+
+Update `platform/soc/stm32l0/i/mcci_stm32l0xx.h` before any new headers depend on it.
+
+#### 2.1 Fix GPIO AFR macros
+
+Lines ~961-968: `MCCI_STM32L0_GPIO_AFRx_P(p)` and `MCCI_STM32L0_GPIO_AFSEL_P(p)` have bugs (missing `* 4` multiplier). Fix to match the STM32H7 versions. Add `MCCI_STM32L0_GPIO_AFSEL_PV(p,v)` convenience macro. Needed for I2C2 GPIO AF6 configuration on PB10/PB11.
+
+#### 2.2 Add I2C register definitions
 
 Add after the SPI register section (~line 1069):
 
@@ -69,116 +106,179 @@ Add after the SPI register section (~line 1069):
 
 Follow existing naming pattern: `MCCI_STM32L0_I2C_CR1_PE`, `MCCI_STM32L0_I2C_CR2_SADD`, etc.
 
-I2C base addresses already defined: `MCCI_STM32L0_REG_I2C1` (0x40005400), `MCCI_STM32L0_REG_I2C2` (0x40005800). RCC enable/reset bits already defined: `MCCI_STM32L0_REG_RCC_APB1ENR_I2C2EN`, `MCCI_STM32L0_REG_RCC_APB1RSTR_I2C2RST`.
+I2C base addresses already defined: `MCCI_STM32L0_REG_I2C1` (0x40005400), `MCCI_STM32L0_REG_I2C2` (0x40005800). RCC enable/reset bits already defined: `MCCI_STM32L0_REG_RCC_APB1ENR_I2C2EN`, `MCCI_STM32L0_REG_RCC_APB1RSTR_I2C2RST`. SPI1 clock definitions already exist: `MCCI_STM32L0_REG_RCC_APB2ENR_SPI1EN` (line 657), `MCCI_STM32L0_REG_RCC_APB2RSTR_SPI1RST` (line 584).
 
-### 0.2 Fix GPIO AFR macros in same file
+**Checkpoint**: Existing targets still build cleanly.
 
-Lines ~961-968: `MCCI_STM32L0_GPIO_AFRx_P(p)` and `MCCI_STM32L0_GPIO_AFSEL_P(p)` have bugs (missing `* 4` multiplier). Fix to match the STM32H7 versions. Add `MCCI_STM32L0_GPIO_AFSEL_PV(p,v)` convenience macro.
+### Phase 3: Interface Header Files
 
-These are needed for I2C2 GPIO alternate function configuration (AF6 for PB10/PB11).
+Create all new header files. These define function prototypes, types, and constants but no implementations.
 
-### 0.3 Add SPI1 clock definitions if missing
-
-Verify `MCCI_STM32L0_REG_RCC_APB2ENR_SPI1EN` and `MCCI_STM32L0_REG_RCC_APB2RSTR_SPI1RST` exist (they do, confirmed at lines 584/657).
-
----
-
-## Phase 1: SPI1 Shared Code for 52xx (catena_1sj)
-
-Create a minimal shared library containing only the SPI1 driver, shared by both catena52xx and catena5230.
-
-### Directory structure
-```
-platform/board/mcci/catena_1sj/
-    i/mcci_bootloader_board_catena_1sj.h
-    mk/libmcci_bootloader_catena_1sj.mk
-    src/mccibootloaderboard_catena1sj_spi.c
-```
-
-### 1.1 Header: `mcci_bootloader_board_catena_1sj.h`
+#### 3.1 `catena_1sj/i/mcci_bootloader_board_catena_1sj.h`
 - Include guard, include `mcci_bootloader_platform.h`
 - Declare `McciBootloaderBoard_Catena1sj_spiInit` (SpiInitFn_t)
 - Declare `McciBootloaderBoard_Catena1sj_spiTransfer` (SpiTransferFn_t)
 
-### 1.2 SPI driver: `mccibootloaderboard_catena1sj_spi.c`
-- Model on `catena_abz/src/mccibootloaderboard_catenaabz_spi.c`
-- **spiInit**: Enable GPIOA clock (`IOPAEN`), configure PA4/PA5/PA6/PA7 as AF mode (MODER), high speed (OSPEEDR), PA5 pulldown (PUPDR). Enable SPI1 via `RCC_APB2ENR_SPI1EN`. Reset via `RCC_APB2RSTR_SPI1RST`. Configure SPI1 CR1 (`BR_2 | MSTR`) and CR2 (`SSOE`). All AF0, no AFR writes needed.
-- **spiTransfer**: Same logic as ABZ but use `MCCI_STM32L0_REG_SPI1` instead of `MCCI_STM32L0_REG_SPI2`.
+#### 3.2 `catena52xx/i/mcci_bootloader_board_catena52xx.h`
+- Include `mcci_bootloader_board_catena_abz.h` and `mcci_bootloader_board_catena_1sj.h`
+- Declare `McciBootloaderBoard_Catena52xx_storageInit` (StorageInitFn_t)
 
-### 1.3 Library makefile: `libmcci_bootloader_catena_1sj.mk`
+#### 3.3 `catena5230/i/mcci_bootloader_board_catena5230.h`
+- Include `mcci_bootloader_board_catena_abz.h` and `mcci_bootloader_board_catena_1sj.h`
+- Declare `McciBootloaderBoard_Catena5230_storageInit` (StorageInitFn_t)
+- Declare `McciBootloaderBoard_Catena5230_prepareForLaunch` (PrepareForLaunchFn_t)
+
+#### 3.4 `catena_5082/i/mcci_bootloader_board_catena_5082.h`
+- Model on `mcci_bootloader_board_catena_abz.h`
+- All function declarations use `McciBootloaderBoard_Catena5082_` prefix:
+  - systemInit, prepareForLaunch, fail, delayMs, setLed, clearLed
+  - getUpdate, setUpdate (EEPROM)
+  - getPrimaryStorageAddress, getFallbackStorageAddress
+  - annunciatorInit, annunciatorIndicateState, handleSysTick
+- Storage layout constants with `_5082_` prefix (same values as ABZ: 168K image, 64K fallback, 256K update)
+
+#### 3.5 `catena_5082/i/mcci_bootloader_board_catena_5082_eeprom.h`
+- Copy from `mcci_bootloader_board_catena_abz_eeprom.h` with name changes (`CatenaAbz` -> `Catena5082`)
+
+#### 3.6 `catena51xx/i/mcci_bootloader_board_catena51xx.h`
+- Include `mcci_bootloader_board_catena_5082.h`
+- Declare `McciBootloaderBoard_Catena51xx_storageInit` (StorageInitFn_t)
+
+**Checkpoint**: Each header compiles standalone (see Phase 4).
+
+### Phase 4: Header Compile Tests
+
+Create a test that compiles each new header file standalone to verify it is self-contained and standards-compliant. One `.c` file per header:
+
+```c
+/* test compile for mcci_bootloader_board_catena_1sj.h */
+#include "mcci_bootloader_board_catena_1sj.h"
+```
+
+Compile with `-fsyntax-only -Wall -Werror -std=gnu11` and the appropriate include paths. This can be a small makefile target or a shell loop. The goal is to confirm every header includes its own dependencies and has no syntax errors.
+
+**Checkpoint**: All header compile tests pass.
+
+### Phase 5: Makefile Hierarchy
+
+Create all makefiles for all boards. These reference source files that will be stubs initially.
+
+#### 5.1 `catena_1sj/mk/libmcci_bootloader_catena_1sj.mk`
 - Include guard
-- Include `libmcci_bootloader_catena_abz.mk` (for INCLUDES, which pull in stm32l0 headers)
+- Include `libmcci_bootloader_catena_abz.mk` (for INCLUDES)
 - Library: `libmcci_bootloader_catena_1sj`
 - Sources: `mccibootloaderboard_catena1sj_spi.c`
 - Includes: catena_abz includes + `$_/i`
 
----
+#### 5.2 `catena52xx/mk/libmcci_bootloader_catena52xx.mk`
+- Prerequisites: `libmcci_bootloader_catena_abz.mk`, `libmcci_bootloader_catena_1sj.mk`, `libmcci_bootloader_flash_mx25v8035f.mk`
+- Sources: platforminterface.c, storageinit.c
+- Includes: catena_abz includes + catena_1sj includes + flash driver includes + `$_/i`
 
-## Phase 2: Catena 52xx Leaf Board (5210/5220)
-
-### Directory structure
-```
-platform/board/mcci/catena52xx/
-    i/mcci_bootloader_board_catena52xx.h
-    mk/mcci_bootloader_52xx.mk
-    mk/libmcci_bootloader_catena52xx.mk
-    src/mccibootloaderboard_catena52xx_platforminterface.c
-    src/mccibootloaderboard_catena52xx_storageinit.c
-```
-
-### 2.1 Header
-- Include `mcci_bootloader_board_catena_abz.h` and `mcci_bootloader_board_catena_1sj.h`
-- Declare `McciBootloaderBoard_Catena52xx_storageInit`
-
-### 2.2 Platform interface
-- Model on `catena46xx/src/mccibootloaderboard_catena46xx_platforminterface.c`
-- `gk_McciBootloaderPlatformInterface` references:
-  - All ABZ functions for: systemInit, prepareForLaunch, fail, delayMs, getUpdate, setUpdate, annunciator, storage addresses
-  - STM32L0 functions for: flashErase, flashWrite
-  - **Catena1sj** functions for: spiInit, spiTransfer (the SPI1 code)
-  - Flash driver for: storageRead
-  - Board-specific: storageInit
-
-### 2.3 Storage init
-- Simple: `McciBootloaderPlatform_spiInit()` + `McciBootloaderFlash_Mx25v8035f_storageInit()` (same as catena46xx)
-
-### 2.4 Bootloader makefile (`mcci_bootloader_52xx.mk`)
+#### 5.3 `catena52xx/mk/mcci_bootloader_52xx.mk`
 - `include platform/board/mcci/catena_abz/mk/mcci_bootloader_catena_abz.mk`
 - `BOOTLOADERS += McciBootloader_52xx`
 - LIBS: `${BOOTLOADER_LIBS_ABZ}` + `libmcci_bootloader_catena_1sj.a` + `libmcci_bootloader_catena52xx.a`
 - LDSCRIPT: `${BOOTLOADER_LDSCRIPT_ABZ}`
 
-### 2.5 Library makefile (`libmcci_bootloader_catena52xx.mk`)
-- Prerequisites: `libmcci_bootloader_catena_abz.mk`, `libmcci_bootloader_catena_1sj.mk`, `libmcci_bootloader_flash_mx25v8035f.mk`
+#### 5.4 `catena5230/mk/libmcci_bootloader_catena5230.mk`
+- Same prerequisites as catena52xx
+- Sources: platforminterface.c, storageinit.c, prepareforlaunch.c
+
+#### 5.5 `catena5230/mk/mcci_bootloader_5230.mk`
+- Same as 52xx pattern but `BOOTLOADERS += McciBootloader_5230` and uses catena5230 library
+
+#### 5.6 `catena_5082/mk/libmcci_bootloader_catena_5082.mk`
+- Include `libmcci_bootloader_stm32l0.mk`
+- Sources: annunciator.c, eeprom.c, prepareforlaunch.c, storage.c, systeminit.c, vectors.c
+- Includes: stm32l0 includes + `$_/i`
+
+#### 5.7 `catena_5082/mk/mcci_bootloader_catena_5082.mk`
+- Defines `BOOTLOADER_LIBS_5082` (cm0plus + stm32l0 + catena_5082 + flash_mx25v8035f)
+- Defines `BOOTLOADER_LDSCRIPT_5082`
+
+#### 5.8 `catena_5082/mk/mccibootloader.ld`
+- Copy from ABZ `mccibootloader.ld`
+- Change EEPROM symbol names to `Catena5082`
+- Same memory sizes (192K flash, 20K RAM, 6K EEPROM for STM32L082)
+
+#### 5.9 `catena51xx/mk/libmcci_bootloader_catena51xx.mk`
+- Prerequisites: `libmcci_bootloader_catena_5082.mk`, `libmcci_bootloader_catena_abz.mk`, `libmcci_bootloader_flash_mx25v8035f.mk`
 - Sources: platforminterface.c, storageinit.c
-- Includes: catena_abz includes + catena_1sj includes + flash driver includes + `$_/i`
 
----
+#### 5.10 `catena51xx/mk/mcci_bootloader_51xx.mk`
+- `BOOTLOADERS += McciBootloader_51xx`
+- LIBS: `${BOOTLOADER_LIBS_5082}` + `libmcci_bootloader_catena_abz.a` + `libmcci_bootloader_catena51xx.a`
+- LDSCRIPT: `${BOOTLOADER_LDSCRIPT_5082}`
 
-## Phase 3: Catena 5230 Leaf Board (PMIC)
+#### 5.11 Update `Makefile-stm32l0.mk`
 
-### Directory structure
-```
-platform/board/mcci/catena5230/
-    i/mcci_bootloader_board_catena5230.h
-    mk/mcci_bootloader_5230.mk
-    mk/libmcci_bootloader_catena5230.mk
-    src/mccibootloaderboard_catena5230_platforminterface.c
-    src/mccibootloaderboard_catena5230_storageinit.c
-    src/mccibootloaderboard_catena5230_prepareforlaunch.c
+After the existing includes for catena4801 and catena46xx, add:
+```makefile
+include platform/board/mcci/catena52xx/mk/mcci_bootloader_52xx.mk
+include platform/board/mcci/catena5230/mk/mcci_bootloader_5230.mk
+include platform/board/mcci/catena51xx/mk/mcci_bootloader_51xx.mk
 ```
 
-### 3.1 Header
-- Include `mcci_bootloader_board_catena_abz.h` and `mcci_bootloader_board_catena_1sj.h`
-- Declare `McciBootloaderBoard_Catena5230_storageInit`
-- Declare `McciBootloaderBoard_Catena5230_prepareForLaunch`
+**Checkpoint**: `make -f Makefile-stm32l0.mk` discovers all targets (may fail on missing sources -- that's expected, confirms makefile wiring).
 
-### 3.2 Platform interface
-- Same as catena52xx EXCEPT:
-  - `.Storage.pInit` = `McciBootloaderBoard_Catena5230_storageInit`
-  - `.pPrepareForLaunch` = `McciBootloaderBoard_Catena5230_prepareForLaunch` (custom, not ABZ)
+### Phase 6: Stub C Implementations
 
-### 3.3 Storage init (most complex new file)
+Create all `.c` source files with correct headers, includes, and function signatures, but with empty/minimal bodies. Each file should compile. Functions that must return a value return 0 or a safe default. The goal is a linking build.
+
+#### 6.1 catena_1sj stubs
+- `mccibootloaderboard_catena1sj_spi.c`: empty `spiInit()`, empty-loop `spiTransfer()`
+
+#### 6.2 catena52xx stubs
+- `mccibootloaderboard_catena52xx_platforminterface.c`: full `gk_McciBootloaderPlatformInterface` struct wired to ABZ functions (systemInit, prepareForLaunch, fail, delayMs, getUpdate, setUpdate, annunciator, storage addresses) + Catena1sj SPI + board-specific storageInit. This file is complete, not a stub.
+- `mccibootloaderboard_catena52xx_storageinit.c`: empty `storageInit()`
+
+#### 6.3 catena5230 stubs
+- `mccibootloaderboard_catena5230_platforminterface.c`: same as 52xx but `.Storage.pInit` = `Catena5230_storageInit`, `.pPrepareForLaunch` = `Catena5230_prepareForLaunch`. This file is complete, not a stub.
+- `mccibootloaderboard_catena5230_storageinit.c`: empty `storageInit()`
+- `mccibootloaderboard_catena5230_prepareforlaunch.c`: stub that just calls `McciBootloader_Stm32L0_prepareForLaunch()`
+
+#### 6.4 catena_5082 stubs
+- `mccibootloaderboard_catena5082_systeminit.c`: stub systemInit (calls `McciBootloader_Stm32L0_systemInit()` only), empty setLed/clearLed/delayMs/fail/fastBlinkForever
+- `mccibootloaderboard_catena5082_annunciator.c`: empty annunciatorInit/annunciatorIndicateState/handleSysTick
+- `mccibootloaderboard_catena5082_vectors.c`: copy from ABZ vectors with name changes to `Catena5082_` prefix. This file is structurally complete (vector table must be correct for linking).
+- `mccibootloaderboard_catena5082_eeprom.c`: copy from ABZ with name changes. Structurally complete (simple EEPROM access).
+- `mccibootloaderboard_catena5082_storage.c`: copy from ABZ with name changes and `_5082_` constants. Structurally complete.
+- `mccibootloaderboard_catena5082_prepareforlaunch.c`: calls `McciBootloader_Stm32L0_prepareForLaunch()`. Structurally complete.
+
+#### 6.5 catena51xx stubs
+- `mccibootloaderboard_catena51xx_platforminterface.c`: full struct wired to Catena5082 functions (systemInit, prepareForLaunch, fail, delayMs, getUpdate, setUpdate, annunciator, storage addresses) + ABZ SPI + board-specific storageInit. Complete, not a stub.
+- `mccibootloaderboard_catena51xx_storageinit.c`: empty `storageInit()`
+
+**Checkpoint**: `CROSS_COMPILE=... make -f Makefile-stm32l0.mk` compiles and links all five bootloaders (existing two + three new). New bootloaders are non-functional but structurally valid.
+
+### Phase 7: Fill In Real Implementations
+
+With the skeleton building, fill in real function bodies. Each step is independently testable.
+
+#### 7.1 catena_1sj SPI1 driver
+- Model on `catena_abz/src/mccibootloaderboard_catenaabz_spi.c`
+- **spiInit**: Enable GPIOA clock (`IOPAEN`), configure PA4/PA5/PA6/PA7 as AF mode, high speed, PA5 pulldown. Enable SPI1 via `RCC_APB2ENR_SPI1EN`. Reset via `RCC_APB2RSTR_SPI1RST`. Configure SPI1 CR1 (`BR_2 | MSTR`) and CR2 (`SSOE`). All AF0, no AFR writes needed.
+- **spiTransfer**: Same logic as ABZ but use `MCCI_STM32L0_REG_SPI1` instead of `MCCI_STM32L0_REG_SPI2`.
+
+#### 7.2 catena52xx storageInit
+- Simple: `McciBootloaderPlatform_spiInit()` + `McciBootloaderFlash_Mx25v8035f_storageInit()` (same pattern as catena46xx)
+
+#### 7.3 catena_5082 systeminit and LED
+- Model on ABZ systeminit
+- Enable GPIOB clock (same port as ABZ)
+- Configure **PB5** as output (instead of PB2)
+- `setLed`/`clearLed`/`delayMs`/`fail`/`fastBlinkForever` use PB5 bit masks
+- Note: PB2 on the 5082/5120 is RF_RESET -- must NOT be driven by the bootloader
+
+#### 7.4 catena_5082 annunciator
+- Copy logic from ABZ annunciator, already has correct `Catena5082_` names from stub phase
+- Fill in real state machine referencing `McciBootloaderBoard_Catena5082_setLed/clearLed`
+
+#### 7.5 catena51xx storageInit
+- Simple: `McciBootloaderPlatform_spiInit()` + `McciBootloaderFlash_Mx25v8035f_storageInit()` (no power control needed, flash on +VDD)
+
+#### 7.6 catena5230 storageInit (most complex new code)
 
 Sequence:
 1. Enable GPIOB clock (for I2C2 pins PB10/PB11)
@@ -199,9 +299,9 @@ I2C write transaction (each 3-byte write):
 - Poll ISR.TXIS, write byte to TXDR (repeat x3)
 - Poll ISR.STOPF, clear via ICR.STOPCF
 
-**Driver layering note**: The I2C and PMIC operations could be structured as separate drivers (PMIC over I2C) or kept inline in storageinit. This architectural decision is left to the implementer. The minimum requirement is the register-level operations described above.
+**Driver layering note**: The I2C and PMIC operations could be structured as separate drivers (PMIC over I2C) or kept inline in storageinit. This architectural decision is left to the implementer.
 
-### 3.4 Prepare for launch (custom)
+#### 7.7 catena5230 prepareForLaunch (custom)
 
 The PMIC's LOADSW2 setting is latched in the NPM1300's internal registers and survives MCU peripheral reset. To achieve micropower state before app launch:
 
@@ -211,160 +311,55 @@ The PMIC's LOADSW2 setting is latched in the NPM1300's internal registers and su
 
 I2C2 is still configured from storageInit, so the disable command can be sent directly.
 
-### 3.5 Build files
-- Same structure as Phase 2 but include prepareforlaunch.c in sources
+### Phase 8: Hardware Verification
 
----
-
-## Phase 4: Model 5082 Shared Base for 51xx (catena_5082)
-
-The 5082 uses the same SPI2 as ABZ but different LED pin (PB5 vs PB2). The LED-coupled code (systeminit, annunciator, vectors) must be reimplemented. SPI, EEPROM, storage, and prepareForLaunch from ABZ can be reused directly via the platform interface.
-
-### Directory structure
-```
-platform/board/mcci/catena_5082/
-    i/mcci_bootloader_board_catena_5082.h
-    i/mcci_bootloader_board_catena_5082_eeprom.h
-    mk/libmcci_bootloader_catena_5082.mk
-    mk/mcci_bootloader_catena_5082.mk
-    mk/mccibootloader.ld
-    src/mccibootloaderboard_catena5082_annunciator.c
-    src/mccibootloaderboard_catena5082_eeprom.c
-    src/mccibootloaderboard_catena5082_prepareforlaunch.c
-    src/mccibootloaderboard_catena5082_storage.c
-    src/mccibootloaderboard_catena5082_systeminit.c
-    src/mccibootloaderboard_catena5082_vectors.c
-```
-
-### 4.1 Header (`mcci_bootloader_board_catena_5082.h`)
-- Model on `mcci_bootloader_board_catena_abz.h`
-- All function declarations use `McciBootloaderBoard_Catena5082_` prefix
-- Same storage layout constants (168K image, 64K fallback, 256K update) but with `_5082_` prefix
-
-### 4.2 systeminit
-- Model on ABZ systeminit
-- Enable GPIOB clock (same port as ABZ)
-- Configure **PB5** as output (instead of PB2)
-- `setLed`/`clearLed`/`delayMs`/`fail`/`fastBlinkForever` use PB5 bit masks
-- Note: PB2 on the 5082/5120 is RF_RESET -- must NOT be driven by the bootloader
-
-### 4.3 annunciator
-- Copy from ABZ annunciator, change all names to `Catena5082_` prefix
-- References `McciBootloaderBoard_Catena5082_setLed/clearLed`
-
-### 4.4 vectors
-- Copy from ABZ vectors, change all names to `Catena5082_` prefix
-- SysTick handler calls `McciBootloaderBoard_Catena5082_handleSysTick`
-
-### 4.5 EEPROM, storage, prepareForLaunch
-- Copy from ABZ with name changes (`CatenaAbz_` -> `Catena5082_`)
-- Same logic (STM32L0 data EEPROM at 0x08080000, same storage addresses)
-- prepareForLaunch: calls `McciBootloader_Stm32L0_prepareForLaunch()` (same as ABZ)
-
-### 4.6 Linker script
-- Copy from ABZ `mccibootloader.ld`
-- Change EEPROM symbol names to `Catena5082`
-- Same memory sizes (192K flash, 20K RAM, 6K EEPROM for STM32L082)
-
-### 4.7 Library makefile (`libmcci_bootloader_catena_5082.mk`)
-- Include `libmcci_bootloader_stm32l0.mk`
-- Sources: all 6 `.c` files
-- Includes: stm32l0 includes + `$_/i`
-
-### 4.8 Base makefile (`mcci_bootloader_catena_5082.mk`)
-- Defines `BOOTLOADER_LIBS_5082` (cm0plus + stm32l0 + catena_5082 + flash_mx25v8035f)
-- Defines `BOOTLOADER_LDSCRIPT_5082`
-
----
-
-## Phase 5: Catena 51xx Leaf Board
-
-### Directory structure
-```
-platform/board/mcci/catena51xx/
-    i/mcci_bootloader_board_catena51xx.h
-    mk/mcci_bootloader_51xx.mk
-    mk/libmcci_bootloader_catena51xx.mk
-    src/mccibootloaderboard_catena51xx_platforminterface.c
-    src/mccibootloaderboard_catena51xx_storageinit.c
-```
-
-### 5.1 Header
-- Include `mcci_bootloader_board_catena_5082.h`
-- Declare `McciBootloaderBoard_Catena51xx_storageInit`
-
-### 5.2 Platform interface
-- `gk_McciBootloaderPlatformInterface` references:
-  - **Catena5082** functions for: systemInit, prepareForLaunch, fail, delayMs, getUpdate, setUpdate, annunciator, storage addresses (all use PB5 LED)
-  - STM32L0 functions for: flashErase, flashWrite
-  - **ABZ** functions for: spiInit, spiTransfer (SPI2 on PB12-15 -- same as ABZ!)
-  - Flash driver for: storageRead
-  - Board-specific: storageInit
-
-### 5.3 Storage init
-- Simple: `McciBootloaderPlatform_spiInit()` + `McciBootloaderFlash_Mx25v8035f_storageInit()` (no power control needed, flash on +VDD)
-
-### 5.4 Build files
-- `BOOTLOADERS += McciBootloader_51xx`
-- LIBS: `${BOOTLOADER_LIBS_5082}` + ABZ SPI library + `libmcci_bootloader_catena51xx.a`
-
-Note: The 51xx platform interface references ABZ SPI functions. The ABZ library object containing SPI code will be pulled by the linker from `libmcci_bootloader_catena_abz.a`. Include `libmcci_bootloader_catena_abz.mk` in the 51xx library makefile to get the ABZ SPI header paths, and add `libmcci_bootloader_catena_abz.a` to the LIBS list.
-
----
-
-## Phase 6: Build System Integration
-
-### Update `Makefile-stm32l0.mk`
-
-After the existing includes for catena4801 and catena46xx, add:
-```makefile
-include platform/board/mcci/catena52xx/mk/mcci_bootloader_52xx.mk
-include platform/board/mcci/catena5230/mk/mcci_bootloader_5230.mk
-include platform/board/mcci/catena51xx/mk/mcci_bootloader_51xx.mk
-```
-
-This produces three new ELF/BIN/HEX files in the build output directory.
-
----
-
-## Phase 7: Verification
-
-1. **Build all targets**: `CROSS_COMPILE=... make -f Makefile-stm32l0.mk` -- verify no errors
-2. **Size check**: Each bootloader must fit in 20K (0x5000). The 5230 with I2C code is the largest -- estimate ~1-2K additional over the base ~14K
-3. **Binary inspection**: Verify vector table at 0x08000000, AppInfo offset at 0xC0
-4. **Hardware test** (per board):
+1. **Size check**: Each bootloader must fit in 20K (0x5000). The 5230 with I2C code is the largest -- estimate ~1-2K additional over the base ~14K
+2. **Binary inspection**: Verify vector table at 0x08000000, AppInfo offset at 0xC0
+3. **Hardware test** (per board):
    - Flash bootloader at 0x08000000 via st-flash
    - Observe LED blink pattern (failure expected, no app)
-   - Sign test app, load to SPI flash update region
-   - Set EEPROM update flag, power cycle
-   - Verify app programs and launches
-5. **5230-specific**: Verify LOADSW2 enables (flash powers up), bootloader works, and LOADSW2 disables in prepareForLaunch (measure current)
+   - Sign test app with `mccibootloader_image`, place in SPI flash update region
+   - Set EEPROM update request flag
+   - Power cycle -- verify bootloader programs app from SPI flash
+   - Verify app launches successfully
+4. **5230-specific**: Verify LOADSW2 enables (flash powers up), bootloader works, and LOADSW2 disables in prepareForLaunch (measure current)
 
 ---
 
 ## Dependency Graph
 
 ```
-Phase 0 (mcci_stm32l0xx.h: I2C regs, AFR fix)
+Phase 1 (directories)
   |
-  +---> Phase 1 (catena_1sj SPI1 code)
-  |       |
-  |       +---> Phase 2 (catena52xx leaf) ----+
-  |       |                                    |
-  |       +---> Phase 3 (catena5230 leaf) ----+---> Phase 6 (Makefile)
-  |                                            |         |
-  +---> Phase 4 (catena_5082 base)            |    Phase 7 (test)
-          |                                    |
-          +---> Phase 5 (catena51xx leaf) -----+
+Phase 2 (SoC header: I2C regs, AFR fix)
+  |
+Phase 3 (all interface headers)
+  |
+Phase 4 (header compile tests)
+  |
+Phase 5 (all makefiles + Makefile-stm32l0.mk)
+  |
+Phase 6 (stub .c files -- all targets compile and link)
+  |
+Phase 7 (real implementations, independently)
+  +---> 7.1 1SJ SPI1 driver
+  +---> 7.2 52xx storageInit
+  +---> 7.3 5082 systeminit/LED
+  +---> 7.4 5082 annunciator
+  +---> 7.5 51xx storageInit
+  +---> 7.6 5230 storageInit (I2C + PMIC)
+  +---> 7.7 5230 prepareForLaunch
+  |
+Phase 8 (hardware verification)
 ```
 
-Phases 1-3 and Phases 4-5 are independent of each other.
+Within Phase 7, steps 7.1-7.2 (52xx) and 7.3-7.5 (51xx) are independent. Steps 7.6-7.7 depend on 7.1 (SPI1 must work before 5230 can be tested end-to-end).
 
 ## Open Items for Implementer
 
 1. **I2C TIMINGR value**: Must be calculated or verified for 100 kHz from 32 MHz PCLK1. Candidate: `0x10805E89`. Consult STM32L0 RM Section 27.4.9 or use STM32CubeMX.
 2. **I2C/PMIC driver layering**: The plan describes register-level operations inline in storageinit. The implementer may choose to factor I2C into a separate driver module and/or create a PMIC abstraction. The need for this is identified; the architecture is left to the implementer.
-3. **AF6 for I2C2**: PB10=I2C2_SCL(AF6), PB11=I2C2_SDA(AF6) per STM32L072 datasheet Table 17. Requires AFR register writes (the fixed macros from Phase 0.2).
+3. **AF6 for I2C2**: PB10=I2C2_SCL(AF6), PB11=I2C2_SDA(AF6) per STM32L072 datasheet Table 17. Requires AFR register writes (the fixed macros from Phase 2.1).
 4. **NPM1300 LOADSW2 disable register**: Verify 0x0803 is the correct task-disable register for LDSW2. The enable task register is 0x0802 (confirmed from cNPM1300 library).
 
 ## Key Source Files to Reference
@@ -378,6 +373,7 @@ Phases 1-3 and Phases 4-5 are independent of each other.
 | ABZ systeminit | 5082 systeminit | `platform/board/mcci/catena_abz/src/mccibootloaderboard_catenaabz_systeminit.c` |
 | ABZ vectors | 5082 vectors | `platform/board/mcci/catena_abz/src/mccibootloaderboard_catenaabz_vectors.c` |
 | ABZ base makefile | 5082 base makefile | `platform/board/mcci/catena_abz/mk/mcci_bootloader_catena_abz.mk` |
+| ABZ linker script | 5082 linker script | `platform/board/mcci/catena_abz/mk/mccibootloader.ld` |
 | 46xx bootloader mk | 52xx/51xx bootloader mk | `platform/board/mcci/catena46xx/mk/mcci_bootloader_46xx.mk` |
 | STM32L0 registers | I2C register additions | `platform/soc/stm32l0/i/mcci_stm32l0xx.h` |
 | NPM1300 library | PMIC register reference | (external: `COLLECTION-Catena5230/libraries/MCCI-Catena-nPM1300/src/MCCI_Catena_nPM1300.h`) |
