@@ -957,15 +957,20 @@ extern "C" {
 
 /// \name GPIO_AFRx bits
 ///	@{
-/// \brief get reg offset for GPIO_AFRx
-#define	MCCI_STM32L0_GPIO_AFRx_P(p)	(MCCI_STM32L0_GPIO_AFRL + ((p) / UINT32_C(8)))	//< f
+/// \brief get reg offset for GPIO_AFRx for port bit \p p. This is the byte offset
+/// relative to the base of the GPIO block.
+///
+#define	MCCI_STM32L0_GPIO_AFRx_P(p)	(MCCI_STM32L0_GPIO_AFRL + (((p) / 8u) * 4u))
 
 /// \brief get AFRx mask for port bit \p p.
 ///
 /// Normal use:
-///	MCCI_BOOTLOADER_FIELD_SET_VALUE(MCCI_STM32L0_GPIO_AFSEL_P(bitnum), 0..7)
+///	`MCCI_BOOTLOADER_FIELD_SET_VALUE(MCCI_STM32L0_GPIO_AFSEL_P(bitnum), 0..15)`
 ///
-#define	MCCI_STM32L0_GPIO_AFSEL_P(p)	(UINT32_C(0xF) << ((p) & 0x7u)
+#define	MCCI_STM32L0_GPIO_AFSEL_P(p)	(UINT32_C(0xF) << (((p) & 7u) * 4u))
+
+/// \brief make a mask of AFRx value \p v for port bit \p p..
+#define	MCCI_STM32L0_GPIO_AFSEL_PV(p, v)	(((v) & UINT32_C(0xF)) << (((p) & 7u) * 4u))
 ///	@}
 
 /****************************************************************************\
