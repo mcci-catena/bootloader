@@ -100,3 +100,46 @@ src/    Implementation
   `platform/arch/cm0plus/mk/libmcci_bootloader_cm0plus.mk`. Built with
   `-Os`. The makefile uses an include guard so it is safe for multiple
   boards to include it.
+
+## Notes on I2C Bus
+
+We have `McciBootloaderPlatform_Interface_t` which has all the interfaces used by portable code. We use function pointers, true MCCI style. There's a `McciBootloaderPlatform_SpiInterface_t` which is a SPI bus interface; sort of a layering violation because the portable code doesn't directly use SPI; it makes the flash drivers potentially non-platform code (but in fact they live in `platform/driver`, so there's no reason except convenience for them to use the `McciBootloaderPlatform_Interface_t`).
+
+I think for I2C I don't want to put the interface structure into the platform structure.
+
+```plantuml
+@startuml
+class McciBootloaderDevice_I2cBus_t
+class McciBootloaderDevice_I2cDevice_t
+class McciBootloaderDevice_PmicNPM1300_t
+class McciBootloaderDevice_I2cBusStm32L0_t
+
+McciBootloaderDevice_I2cBus_t "1" <--* "1" McciBootloaderDevice_I2cBusStm32L0_t
+
+McciBootloaderDevice_I2cBus_t "1" <-- McciBootloaderDevice_I2cDevice_t
+
+McciBootloaderDevice_I2cDevice_t "1" <--* "1" McciBootloaderDevice_PmicNPM1300_t
+
+McciBootloaderDevice_I2cBus_t : bool attach(McciBootLoaderDevice_I2cDevice_t *pDevice)
+McciBootloaderDevice_I2cBus_t : bool read(uint8_t bAddress, uint8_t *pbValue)
+McciBootloaderDevice_I2cBus_t : bool write(uint8_t bAddress, uint8_t bValue)
+
+McciBootloaderDevice_I2cBusStm32L0_t : uint32_t baseAddress
+
+McciBootloaderDevice_I2cDevice_t : uint8_t bAddress
+McciBootloaderDevice_I2cDevice_t : bool read(uint8_t *pbValue)
+McciBootloaderDevice_I2cDevice_t : bool write(uint8_t bValue)
+@enduml
+```
+
+For this object hierarchy, we need to have a number of header files and the usual MCCI Russian doll series of nested structures. I *think* we'll elide the usual base object that represents *any* device (not just an I2C device; although maybe we should have begin and end methods, which implies a base object).
+
+For the moment, we won't touch the flash driver which is totally integrated into the platform object.
+
+The initialization sequence will be:
+
+1. The platform code first initializes the I2C bus driver used by the PMIC, and then initializes the PMIC driver passing the I2C bus driver and an address.
+2. The platform code will provide some RAM (via a static allocation of the object to be used as `&ram`, and call `McciBootloader_Stm32L0Interface_InitI2cBus(&ram, busIndex, timing)` to get a bus interface handle (an `McciBootloaderDevice_I2cBus_t`)
+3. The platform code then passes the bus interface handle to  `McciBootloaderDriver_PmicXyx()`, along with the known I2C address of the PMIC.
+4. The PMIC driver allocates memory for an `McciBootloaderDevice_I2cDevice_t` (embedded in the header of the `McciBootloaderDevice_PmicNPM1300_t`) and registers with the I2C bus driver, getting a suitable interface
+5. The platforms call pmic::Initialize() which uses the bus driver to set up all the bytes in the PMIC
