@@ -26,11 +26,11 @@ Author:
 # include "mcci_bootloader_types.h"
 #endif
 
+#pragma once
+
 #ifndef _mcci_bootloader_device_types_h_
 # include "mcci_bootloader_device_types.h"
 #endif
-
-#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,21 +46,23 @@ struct McciBootloaderDeviceMethods_s
 	McciBootloaderDevice_EndFn_t *pEnd;
 	};
 
-typedef struct McciBootloaderDevice_Contents_s McciBootloaderDevice_Contents_t;
-
 struct McciBootloaderDevice_Contents_s
 	{
 	/// pointer to device-level method table.
 	const McciBootloaderDeviceMethods_t *pMethods;
 	};
 
-union McciBootloaderDevice_t
+union McciBootloaderDevice_u
 	{
 	McciBootloaderDevice_Contents_t	Device;
 	};
 
 #define McciBootloaderDevice_CONTENTS	\
 	McciBootloaderDevice_Contents_t	Device
+
+#define	McciBootloaderDevice_UNION			\
+	McciBootloaderDevice_Contents_t	Device;		\
+	McciBootloaderDevice_t		DeviceCast
 
 #ifdef __cplusplus
 }
