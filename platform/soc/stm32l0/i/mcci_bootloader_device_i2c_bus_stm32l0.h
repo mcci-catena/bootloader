@@ -54,6 +54,19 @@ union McciBootloaderDeviceI2cBusStm32l0_u
 	McciBootloaderDeviceI2cBusStm32l0_Contents_t	Stm32l0;
 	};
 
+McciBootloaderDeviceI2cBus_t *
+McciBootloader_Stm32L0Interface_initI2cBus(
+	void *pRamForBus,
+	size_t sizeForBus,
+	uint32_t baseAddress,
+	uint32_t timingr115k,
+	uint32_t timingr400k,
+	uint32_t timingr1m
+	);
+
+/// an value to use when a speed is not supported.
+#define	MCCI_BOOTLOADER_STM32L0_I2C_TIMINGR_NOT_SUPPORTED	UINT32_C(0xFFFFFFFF)
+
 bool McciBootloaderDeviceI2cBusStm32l0_attach(
 	McciBootloaderDeviceI2cBusStm32l0_t *pBus,
 	McciBootloaderDeviceI2cDeviceStm32l0_t *pDevice
