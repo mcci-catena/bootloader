@@ -42,10 +42,11 @@ doxygen:
 	@printf '${T_BUILDTREE}/doxygen.log: %s messages\n' $$(wc -l < ${T_BUILDTREE}/doxygen.log)
 
 clean-doxygen:
-	rm -rf doc/doxygen ${T_BUILDTREE}/doxygen.log
+	@printf '%s\n' 'clean doxygen'
+	$(MAKEHUSH)rm -rf doc/doxygen ${T_BUILDTREE}/doxygen.log
 
-clean: clean-doxygen
-all: doxygen
+clean-post: clean-doxygen
+all-post: doxygen
 
 # post processing
 include mk/tail.mk
