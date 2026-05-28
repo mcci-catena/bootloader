@@ -45,6 +45,35 @@ MCCI_POSTCOMPILE = mv -f $(@:.o=.td) $(@:.o=.d)
 
 ##############################################################################
 #
+# 	The top-level targets
+#
+##############################################################################
+
+#
+# all: rebuild everything.
+#
+.DEFAULT_GOAL := all
+.PHONY: all all-pre all-post
+all: all-pre
+all-pre:
+all-post:
+
+#
+# clean: remove all the generated files
+#
+.PHONY: clean clean-pre clean-post
+clean: clean-pre
+clean-pre:
+clean-post:
+
+#
+# source-release: source release
+#
+.PHONY: source-release
+source-release:
+
+##############################################################################
+#
 # Macro:  MCCI_DOCOMPILE
 #
 # Function:
@@ -608,22 +637,9 @@ $(foreach F,$(FAMILY_MAKEFILES),$(eval $(call MCCI_DOFAMILY,$(F))))
 
 ##############################################################################
 #
-# 	The top-level targets
+# 	Final rules
 #
 ##############################################################################
-
-#
-# all: rebuild everything.
-#
-.DEFAULT_GOAL := all
-.PHONY: all
-all:
-
-#
-# clean: remove all the generated files
-#
-.PHONY: clean
-clean:
 
 # if we have things to clean, add.
 ifneq ($(strip $(MCCI_CLEANFILES) $(OBJECTS) $(DEPENDS)),)
@@ -637,13 +653,11 @@ endif
 install: $(addprefix install-,$(PROGRAMS) $(LIBRARIES))
 .PHONY: install $(addprefix install-,$(PROGRAMS) $(LIBRARIES))
 
-#
-# source-release: source release
-#
-.PHONY: source-release
-source-release:
-
 # pick up the dependencies.
 -include $(DEPENDS)
+
+# pick up the post-conditions
+all: all-post
+clean: clean-post
 
 #### end of file ####
