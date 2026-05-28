@@ -177,7 +177,7 @@ McciBootloaderBoard_Catena5230_systemInit(void)
 
   McciBootloader_Stm32L0Interface_initI2cBus(
     pI2cBus, sizeof(*pI2cBus),
-    MCCI_STM32L0_REG_I2C2,                                // base addreess of controller
+    MCCI_STM32L0_REG_I2C2,                                // base address of controller
     0x10B07EBA,                                           // timingr for 115k I2C
     MCCI_BOOTLOADER_STM32L0_I2C_TIMINGR_NOT_SUPPORTED,    // no 400k
     MCCI_BOOTLOADER_STM32L0_I2C_TIMINGR_NOT_SUPPORTED     // no 1m
@@ -186,7 +186,7 @@ McciBootloaderBoard_Catena5230_systemInit(void)
   // initI2cBus will call the platform abort method for errors.
 
   // set up the PMIC driver
-  static McciBoodloaderDeviceI2cDeviceStm32L0_t i2cDeviceForPmic;
+  static McciBootloaderDeviceI2cDeviceStm32L0_t i2cDeviceForPmic;
 
   McciBootloaderDevicePmicNPM1300_t * const pPmic =
     McciBootloaderDriver_PmicNPM1300_attach(

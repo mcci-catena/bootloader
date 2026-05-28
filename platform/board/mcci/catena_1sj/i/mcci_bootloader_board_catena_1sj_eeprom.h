@@ -3,7 +3,7 @@
 Module:	mcci_bootloader_board_catena_1sj_eeprom.h
 
 Function:
-	Layout of Bootloader EEPROM for Catenas based on Murata ABZ modules with STM32L0.
+	Layout of Bootloader EEPROM for Catenas based on Murata 1SJ modules with STM32L0.
 
 Copyright and License:
 	This file copyright (C) 2026 by
@@ -15,7 +15,7 @@ Copyright and License:
 	See accompanying LICENSE file for copyright and license information.
 
 Author:
-	Terry Moore, MCCI Corporation	March 2026
+	Terry Moore, MCCI Corporation	May 2026
 
 */
 
@@ -39,7 +39,7 @@ McciBootloaderBoard_Catena1sj_Eeprom_t;
 ///
 /// \brief layout of Catena EEPROM image
 ///
-/// We place an image of this at the end of the data EEPROM second for
+/// We place an image of this at the end of the data EEPROM section for
 /// the SoC.
 ///
 struct McciBootloaderBoard_Catena1sj_Eeprom_s

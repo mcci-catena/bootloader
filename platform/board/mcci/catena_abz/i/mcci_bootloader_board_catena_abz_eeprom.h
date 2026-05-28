@@ -6,7 +6,7 @@ Function:
 	Layout of Bootloader EEPROM for Catenas based on STM32L0.
 
 Copyright and License:
-	This file copyright (C) 2021 by
+	This file copyright (C) 2021, 2026 by
 
 		MCCI Corporation
 		3520 Krums Corners Road
@@ -39,7 +39,7 @@ McciBootloaderBoard_CatenaAbz_Eeprom_t;
 ///
 /// \brief layout of Catena EEPROM image
 ///
-/// We place an image of this at the end of the data EEPROM second for
+/// We place an image of this at the end of the data EEPROM section for
 /// the SoC.
 ///
 struct McciBootloaderBoard_CatenaAbz_Eeprom_s

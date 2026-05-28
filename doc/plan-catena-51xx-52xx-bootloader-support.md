@@ -1,5 +1,7 @@
 # Plan: Add Catena 51xx and 52xx Bootloader Support
 
+*Note*: this plan is out of date in several sections. We will review and converge this in our next work session.
+
 ## Context
 
 The MCCI Trusted Bootloader currently supports Catena 46xx and 4801 boards (Murata ABZ / STM32L0). Two new product families need bootloader support:
@@ -272,7 +274,7 @@ Create all `.c` source files with correct headers, includes, and function signat
 - `mccibootloaderboard_catena52xx_storageinit.c`: empty `storageInit()`
 
 #### 6.3 catena5230 stubs
-- `mccibootloaderboard_catena5230_platforminterface.c`: same as 52xx but `.Storage.pInit` = `Catena5230_storageInit`, `.pPrepareForLaunch` = `Catena5230_prepareForLaunch`. This file is complete, not a stub.
+- `mccibootloaderboard_catena5230_platforminterface.c`: same as 52xx but we needto override `.pSystemInit` = `Catena5230_systemInit`, `.Storage.pInit` = `Catena5230_storageInit`, `.pPrepareForLaunch` = `Catena5230_prepareForLaunch`. This file is complete, not a stub.
 - `mccibootloaderboard_catena5230_storageinit.c`: empty `storageInit()`
 - `mccibootloaderboard_catena5230_prepareforlaunch.c`: stub that just calls `McciBootloader_Stm32L0_prepareForLaunch()`
 
