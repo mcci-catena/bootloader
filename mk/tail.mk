@@ -504,9 +504,8 @@ endef
 #	TAG_$1		tag to use when releasing.
 #
 # Output:
-#	release: is updated to create build/$1-TAG.tar.gz
-#	clean: is updated to remove releases
-#	MCCI_CLEANFILES is similarly updated.
+#	source-release: is updated to create build/$1-TAG.tar.gz
+#	MCCI_CLEANFILES is similarly updated so that make clean will remove.
 #
 ##############################################################################
 
