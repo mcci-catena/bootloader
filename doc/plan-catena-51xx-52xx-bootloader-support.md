@@ -14,6 +14,8 @@ The key hardware differences from existing boards are:
 - 51xx uses **SPI2 on PB12-PB15** for flash (same as ABZ), but LED is **PB5** (ABZ uses PB2)
 - 5230 has an NPM1300 PMIC on I2C2 (PB10/PB11, addr 0x6B) that must enable LOADSW2 to power the SPI flash, then disable it before app launch for micropower
 
+**[[note to Claude from tmm]]**: the NPM1300 *also* needs to be initialized for least power use in general on the 5230. So the pattern will be: 1) initialize the PMIC for least power; 2) if reading SPI, enable power to the SPI flash; 3) prior to launching, make sure power to SPI is off (but maintain the PMIC initialization). This is deliberately different than "restoring the PMIC to defaults"; we want to make sure we don't have a path that will burn the battery more quickly. You should remove this note on the next directed edit pass, as part of the alignment between plan and actual execution, but put the info in the right place(s) in the body text.
+
 ## Hardware Pin Summary
 
 | Signal | ABZ (46xx/4801) | 1SJ (52xx) | 5082 (51xx) |
