@@ -39,7 +39,7 @@ Author:
 |
 \****************************************************************************/
 
-static McciBootloader_LED_Annuciator_t annunciator;
+static McciBootloader_LED_Annunciator_t annunciator;
 
 
 /*
@@ -107,7 +107,7 @@ Returns:
 
 Notes:
 	Normally this is called as a result of a call to the platform 
-	Annuciator.pIndicateState functtion.
+	Annunciator.pIndicateState function.
 
 */
 

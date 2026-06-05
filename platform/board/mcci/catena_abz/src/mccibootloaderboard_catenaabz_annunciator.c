@@ -29,7 +29,7 @@ Author:
 |
 \****************************************************************************/
 
-typedef struct CatenaAbz_Annuciator_s CatenaAbz_Annuciator_t;
+typedef struct CatenaAbz_Annunciator_s CatenaAbz_Annunciator_t;
 
 typedef enum
 	{
@@ -41,7 +41,7 @@ typedef enum
 	stByteGap,	///< displaying byte gap
 	} AnnunciatorBitState_t;
 
-struct CatenaAbz_Annuciator_s
+struct CatenaAbz_Annunciator_s
 	{
 	uint32_t		tick;
 	uint32_t		display;
@@ -66,7 +66,7 @@ struct CatenaAbz_Annuciator_s
 |
 \****************************************************************************/
 
-static CatenaAbz_Annuciator_t annunciator;
+static CatenaAbz_Annunciator_t annunciator;
 
 void
 McciBootloaderBoard_CatenaAbz_annunciatorInit(

@@ -33,7 +33,7 @@ extern "C" {
 #endif
 
 /// @brief symbolic type for the structure representing the bootloader LED state
-typedef struct McciBootloader_LED_Annuciator_s McciBootloader_LED_Annuciator_t;
+typedef struct McciBootloader_LED_Annunciator_s McciBootloader_LED_Annunciator_t;
 
 /// @brief The states of the Bootloader LED finite state machine.
 typedef enum
@@ -47,7 +47,7 @@ typedef enum
 	} McciBootloader_LED_AnnunciatorBitState_t;
 
 /// @brief The bootloader LED annunciator state object.
-struct McciBootloader_LED_Annuciator_s
+struct McciBootloader_LED_Annunciator_s
 	{
 	/// @brief incremented every systick
 	uint32_t					tick;
