@@ -5,7 +5,7 @@ Module:	mccibootloaderboard_catena1sj_annunciator.c
 Function:
 	Annunciator (LED flashing) functions for 1SJ-based Catena boards.
 
-Copyright notice:
+Copyright and License:
 	This file copyright (C) 2026 by
 
 		MCCI Corporation
