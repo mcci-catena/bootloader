@@ -15,6 +15,7 @@ LIBRARIES += libmcci_bootloader
 SOURCES_libmcci_bootloader =				\
 	src/mccibootloader_checkcodevalid.c		\
 	src/mccibootloader_checkstorageimage.c		\
+	src/mccibootloader_led_annunciator.c		\
 	src/mccibootloader_main.c			\
 	src/mccibootloader_programandcheckflash.c	\
 	platform/src/mccibootloaderplatform_entry.c	\
