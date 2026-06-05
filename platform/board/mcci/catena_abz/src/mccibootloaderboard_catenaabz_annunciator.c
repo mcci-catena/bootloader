@@ -73,7 +73,7 @@ McciBootloaderBoard_CatenaAbz_annunciatorInit(
 	void
 	)
 	{
-	/// enable interrupts
+	// enable interrupts
 	McciArm_setPRIMASK(0);
 	annunciator.bittime = 100; // 100 ms per bit.
 	annunciator.bitState = stIdle;
