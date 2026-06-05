@@ -103,7 +103,7 @@ Definition:
 		);
 
 Description:
-	This function just maps the state indiation to the opt-in LED
+	This function just maps the state indication to the opt-in LED
 	annunciator. The binary value of the state is flashed on the LED
 	(if there's time -- quick state changes may never show up).
 
@@ -111,8 +111,8 @@ Returns:
 	No explicit result.
 
 Notes:
-	THis assumes that McciBootloaderBoard_Catena1sj_handleSysTick()
-	calls McciBootloaderBoard_CatenaAbz_handleSysTick() and updates
+	This assumes that McciBootloaderBoard_Catena1sj_handleSysTick()
+	calls McciBootloader_LED_handleSysTick() and updates
 	the LED state appropriately.
 
 */

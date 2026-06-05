@@ -3,7 +3,7 @@
 Module:	mccibootloaderboard_catena1sj_systeminit.c
 
 Function:
-	McciBootloaderBoard_Catena1SJ_SystemInit() and system init logic for
+	McciBootloaderBoard_Catena1sj_systemInit() and system init logic for
 	MCCI Catenas based on Murata type-1SJ modules.
 
 Copyright and License:
@@ -73,7 +73,7 @@ Definition:
 Description:
 	We set up the CPU for 32 MHz operation (using stm32l0 initialization).
 
-	We then then enable GPIOs for the LED (pin PB2).
+	We then enable GPIOs for the LED (pin PB2).
 
 Returns:
 	No explicit result.
@@ -200,7 +200,7 @@ McciBootloaderBoard_Catena1sj_fail(
 			MCCI_CM0PLUS_SCB_AIRCR_SYSRESETREQ
 			);
 
-		// make sure teh reset gets to the register.
+		// make sure the reset gets to the register.
 		McciArm_DataSynchBarrier();
 
 		while (true)

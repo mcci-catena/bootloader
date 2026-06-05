@@ -84,7 +84,7 @@ McciBootloader_LED_annunciatorInit(
 Name:	McciBootloader_LED_annunciatorIndicateState()
 
 Function:
-	Pass the bootloader state to the annunciator FSM
+	Pass the bootloader state to the annunciator FSM.
 
 Definition:
 	void McciBootloader_LED_annunciatorIndicateState(
@@ -98,9 +98,9 @@ Description:
 
 	If state is zero, the LED is turned off. Otherwise, state is interpreted
 	as a number and scheduled for bit-serial display based on clock
-	interrutps. Numbers are displayed using long flashes for 1, short
+	interrupts. Numbers are displayed using long flashes for 1, short
 	flashes for 0. 	Leading zeroes are suppressed. The number is displayed
-	over and over until changed by another call to thie routine.
+	over and over until changed by another call to this routine.
 
 Returns:
 	No explicit result.

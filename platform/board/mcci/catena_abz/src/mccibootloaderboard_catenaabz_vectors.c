@@ -133,7 +133,31 @@ McciBootloaderBoard_CatenaAbz_NotHandled(void)
 		;
 	}
 
-/// \brief SVC handler -- immediately returns
+///
+/// \brief SVC handler -- provides very limited facilities to the application
+///	after boot.
+///
+/// \details
+///	* McciBootloaderPlatform_ARMv6M_SvcRq_GetUpdatePointer: gets the address
+///	  used by this bootloader for the EEPROM update flag.
+///
+///	* McciBootloaderPlatform_ARMv6M_SvcRq_HashInit: initializes a hash calculation.
+///	  arg1 points to a 64 byte buffer that is filled with the initial
+///	  hash value.
+///
+///	* McciBootloaderPlatform_ARMv6M_SvcRq_HashBlocks: accumulates hash.
+///	  arg1 points to McciBootloaderPlatform_ARMv6M_SvcRq_HashBlocks_Arg_t
+///	  object.
+///
+///	* McciBootloaderPlatform_ARMv6M_SvcRq_HashFinish: finishes a hash calculation.
+///	  arg1 points to McciBootloaderPlatform_ARMv6M_SvcRq_HashFinish_Arg_t.
+///
+///	* McciBootloaderPlatform_ARMv6M_SvcRq_Verify64: does a time-invariant comparison
+///	  of two 64-byte buffers.
+///
+///	TODO(tmm@mcci.com): this should be refactored because it's essentially portable.
+///	The board specific SVC handler should delegate to a portable common block of logic.
+///
 static void
 McciBootloaderBoard_CatenaAbz_SvcHandler(
 	McciBootloaderPlatform_ARMv6M_SvcRq_t svcRequest,

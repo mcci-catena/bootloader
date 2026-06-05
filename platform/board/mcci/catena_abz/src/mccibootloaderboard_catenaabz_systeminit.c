@@ -73,7 +73,7 @@ Definition:
 Description:
 	We set up the CPU for 32 MHz operation (using stm32l0 initialization).
 
-	We then then enable GPIOs for the LED (pin PB2).
+	We then enable GPIOs for the LED (pin PB2).
 
 Returns:
 	No explicit result.
