@@ -6,7 +6,7 @@ Function:
 	Vectors for bootloader for Catenas based on Murata type-ABZ module.
 
 Copyright and License:
-	This file copyright (C) 2021 by
+	This file copyright (C) 2021, 2026 by
 
 		MCCI Corporation
 		3520 Krums Corners Road
