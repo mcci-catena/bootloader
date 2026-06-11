@@ -37,7 +37,7 @@ typedef struct McciBootloaderDevice_Contents_s McciBootloaderDevice_Contents_t;
 typedef union McciBootloaderDevice_u McciBootloaderDevice_t;
 
 typedef bool (McciBootloaderDevice_BeginFn_t)(McciBootloaderDevice_t *);
-typedef bool (McciBootloaderDevice_EndFn_t)()McciBootloaderDevice_t *;
+typedef bool (McciBootloaderDevice_EndFn_t)(McciBootloaderDevice_t *);
 
 #ifdef __cplusplus
 }

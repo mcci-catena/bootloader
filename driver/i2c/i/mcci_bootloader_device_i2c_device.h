@@ -70,7 +70,7 @@ union McciBootloaderDeviceI2cDevice_u
 #define McciBootloaderDeviceI2cDevice_UNION				\
 	McciBootloaderDevice_UNION;					\
 	McciBootloaderDeviceI2cDevice_Contents_t	I2cDevice;	\
-	McciBootloaderDeviceI2cDevice_t			I2cDeviceCastCast
+	McciBootloaderDeviceI2cDevice_t			I2cDeviceCast
 
 #ifdef __cplusplus
 }

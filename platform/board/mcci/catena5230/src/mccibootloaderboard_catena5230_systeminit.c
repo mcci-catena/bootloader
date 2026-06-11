@@ -24,6 +24,7 @@ Author:
 #include "mcci_bootloader_device_i2c_bus_stm32l0.h"
 #include "mcci_bootloader_device_i2c_device_stm32l0.h"
 #include "mcci_bootloader_device_npm1300.h"
+#include "mcci_npm1300.h"
 #include "mcci_stm32l0xx.h"
 
 /****************************************************************************\
@@ -59,13 +60,13 @@ g_McciBootloaderBoard_Catena5230_pNPM1300;
 
 /*
 
-Name:	McciBootloaderBoard_Catena5320_systemInit()
+Name:	McciBootloaderBoard_Catena5230_systemInit()
 
 Function:
 	System init platform method for Catena 5230 boards.
 
 Definition:
-	void McciBootloaderBoard_Catena5320_systemInit(
+	void McciBootloaderBoard_Catena5230_systemInit(
 		void
 		);
 
@@ -82,10 +83,10 @@ Notes:
 
 */
 
-#define FUNCTION "McciBootloaderBoard_Catena5320_systemInit"
+#define FUNCTION "McciBootloaderBoard_Catena5230_systemInit"
 
 void
-McciBootloaderBoard_Catena5320_systemInit(
+McciBootloaderBoard_Catena5230_systemInit(
 	void
 	)
 	{
@@ -109,8 +110,8 @@ McciBootloaderBoard_Catena5320_systemInit(
 	// createAndAttach will also call the platform abort method for errors.
 	g_McciBootloaderBoard_Catena5230_pNPM1300 =
 		McciBootloaderDriver_NPM1300_createAndAttach(
-			pI2cBus,
-			&g_McciBootloaderBoard_Catena5220_i2cDevice_NPM1300,
+			&pI2cBus->I2cBusCast,
+			&g_McciBootloaderBoard_Catena5220_i2cDevice_NPM1300.I2cDeviceCast,
 			sizeof(g_McciBootloaderBoard_Catena5220_i2cDevice_NPM1300)
 			);
 
@@ -128,20 +129,20 @@ McciBootloaderBoard_Catena5320_systemInit(
 		{ MCCI_PMIC_NPM1300_REG_BCHGISETLSB,       0x00 },
 		{ MCCI_PMIC_NPM1300_REG_BCHGDISABLESET,    0x02 },
 		{ MCCI_PMIC_NPM1300_REG_BCHGENABLESET,     0x01 },
-		{ MCCI_PMIC_NPM1300_REG_BUCK1ENASET,       0x01 },
-		{ MCCI_PMIC_NPM1300_REG_BUCK1ENACLR,       0x01 },
-		{ MCCI_PMIC_NPM1300_REG_BUCK1NORMVOUT,     0x17 },
+		{ MCCI_PMIC_NPM1300_REG_BUCKENASET_1,      0x01 },
+		{ MCCI_PMIC_NPM1300_REG_BUCKENACLR_1,      0x01 },
+		{ MCCI_PMIC_NPM1300_REG_BUCKNORMVOUT_1,    0x17 },
 		{ MCCI_PMIC_NPM1300_REG_BUCKSWCTRLSEL,     0x01 },
-		{ MCCI_PMIC_NPM1300_REG_BUCK2ENASET,       0x01 },
-		{ MCCI_PMIC_NPM1300_REG_BUCK2ENACLR,       0x01 },
-		{ MCCI_PMIC_NPM1300_REG_LDSW1LDOSEL,       0x01 },
-		{ MCCI_PMIC_NPM1300_REG_LDSW1VOUTSEL,      0x17 },
-		{ MCCI_PMIC_NPM1300_REG_LDSW2LDOSEL,       0x00 },
-		{ MCCI_PMIC_NPM1300_REG_TASKLDSW2SET,      0x01 },
-		{ MCCI_PMIC_NPM1300_REG_TASKLDSW2CLR,      0x01 },
+		{ MCCI_PMIC_NPM1300_REG_BUCKENASET_2,      0x01 },
+		{ MCCI_PMIC_NPM1300_REG_BUCKENACLR_2,      0x01 },
+		{ MCCI_PMIC_NPM1300_REG_LDSWLDOSEL_1,      0x01 },
+		{ MCCI_PMIC_NPM1300_REG_LDSWVOUTSEL_1,     0x17 },
+		{ MCCI_PMIC_NPM1300_REG_LDSWLDOSEL_2,      0x00 },
+		{ MCCI_PMIC_NPM1300_REG_TASKLDSWSET_1,     0x01 },
+		{ MCCI_PMIC_NPM1300_REG_TASKLDSWCLR_2,     0x01 },
 		{ MCCI_PMIC_NPM1300_REG_VBUSINILIMSTARTUP, 0x0F },
-		{ MCCI_PMIC_NPM1300_REG_LEDDRV0MODESEL,    0x01 },
-		{ MCCI_PMIC_NPM1300_REG_LEDDRV1MODESEL,    0x00 },
+		{ MCCI_PMIC_NPM1300_REG_LEDDRVMODESEL_0,   0x01 },
+		{ MCCI_PMIC_NPM1300_REG_LEDDRVMODESEL_1,   0x00 },
 		};
 
 	McciBootloaderDevice_NPM1300_initializeRegisters(
