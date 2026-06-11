@@ -24,8 +24,8 @@ Author:
 
 #pragma once
 
-#ifndef _mcci_bootloader_device_types_h_
-# include "mcci_bootloader_device_types.h"
+#ifndef _mcci_bootloader_device_i2c_types_h_
+# include "mcci_bootloader_device_i2c_types.h"
 #endif
 
 #ifdef __cplusplus
@@ -36,8 +36,43 @@ typedef struct McciBootloaderDeviceI2cDeviceMethods_s McciBootloaderDeviceI2cDev
 typedef union McciBootloaderDeviceI2cDevice_u McciBootloaderDeviceI2cDevice_t;
 typedef struct McciBootloaderDeviceI2cDevice_Contents_s McciBootloaderDeviceI2cDevice_Contents_t;
 
-typedef bool (McciBootloaderDeviceI2cDevice_ReadFn_t)(McciBootloaderDeviceI2cDevice_t *, uint8_t bAddress, uint8_t *pValue, size_t nValue);
-typedef bool (McciBootloaderDeviceI2cDevice_WriteFn_t)(McciBootloaderDeviceI2cDevice_t *, uint8_t bAddress, const uint8_t *pValue, size_t nValue);
+///
+/// @brief read bytes from an I2C device.
+///
+/// @param [in] pI2cDevice indicates the device instance.
+/// @param [out] pBuffer points to the buffer to be filled with data.
+/// @param [in] nBuffer  number of bytes to be read into pBuffer.
+///
+/// @returns
+///	number of bytes transferred. This will always be either nBuffer or zero.
+///	Return != nBuffer indicates an error.
+///
+typedef size_t (McciBootloaderDeviceI2cDevice_ReadFn_t)(
+		McciBootloaderDeviceI2cDevice_t *pI2cDevice,
+		McciBootloaderDeviceI2cAddress_t bAddress,
+		uint8_t *pValue,
+		size_t nValue
+		);
+
+///
+/// @brief write bytes to an I2C device.
+///
+/// @param [in] pI2cDevice indicates the device instance.
+/// @param [in] pBuffer points to the buffer to be filled with data.
+/// @param [in] nBuffer  number of bytes to be read into pBuffer.
+///
+/// @returns
+///	Number of bytes transferred; this will always be <= nBuffer.
+///
+/// @note
+///	There's currently no way to determine why fewer bytes were
+///	written than expected.
+///
+typedef size_t (McciBootloaderDeviceI2cDevice_WriteFn_t)(
+		McciBootloaderDeviceI2cDevice_t *pI2cDevice,
+		const uint8_t *pValue,
+		size_t nValue
+		);
 
 #ifdef __cplusplus
 }

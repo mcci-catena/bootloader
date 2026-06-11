@@ -24,8 +24,8 @@ Author:
 
 #pragma once
 
-#ifndef _mcci_bootloader_device_types_h_
-# include "mcci_bootloader_device_types.h"
+#ifndef _mcci_bootloader_device_i2c_types_h_
+# include "mcci_bootloader_device_i2c_types.h"
 #endif
 
 #ifdef __cplusplus
@@ -36,8 +36,46 @@ typedef struct McciBootloaderDeviceI2cBusMethods_s McciBootloaderDeviceI2cBusMet
 typedef union McciBootloaderDeviceI2cBus_u McciBootloaderDeviceI2cBus_t;
 typedef struct McciBootloaderDeviceI2cBus_Contents_s McciBootloaderDeviceI2cBus_Contents_t;
 
-typedef bool (McciBootloaderDeviceI2cBus_ReadFn_t)(McciBootloaderDeviceI2cBus_t *, uint8_t bAddress, uint8_t *pValue, size_t nValue);
-typedef bool (McciBootloaderDeviceI2cBus_WriteFn_t)(McciBootloaderDeviceI2cBus_t *, uint8_t bAddress, const uint8_t *pValue, size_t nValue);
+///
+/// @brief read bytes from an I2C device connected to this bus.
+///
+/// @param [in] pBus	points to the bus object to be used for this transfer.
+/// @param [in] i2cAddress is the 7 or 10 bit address of the device.
+/// @param [out] pBuffer points to the buffer to be filled with data.
+/// @param [in] nBuffer  number of bytes to be read into pBuffer.
+///
+/// @returns
+///	number of bytes transferred. This will always be either nBuffer or zero.
+///	Return != nBuffer indicates an error.
+///
+typedef size_t (McciBootloaderDeviceI2cBus_ReadFn_t)(
+		McciBootloaderDeviceI2cBus_t *pBus,
+		McciBootloaderDeviceI2cAddress_t i2cAddress,
+		uint8_t *pBuffer,
+		size_t nBuffer
+		);
+
+///
+/// @brief write bytes to an I2C device connected to this bus.
+///
+/// @param [in] pBus	points to the bus object to be used for this transfer.
+/// @param [in] i2cAddress is the 7 or 10 bit address of the device.
+/// @param [in] pBuffer points to the buffer to be filled with data.
+/// @param [in] nBuffer  number of bytes to be read into pBuffer.
+///
+/// @returns
+///	Number of bytes transferred; this will always be <= nBuffer.
+///
+/// @note
+///	There's currently no way to determine why fewer bytes were
+///	written than expected.
+///
+typedef size_t (McciBootloaderDeviceI2cBus_WriteFn_t)(
+		McciBootloaderDeviceI2cBus_t *pBus,
+		McciBootloaderDeviceI2cAddress_t i2cAddress,
+		const uint8_t *pBuffer,
+		size_t nBuffer
+		);
 
 #ifdef __cplusplus
 }

@@ -126,19 +126,19 @@ McciBootloaderDevice_t "1" <--* "1" McciBootloaderDeviceI2cDevice_t
 McciBootloaderDeviceI2cDevice_t "1" <--* "1" McciBootloaderDevicePmicNPM1300_t
 
 McciBootloaderDeviceI2cBus_t : bool attach(McciBootLoaderDeviceI2cDevice_t *pDevice)
-McciBootloaderDeviceI2cBus_t : bool read(uint8_t bAddress, uint8_t *pbValue)
-McciBootloaderDeviceI2cBus_t : bool write(uint8_t bAddress, uint8_t bValue)
+McciBootloaderDeviceI2cBus_t : size_t read(McciBootloaderDeviceI2cAddress_t i2cAddress, uint8_t *pBuffer, size_t nBytes)
+McciBootloaderDeviceI2cBus_t : size_t write(McciBootloaderDeviceI2cAddress_t i2cAddress, const uint8_t *pBuffer, size_t nBytes)
 
 McciBootloaderDeviceI2cBusStm32L0_t : uint32_t baseAddress
 McciBootloaderDeviceI2cBusStm32L0_t : uint32_t timingr
 
-McciBootloaderDeviceI2cDevice_t : uint8_t bAddress
+McciBootloaderDeviceI2cDevice_t : McciBootloaderDeviceI2cAddress_t bAddress
 McciBootloaderDeviceI2cDevice_t : McciBootloaderDeviceI2cBus_t *pBus
-McciBootloaderDeviceI2cDevice_t : bool read(uint8_t *pbValue, size_t nValue)
-McciBootloaderDeviceI2cDevice_t : bool write(const uint8_t *pbValue, size_t nValue)
+McciBootloaderDeviceI2cDevice_t : size_t read(uint8_t *pbValue, size_t nValue)
+McciBootloaderDeviceI2cDevice_t : size_t write(const uint8_t *pbValue, size_t nValue)
 
 McciBootloaderDevicePmicNPM1300_t : bool initializeRegisters(\n\tconst McciBootloaderDevicePmicNPM1300_RegisterValues\n\t\t\t*pValues,\n\tsize_t sizeValues);
-McciBootloaderDevicePmicNPM1300_t : bool attach(\n\tMcciBootloaderDeviceI2cBus_t *pBus,\n\tuint8_t bAddress)
+McciBootloaderDevicePmicNPM1300_t : bool attach(\n\tMcciBootloaderDeviceI2cBus_t *pBus,\n\McciBootloaderDeviceI2cAddress_t bAddress)
 @enduml
 ```
 
@@ -154,93 +154,6 @@ The initialization sequence will be:
 4. The PMIC driver allocates memory for an `McciBootloaderDeviceI2cDevice_t` (embedded in the header of the `McciBootloaderDevice_PmicNPM1300_t`) and registers with the I2C bus driver, getting a suitable interface for doing low level I/Os
 5. The platform calls `McciBootloaderDriver_PmicNPM1300_initializeRegisters()` which uses the bus driver to set up all the bytes in the PMIC. Note that the actual register values come from the platform. Our goal is not to operate the PMIC, just initialize it properly after a reset.
 
-The platform-layer code will look like this:
-
-```c
-  // ... in mccibootloader_catena523x_platforminterface.c, which
-  // will specify McciBootloaderBoard_Catena5230_systemInit as the
-  // top-level platform init function.
-
-McciBootloaderDeviceI2cBusStm32L0_t
-McciBootloaderBoard_Catena5230_i2cBus2;
-
-void
-McciBootloaderBoard_Catena5230_systemInit(void)
-  {
-  // initialize things that are common for all Catena boards
-  // based on the 1sj module.
-  McciBootloaderBoard_Catena1sj_systemInit();
-
-  // set up the i2c bus for talking to the PMIC
-  static McciBootloaderDeviceI2cBusStm32L0_t * const pI2cBus =
-    &McciBootloaderBoard_Catena5230_i2cBus2;
-
-  McciBootloader_Stm32L0Interface_initI2cBus(
-    pI2cBus, sizeof(*pI2cBus),
-    MCCI_STM32L0_REG_I2C2,                                // base address of controller
-    0x10B07EBA,                                           // timingr for 115k I2C
-    MCCI_BOOTLOADER_STM32L0_I2C_TIMINGR_NOT_SUPPORTED,    // no 400k
-    MCCI_BOOTLOADER_STM32L0_I2C_TIMINGR_NOT_SUPPORTED     // no 1m
-    );
-
-  // initI2cBus will call the platform abort method for errors.
-
-  // set up the PMIC driver
-  static McciBootloaderDeviceI2cDeviceStm32L0_t i2cDeviceForPmic;
-
-  McciBootloaderDevicePmicNPM1300_t * const pPmic =
-    McciBootloaderDriver_PmicNPM1300_attach(
-      pI2cBus,
-      &i2cDeviceForPmic,
-      sizeof(i2cDeviceForPmic),
-      /* address */ 0x6b
-      );
-
-  if (pPmic == NULL)
-    {
-    // abort
-    }
-
-  // the device driver is created and initialized, now
-  // we set the registers for our platform.
-  // we assume that the PMIC drivers exports McciBootloaderDriver_PmicNPM1300_Init_t,
-  // which is a register/value pair.
-  const static McciBootloaderDriver_PmicNPM1300_Init_t pmicInitTable[] =
-    {
-    { MCCI_PMIC_NPM1300_REG_BCHGVTERM,         0x08 },
-    { MCCI_PMIC_NPM1300_REG_BCHGVTERMR,        0x08 },
-    { MCCI_PMIC_NPM1300_REG_BCHGDISABLESET,    0x02 },
-    { MCCI_PMIC_NPM1300_REG_BCHGDISABLECLR,    0x01 },
-    { MCCI_PMIC_NPM1300_REG_BCHGISETMSB,       0xC8 },
-    { MCCI_PMIC_NPM1300_REG_BCHGISETLSB,       0x00 },
-    { MCCI_PMIC_NPM1300_REG_BCHGDISABLESET,    0x02 },
-    { MCCI_PMIC_NPM1300_REG_BCHGENABLESET,     0x01 },
-    { MCCI_PMIC_NPM1300_REG_BUCK1ENASET,       0x01 },
-    { MCCI_PMIC_NPM1300_REG_BUCK1ENACLR,       0x01 },
-    { MCCI_PMIC_NPM1300_REG_BUCK1NORMVOUT,     0x17 },
-    { MCCI_PMIC_NPM1300_REG_BUCKSWCTRLSEL,     0x01 },
-    { MCCI_PMIC_NPM1300_REG_BUCK2ENASET,       0x01 },
-    { MCCI_PMIC_NPM1300_REG_BUCK2ENACLR,       0x01 },
-    { MCCI_PMIC_NPM1300_REG_LDSW1LDOSEL,       0x01 },
-    { MCCI_PMIC_NPM1300_REG_LDSW1VOUTSEL,      0x17 },
-    { MCCI_PMIC_NPM1300_REG_LDSW2LDOSEL,       0x00 },
-    { MCCI_PMIC_NPM1300_REG_TASKLDSW2SET,      0x01 },
-    { MCCI_PMIC_NPM1300_REG_TASKLDSW2CLR,      0x01 },
-    { MCCI_PMIC_NPM1300_REG_VBUSINILIMSTARTUP, 0x0F },
-    { MCCI_PMIC_NPM1300_REG_LEDDRV0MODESEL,    0x01 },
-    { MCCI_PMIC_NPM1300_REG_LEDDRV1MODESEL,    0x00 },
-    };
-
-  McciBootloaderDriver_PmicNPM1300_initializeRegisters(
-    pPmic,
-    pmicInitTable,
-    MCCIADK_LENOF(pmicInitTable)
-    );
-
-  // the PMIC is now set up properly.
-  }
-```
-
 We also need to have code for prepareForExit. The only critical code is in the bus driver, which will need to restore the I2C controller registers to the initial state after hardware reset.
 
 ```c
@@ -249,6 +162,15 @@ McciBootloaderBoard_Catena5230_prepareForLaunch(void)
   {
   static McciBootloaderDeviceI2cBusStm32L0_t * const pI2cBus =
     &McciBootloaderBoard_Catena5230_i2cBus2;
+
+  // shut down the PMIC
+  if (g_McciBootloader_Device_pPmicNPM1300 != NULL)
+    {
+    g_McciBootloader_Device_pPmicNPM1300->Device.pMethods->pEndFn(
+        &g_McciBootloader_Device_pPmicNPM1300->DeviceCast
+        );
+    g_McciBootloader_Device_pPmicNPM1300 = NULL;
+    }
 
   // shut down the I2C driver and restore to reset state.
   pI2cBus->Device.pMethods->pEndFn(&pI2cBus->DeviceCast);
