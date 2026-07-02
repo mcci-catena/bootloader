@@ -26,6 +26,7 @@ INCLUDES_libmcci_bootloader_catena5230 :=				\
 
 SOURCES_libmcci_bootloader_catena5230 :=				\
 	$_/src/mccibootloaderboard_catena5230_platforminterface.c	\
+	$_/src/mccibootloaderboard_catena5230_prepareforlaunch.c	\
 	$_/src/mccibootloaderboard_catena5230_systeminit.c		\
-#	$_/src/mccibootloaderboard_catena5230_storageinit.c		\
+	$_/src/mccibootloaderboard_catena5230_storageinit.c		\
 # end SOURCES_libmcci_bootloader_catena5230
