@@ -90,10 +90,10 @@ McciBootloaderBoard_Catena1sj_systemInit(
 	{
 	McciBootloader_Stm32L0_systemInit();
 
-	// enable GPIO port B
+	// enable GPIO port A & B
 	McciArm_putRegOr(
 		MCCI_STM32L0_REG_RCC_IOPENR,
-		MCCI_STM32L0_REG_RCC_IOPENR_IOPBEN
+		MCCI_STM32L0_REG_RCC_IOPENR_IOPAEN | MCCI_STM32L0_REG_RCC_IOPENR_IOPBEN
 		);
 
 	// set up GPIO port B2 as an output

@@ -31,7 +31,7 @@ Author:
 |
 \****************************************************************************/
 
-
+#define	MCCI_CATENA1SJ_PA8_MASK	(UINT32_C(1) << 8)	// mask for PB8 in the various registers
 
 /****************************************************************************\
 |
@@ -63,10 +63,10 @@ Definition:
 		);
 
 Description:
-	SPI2 is initialized. We assume the following:
+	SPI1 is initialized. We assume the following:
 
 	SPI connections:
-		PA8: nss	AF0
+		PA8: nss	OUT			(manually driven)
 		PB3: sclk	AF0	pulldown.
 		PB4: miso	AF0
 		PB5: mosi	AF0
@@ -74,6 +74,12 @@ Description:
 	Clock: 16 MHz (SYSCLK/2).
 	MSB first.
 	clock polarity 0, phase 0
+
+	The boot loader's architecture assumes that NSS is controlled by the "spi subsystem".
+	On older Catena boards, NSS could be controlled by the SPI hardware. On this
+	family of boards, NSS is wired to a GPIO, and must be manually controlled.
+	This module therefore sets up PA8 as a suitable GPIO, initializes it to 1, and
+	manually drives it active during SPI transfers.
 
 Returns:
 	No explicit result.
@@ -88,12 +94,20 @@ void
 McciBootloaderBoard_Catena1sj_spiInit(void)
 	{
 	// set up the storage connections
+	// PB8 is NSS so we need to set it up.  Initialize the data value before making it an output.
+	McciArm_putReg(
+		MCCI_STM32L0_REG_GPIOA + MCCI_STM32L0_GPIO_BSRR,
+		MCCI_CATENA1SJ_PA8_MASK
+		);
+
+	// make PB8 an output.
 	McciArm_putRegMasked(
 		MCCI_STM32L0_REG_GPIOA + MCCI_STM32L0_GPIO_MODER,
 		(MCCI_STM32L0_GPIO_MODE_P(8)),
-		(MCCI_BOOTLOADER_FIELD_SET_VALUE(MCCI_STM32L0_GPIO_MODE_P(8), MCCI_STM32L0_GPIO_MODE_AF))
+		(MCCI_BOOTLOADER_FIELD_SET_VALUE(MCCI_STM32L0_GPIO_MODE_P(8), MCCI_STM32L0_GPIO_MODE_OUT))
 		);
 
+	// set up the SPI bits.
 	McciArm_putRegMasked(
 		MCCI_STM32L0_REG_GPIOB + MCCI_STM32L0_GPIO_MODER,
 		(MCCI_STM32L0_GPIO_MODE_P(5) |
@@ -165,11 +179,12 @@ McciBootloaderBoard_Catena1sj_spiInit(void)
 
 	// setup SPI_CR2
 	// since we reset above, we don't have to worry about anything
-	// except non-default settings
-	McciArm_putRegOr(
-		MCCI_STM32L0_REG_SPI1 + MCCI_STM32L0_SPI_CR2,
-		MCCI_STM32L0_SPI_CR2_SSOE		/* enable the nss output */
-		);
+	// except non-default settings. And since we are using a non-default
+	// NSS, manually managed, we don't want to write anything at all.
+	// McciArm_putRegOr(
+	//	MCCI_STM32L0_REG_SPI1 + MCCI_STM32L0_SPI_CR2,
+	//	0		/* MCCI_STM32L0_SPI_CR2_SSOE would enable the nss output */
+	//	);
 
 	// setup I2SCFGR_I2SMOD
 	// since we reset above, we don't need to do anything.
@@ -226,6 +241,12 @@ McciBootloaderBoard_Catena1sj_spiTransfer(
 	{
 	uint8_t txdata;
 
+	// drive NSS low.
+	McciArm_putReg(
+		MCCI_STM32L0_REG_GPIOA + MCCI_STM32L0_GPIO_BRR,
+		MCCI_CATENA1SJ_PA8_MASK
+		);
+
 	McciArm_putRegOr(
 		MCCI_STM32L0_REG_SPI1 + MCCI_STM32L0_SPI_CR1,
 		MCCI_STM32L0_SPI_CR1_SPE
@@ -254,6 +275,12 @@ McciBootloaderBoard_Catena1sj_spiTransfer(
 		McciArm_putRegClear(
 			MCCI_STM32L0_REG_SPI1 + MCCI_STM32L0_SPI_CR1,
 			MCCI_STM32L0_SPI_CR1_SPE
+			);
+
+		// drive NSS high.
+		McciArm_putReg(
+			MCCI_STM32L0_REG_GPIOA + MCCI_STM32L0_GPIO_BSRR,
+			MCCI_CATENA1SJ_PA8_MASK
 			);
 		}
 	}

@@ -18,23 +18,23 @@ Temporary file; delete when done.
   - [x] Clock enable: `RCC_APB2ENR_SPI1EN` (replaces `RCC_APB1ENR_SPI2EN`)
   - [x] Reset: `RCC_APB2RSTR_SPI1RST` set/clear (replaces APB1RSTR SPI2RST)
   - [x] Register base: `MCCI_STM32L0_REG_SPI1` throughout (spiInit and spiTransfer)
-  - [ ] **CS on PA8 is a plain GPIO, not hardware NSS.** PA8 has no SPI1_NSS
+  - [x] **CS on PA8 is a plain GPIO, not hardware NSS.** PA8 has no SPI1_NSS
       alternate function (AF list is MCO / USB_CRS_SYNC / USART1_RTS / TSC /
       EVENTOUT). The only SPI1_NSS pins are PA4 and PA15, and the board wires PA4
       out to the D14/A0 header. The L0 has no SYSCFG pin remap for SPI, so there
       is no way to put NSS on PA8. The driver must drive PA8 by hand:
-    - [ ] spiInit: configure PA8 as a GPIO **output** (`MCCI_STM32L0_GPIO_MODE_OUT`),
+    - [x] spiInit: configure PA8 as a GPIO **output** (`MCCI_STM32L0_GPIO_MODE_OUT`),
         not AF, and set it high (deselected). Keep the existing PA8 OSPEEDR-high and
         PUPDR-none writes.
-    - [ ] spiInit: drop the `MCCI_STM32L0_SPI_CR2_SSOE` write. SSOE drives the
+    - [x] spiInit: drop the `MCCI_STM32L0_SPI_CR2_SSOE` write. SSOE drives the
         hardware NSS pin (PA4/PA15), not PA8, so it does nothing useful here.
-    - [ ] spiTransfer: assert CS by clearing PA8 (BRR) before clocking; when
+    - [x] spiTransfer: assert CS by clearing PA8 (BRR) before clocking; when
         `fContinue` is false, set PA8 high (BSRR) to deselect, next to clearing SPE.
         The byte loop already waits for RXNE on the last byte, so deasserting after
         the loop is safe.
-  - [ ] Doc comment at line ~69: pin list now says "PA8: nss AF0" -- PA8 is a GPIO
+  - [x] Doc comment at line ~69: pin list now says "PA8: nss AF0" -- PA8 is a GPIO
       chip-select, not an alternate function. Fix the annotation.
-- [ ] `mccibootloaderboard_catena1sj_systeminit.c:96` -- also enable `IOPAEN`
+- [x] `mccibootloaderboard_catena1sj_systeminit.c:96` -- also enable `IOPAEN`
       (CS is on PA8; only `IOPBEN` is enabled now)
 
 ## Cross-cutting: audit all SPI drivers for NSS-as-GPIO
