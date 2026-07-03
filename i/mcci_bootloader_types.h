@@ -76,6 +76,9 @@ MCCI_BOOTLOADER_BEGIN_DECLS
 ///
 /// \brief error codes for the bootloader
 ///
+/// \note enum types don't have predictable width. So we declare this as
+///	a `uint32_t`, and have a separate declaration for the enum.
+///
 /// \see McciBootloaderError_e
 ///
 typedef uint32_t McciBootloaderError_t;
@@ -92,7 +95,7 @@ typedef uint32_t	McciBootloaderStorageAddress_t;
 /// \brief Current boot system state
 ///
 /// \note enum types don't have predictable width. So we declare this as
-///	a `uint32_t`, and have a separate declariton for the enum.
+///	a `uint32_t`, and have a separate declaration for the enum.
 ///
 /// \see McciBootloaderState_e
 ///
@@ -119,4 +122,5 @@ typedef struct McciBootloader_SignatureBlock_s McciBootloader_SignatureBlock_t;
 typedef uint32_t McciBootloader_Milliseconds_t;
 
 MCCI_BOOTLOADER_END_DECLS
+
 #endif /* _MCCI_BOOTLOADER_TYPES_H_ */

@@ -44,7 +44,7 @@ typedef enum McciBootloaderI2cBusStm32l0_Status_e
 	McciBootloaderI2cBusStm32l0_Status_Done,
 	McciBootloaderI2cBusStm32l0_Status_Stopped,
 	McciBootloaderI2cBusStm32l0_Status_ArbitrationLost,
-	McciBootloaderI2cBusStm32l0_Status_TimeOut,
+	McciBootloaderI2cBusStm32l0_Status_Timeout,
 	McciBootloaderI2cBusStm32l0_Status_BusError,
 	McciBootloaderI2cBusStm32l0_Status_NotBusy,
 	McciBootloaderI2cBusStm32l0_Status_NackError,
@@ -54,6 +54,12 @@ static McciBootloaderDevice_BeginFn_t		i2cBusBegin;
 static McciBootloaderDevice_EndFn_t		i2cBusEnd;
 static McciBootloaderDeviceI2cBus_ReadFn_t	i2cBusRead;
 static McciBootloaderDeviceI2cBus_WriteFn_t	i2cBusWrite;
+
+static
+McciBootloaderDeviceI2cResult_t
+status_getResult(
+	McciBootloaderI2cBusStm32l0_Status_t status
+	);
 
 // temporary declaration so we can compile before implementation
 // of getMilliseconds() in platform:
@@ -330,12 +336,13 @@ i2cBusEnd(
 	return true;
 	}
 
-static size_t
+static McciBootloaderDeviceI2cResult_t
 i2cBusRead(
 	McciBootloaderDeviceI2cBus_t *pBus,
 	McciBootloaderDeviceI2cAddress_t i2cAddress,
 	uint8_t *pBuffer,
-	size_t nBuffer
+	size_t nBuffer,
+	size_t *pnResult
 	)
 	{
 	const size_t nBuffer_orig = nBuffer;
@@ -344,8 +351,14 @@ i2cBusRead(
 	McciBootloader_Milliseconds_t tStart;
 	McciBootloaderI2cBusStm32l0_Status_t status;
 
+	if (pnResult == NULL)
+		return McciBootloaderDeviceI2cResult_InvalidParameter;
+
 	if (nBuffer > 0xFF)
-		McciBootloaderPlatform_fail(McciBootloaderError_InternalConsistency);
+		{
+		*pnResult = 0;
+		return McciBootloaderDeviceI2cResult_InvalidParameter;
+		}
 
 	// nBuffer == 0 is a read probe.
 
@@ -381,7 +394,7 @@ i2cBusRead(
 		{
 		if (McciBootloaderPlatform_getMilliseconds() - tStart > MCCI_BOOTLOADER_STM32L0_I2C_TIME_OUT_MS)
 			{
-			status = McciBootloaderI2cBusStm32l0_Status_TimeOut;
+			status = McciBootloaderI2cBusStm32l0_Status_Timeout;
 			break;
 			}
 
@@ -421,15 +434,18 @@ i2cBusRead(
 		MCCI_STM32L0_I2C_CR1_PE
 		);
 
-	return nBuffer_orig - nBuffer;
+	// return result.
+	*pnResult = nBuffer_orig - nBuffer;
+	return status_getResult(status);
 	}
 
-static size_t
+static McciBootloaderDeviceI2cResult_t
 i2cBusWrite(
 	McciBootloaderDeviceI2cBus_t *pBus,
 	McciBootloaderDeviceI2cAddress_t i2cAddress,
 	const uint8_t *pBuffer,
-	size_t nBuffer
+	size_t nBuffer,
+	size_t *pnResult
 	)
 	{
 	const size_t nBuffer_orig = nBuffer;
@@ -438,8 +454,14 @@ i2cBusWrite(
 	McciBootloader_Milliseconds_t tStart;
 	McciBootloaderI2cBusStm32l0_Status_t status;
 
+	if (pnResult == NULL)
+		return McciBootloaderDeviceI2cResult_InvalidParameter;
+
 	if (nBuffer > 0xFF)
-		McciBootloaderPlatform_fail(McciBootloaderError_InternalConsistency);
+		{
+		*pnResult = 0;
+		return McciBootloaderDeviceI2cResult_InvalidParameter;
+		}
 
 	// nBuffer == 0 is a write probe
 
@@ -479,7 +501,7 @@ i2cBusWrite(
 		{
 		if (McciBootloaderPlatform_getMilliseconds() - tStart > MCCI_BOOTLOADER_STM32L0_I2C_TIME_OUT_MS)
 			{
-			status = McciBootloaderI2cBusStm32l0_Status_TimeOut;
+			status = McciBootloaderI2cBusStm32l0_Status_Timeout;
 			break;
 			}
 
@@ -520,7 +542,7 @@ i2cBusWrite(
 		{
 		if (McciBootloaderPlatform_getMilliseconds() - tStart > MCCI_BOOTLOADER_STM32L0_I2C_TIME_OUT_MS)
 			{
-			status = McciBootloaderI2cBusStm32l0_Status_TimeOut;
+			status = McciBootloaderI2cBusStm32l0_Status_Timeout;
 			break;
 			}
 
@@ -573,7 +595,33 @@ i2cBusWrite(
 		MCCI_STM32L0_I2C_CR1_PE
 		);
 
-	return nBuffer_orig - nBuffer;
+	// return result.
+	*pnResult = nBuffer_orig - nBuffer;
+	return status_getResult(status);
+	}
+
+static
+McciBootloaderDeviceI2cResult_t
+status_getResult(
+	McciBootloaderI2cBusStm32l0_Status_t status
+	)
+	{
+	static const uint8_t k_map[] =
+		{
+		[McciBootloaderI2cBusStm32l0_Status_Busy]		= McciBootloaderDeviceI2cResult_InternalError,
+		[McciBootloaderI2cBusStm32l0_Status_Done]		= McciBootloaderDeviceI2cResult_OK,
+		[McciBootloaderI2cBusStm32l0_Status_Stopped]		= McciBootloaderDeviceI2cResult_OK,
+		[McciBootloaderI2cBusStm32l0_Status_ArbitrationLost]	= McciBootloaderDeviceI2cResult_ArbitrationLost,
+		[McciBootloaderI2cBusStm32l0_Status_Timeout]		= McciBootloaderDeviceI2cResult_Timeout,
+		[McciBootloaderI2cBusStm32l0_Status_BusError]		= McciBootloaderDeviceI2cResult_BusError,
+		[McciBootloaderI2cBusStm32l0_Status_NotBusy]		= McciBootloaderDeviceI2cResult_BusError,
+		[McciBootloaderI2cBusStm32l0_Status_NackError]		= McciBootloaderDeviceI2cResult_Nack,
+		};
+
+	if (status < MCCIADK_LENOF(k_map))
+		return k_map[status];
+	else
+		return McciBootloaderDeviceI2cResult_InternalError;
 	}
 
 /**** end of mccibootloader_stm32l0_i2c_bus.c ****/

@@ -28,16 +28,28 @@ Author:
 # include "mcci_bootloader_device_types.h"
 #endif
 
+/****************************************************************************\
+|
+|	Scalar types and type handles.
+|
+\****************************************************************************/
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+
+MCCI_BOOTLOADER_BEGIN_DECLS
 
 /// I2C bus address. Could be 10 bits someday, so we use a uint16_t.
 typedef	uint16_t McciBootloaderDeviceI2cAddress_t;
 
-#ifdef __cplusplus
-}
-#endif
+///
+/// \brief Error codes for the portable I2C driver API.
+///
+/// \note enum types don't have predictable width. So we declare this as
+///	a `uint32_t`, and have a separate declaration for the enum.
+///
+/// \see McciBootloaderDeviceI2cResult_e
+///
+typedef uint32_t McciBootloaderDeviceI2cResult_t;
+
+MCCI_BOOTLOADER_END_DECLS
 
 #endif /* _mcci_bootloader_device_i2c_types_h_ */

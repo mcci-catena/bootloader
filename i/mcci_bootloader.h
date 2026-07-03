@@ -69,7 +69,7 @@ enum McciBootloaderError_e
 
 enum McciBootloaderState_e
 	{
-	McciBootloaderState_Initial = 0,	///< initial state when annunciator launched
+	McciBootloaderState_Initial = 0,			///< initial state when annunciator launched
 	McciBootloaderState_CheckingPrimaryStorageHash,
 	McciBootloaderState_CheckingPrimaryStorageSignature,
 	McciBootloaderState_CheckingFallbackStorageHash,

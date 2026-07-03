@@ -32,20 +32,25 @@ Author:
 # include "mcci_bootloader_device_i2c_bus_types.h"
 #endif
 
-#ifndef _mcci_bootloader_device_h_
-# include "mcci_bootloader_device.h"
+#ifndef _mcci_bootloader_device_i2c_h_
+# include "mcci_bootloader_device_i2c.h"
 #endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+MCCI_BOOTLOADER_BEGIN_DECLS
 
+///
+/// Method table for I2C Device instances
+///
 struct McciBootloaderDeviceI2cDeviceMethods_s
 	{
 	McciBootloaderDeviceI2cDevice_ReadFn_t	*pRead;
 	McciBootloaderDeviceI2cDevice_WriteFn_t	*pWrite;
 	};
 
+///
+/// Instance data for I2C devices. This is derived from the basic
+/// bootloader device abstract class, but is still abstract.
+///
 struct McciBootloaderDeviceI2cDevice_Contents_s
 	{
 	McciBootloaderDevice_CONTENTS;
@@ -58,22 +63,25 @@ struct McciBootloaderDeviceI2cDevice_Contents_s
 	uint8_t					bAddress;
 	};
 
+/// Content macro for subclasses derived from McciBootloaderDeviceI2cDevice_t
 #define McciBootloaderDeviceI2cDevice_CONTENTS		\
 	McciBootloaderDeviceI2cDevice_Contents_t	I2cDevice
 
+///
+/// Layout union for abstract McciBootloaderDeviceI2cDevice_t class objects.
+///
 union McciBootloaderDeviceI2cDevice_u
 	{
 	McciBootloaderDevice_UNION;
 	McciBootloaderDeviceI2cDevice_Contents_t	I2cDevice;
 	};
 
+/// Macro for defining subclass unions derived frmo McciBootloaderDeviceI2cDevice_t
 #define McciBootloaderDeviceI2cDevice_UNION				\
 	McciBootloaderDevice_UNION;					\
 	McciBootloaderDeviceI2cDevice_Contents_t	I2cDevice;	\
 	McciBootloaderDeviceI2cDevice_t			I2cDeviceCast
 
-#ifdef __cplusplus
-}
-#endif
+MCCI_BOOTLOADER_END_DECLS
 
 #endif /* _mcci_bootloader_device_i2c_device_h_ */

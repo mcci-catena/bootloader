@@ -43,16 +43,18 @@ typedef struct McciBootloaderDeviceI2cBus_Contents_s McciBootloaderDeviceI2cBus_
 /// @param [in] i2cAddress is the 7 or 10 bit address of the device.
 /// @param [out] pBuffer points to the buffer to be filled with data.
 /// @param [in] nBuffer  number of bytes to be read into pBuffer.
+/// @param [out] pnResult  points to cell which will be set to actual byte count.
 ///
 /// @returns
-///	number of bytes transferred. This will always be either nBuffer or zero.
-///	Return != nBuffer indicates an error.
+///	Status code. McciBootloaderDeviceI2cResult_OK for success, other values
+///	for failure.
 ///
-typedef size_t (McciBootloaderDeviceI2cBus_ReadFn_t)(
+typedef McciBootloaderDeviceI2cResult_t (McciBootloaderDeviceI2cBus_ReadFn_t)(
 		McciBootloaderDeviceI2cBus_t *pBus,
 		McciBootloaderDeviceI2cAddress_t i2cAddress,
 		uint8_t *pBuffer,
-		size_t nBuffer
+		size_t nBuffer,
+		size_t *pnResult
 		);
 
 ///
@@ -62,19 +64,18 @@ typedef size_t (McciBootloaderDeviceI2cBus_ReadFn_t)(
 /// @param [in] i2cAddress is the 7 or 10 bit address of the device.
 /// @param [in] pBuffer points to the buffer to be filled with data.
 /// @param [in] nBuffer  number of bytes to be read into pBuffer.
+/// @param [out] pnResult  points to cell which will be set to actual byte count.
 ///
 /// @returns
-///	Number of bytes transferred; this will always be <= nBuffer.
+///	Status code. McciBootloaderDeviceI2cResult_OK for success, other values
+///	for failure.
 ///
-/// @note
-///	There's currently no way to determine why fewer bytes were
-///	written than expected.
-///
-typedef size_t (McciBootloaderDeviceI2cBus_WriteFn_t)(
+typedef McciBootloaderDeviceI2cResult_t (McciBootloaderDeviceI2cBus_WriteFn_t)(
 		McciBootloaderDeviceI2cBus_t *pBus,
 		McciBootloaderDeviceI2cAddress_t i2cAddress,
 		const uint8_t *pBuffer,
-		size_t nBuffer
+		size_t nBuffer,
+		size_t *pnResult
 		);
 
 #ifdef __cplusplus

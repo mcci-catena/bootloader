@@ -28,9 +28,7 @@ Author:
 # include "mcci_bootloader_device_i2c_types.h"
 #endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+MCCI_BOOTLOADER_BEGIN_DECLS
 
 typedef struct McciBootloaderDeviceI2cDeviceMethods_s McciBootloaderDeviceI2cDeviceMethods_t;
 typedef union McciBootloaderDeviceI2cDevice_u McciBootloaderDeviceI2cDevice_t;
@@ -42,16 +40,17 @@ typedef struct McciBootloaderDeviceI2cDevice_Contents_s McciBootloaderDeviceI2cD
 /// @param [in] pI2cDevice indicates the device instance.
 /// @param [out] pBuffer points to the buffer to be filled with data.
 /// @param [in] nBuffer  number of bytes to be read into pBuffer.
+/// @param [out] pnResult  points to cell which will be set to actual byte count.
 ///
 /// @returns
-///	number of bytes transferred. This will always be either nBuffer or zero.
-///	Return != nBuffer indicates an error.
+///	Status code. McciBootloaderDeviceI2cResult_OK for success, other values
+///	for failure.
 ///
-typedef size_t (McciBootloaderDeviceI2cDevice_ReadFn_t)(
+typedef McciBootloaderDeviceI2cResult_t (McciBootloaderDeviceI2cDevice_ReadFn_t)(
 		McciBootloaderDeviceI2cDevice_t *pI2cDevice,
-		McciBootloaderDeviceI2cAddress_t bAddress,
-		uint8_t *pValue,
-		size_t nValue
+		uint8_t *pBuffer,
+		size_t nBuffer,
+		size_t *pnResult
 		);
 
 ///
@@ -60,22 +59,19 @@ typedef size_t (McciBootloaderDeviceI2cDevice_ReadFn_t)(
 /// @param [in] pI2cDevice indicates the device instance.
 /// @param [in] pBuffer points to the buffer to be filled with data.
 /// @param [in] nBuffer  number of bytes to be read into pBuffer.
+/// @param [out] pnResult  points to cell which will be set to actual byte count.
 ///
 /// @returns
-///	Number of bytes transferred; this will always be <= nBuffer.
+///	Status code. McciBootloaderDeviceI2cResult_OK for success, other values
+///	for failure.
 ///
-/// @note
-///	There's currently no way to determine why fewer bytes were
-///	written than expected.
-///
-typedef size_t (McciBootloaderDeviceI2cDevice_WriteFn_t)(
+typedef McciBootloaderDeviceI2cResult_t (McciBootloaderDeviceI2cDevice_WriteFn_t)(
 		McciBootloaderDeviceI2cDevice_t *pI2cDevice,
-		const uint8_t *pValue,
-		size_t nValue
+		const uint8_t *pBuffer,
+		size_t nBuffer,
+		size_t *pnResult
 		);
 
-#ifdef __cplusplus
-}
-#endif
+MCCI_BOOTLOADER_END_DECLS
 
 #endif /* _mcci_bootloader_device_i2c_device_types_h_ */

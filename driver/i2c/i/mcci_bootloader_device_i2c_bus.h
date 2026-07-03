@@ -28,8 +28,8 @@ Author:
 # include "mcci_bootloader_device_i2c_bus_types.h"
 #endif
 
-#ifndef _mcci_bootloader_device_h_
-# include "mcci_bootloader_device.h"
+#ifndef _mcci_bootloader_device_i2c_h_
+# include "mcci_bootloader_device_i2c.h"
 #endif
 
 #ifdef __cplusplus
