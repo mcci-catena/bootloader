@@ -78,7 +78,7 @@ static const McciBootloaderDeviceI2cBusMethods_t i2cBusMethods =
 	.pWrite = i2cBusWrite
 	};
 
-static const McciBootloaderDeviceI2cBusStm32l0_Masks_t skBusMasks[] =
+static const McciBootloaderDeviceI2cBusSTm32l0_Config_t skBusMasks[] =
 	{
 		{
 		.baseAddress = MCCI_STM32L0_REG_I2C1,
@@ -159,7 +159,7 @@ McciBootloader_Stm32L0Interface_initI2cBus(
 	uint32_t timingr1m
 	)
 	{
-	const McciBootloaderDeviceI2cBusStm32l0_Masks_t *pMasks;
+	const McciBootloaderDeviceI2cBusSTm32l0_Config_t *pConfig;
 
 	// check parameters
 	if (sizeForBus < sizeof(McciBootloaderDeviceI2cBusStm32l0_t))
@@ -170,17 +170,17 @@ McciBootloader_Stm32L0Interface_initI2cBus(
 	    timingr1m != MCCI_BOOTLOADER_STM32L0_I2C_TIMINGR_NOT_SUPPORTED)
 		McciBootloaderPlatform_fail(McciBootloaderError_InternalConsistency);
 
-	pMasks = NULL;
+	pConfig = NULL;
 	for (unsigned i = 0; i < MCCIADK_LENOF(skBusMasks); ++i)
 		{
 		if (skBusMasks[i].baseAddress == baseAddress)
 			{
-			pMasks = &skBusMasks[i];
+			pConfig = &skBusMasks[i];
 			break;
 			}
 		}
 
-	if (pMasks == NULL)
+	if (pConfig == NULL)
 		{
 		McciBootloaderPlatform_fail(McciBootloaderError_InternalConsistency);
 		}
@@ -193,7 +193,7 @@ McciBootloader_Stm32L0Interface_initI2cBus(
 
 	pI2cBus->Device.pMethods = &i2cBusDeviceMethods;
 	pI2cBus->I2cBus.pMethods = &i2cBusMethods;
-	pI2cBus->Stm32l0.pMasks = pMasks;
+	pI2cBus->Stm32l0.pConfig = pConfig;
 	pI2cBus->Stm32l0.timingr100k = timingr100k;
 
 	// initialize
@@ -235,34 +235,34 @@ i2cBusBegin(
 	)
 	{
 	McciBootloaderDeviceI2cBusStm32l0_t * const pI2cBus = McciBootloader_Device_getI2cBusStm32l0(pDevice);
-	uint32_t const baseAddress = pI2cBus->Stm32l0.pMasks->baseAddress;
+	uint32_t const baseAddress = pI2cBus->Stm32l0.pConfig->baseAddress;
 
 	// select the clock source
-	if (pI2cBus->Stm32l0.pMasks->CCIPR_select.mask != 0)
+	if (pI2cBus->Stm32l0.pConfig->CCIPR_select.mask != 0)
 		{
 		McciArm_putRegMasked(
 			MCCI_STM32L0_REG_RCC_CCIPR,
-			pI2cBus->Stm32l0.pMasks->CCIPR_select.mask,
-			pI2cBus->Stm32l0.pMasks->CCIPR_select.value
+			pI2cBus->Stm32l0.pConfig->CCIPR_select.mask,
+			pI2cBus->Stm32l0.pConfig->CCIPR_select.value
 			);
 		}
 
 	// enable the peripheral
 	McciArm_putRegOr(
 		MCCI_STM32L0_REG_RCC_APB1ENR,
-		pI2cBus->Stm32l0.pMasks->APB1ENR_mask
+		pI2cBus->Stm32l0.pConfig->APB1ENR_mask
 		);
 
 	// reset it
 	McciArm_putRegOr(
 		MCCI_STM32L0_REG_RCC_APB1RSTR,
-		pI2cBus->Stm32l0.pMasks->APB1RSTR_mask
+		pI2cBus->Stm32l0.pConfig->APB1RSTR_mask
 		);
 
 	// un-reset it
 	McciArm_putRegClear(
 		MCCI_STM32L0_REG_RCC_APB1RSTR,
-		pI2cBus->Stm32l0.pMasks->APB1RSTR_mask
+		pI2cBus->Stm32l0.pConfig->APB1RSTR_mask
 		);
 
 	// set up timing register
@@ -307,24 +307,24 @@ i2cBusEnd(
 	)
 	{
 	McciBootloaderDeviceI2cBusStm32l0_t * const pI2cBus = McciBootloader_Device_getI2cBusStm32l0(pDevice);
-	// uint32_t const baseAddress = pI2cBus->Stm32l0.pMasks->baseAddress;
+	// uint32_t const baseAddress = pI2cBus->Stm32l0.pConfig->baseAddress;
 
 	// reset it
 	McciArm_putRegOr(
 		MCCI_STM32L0_REG_RCC_APB1RSTR,
-		pI2cBus->Stm32l0.pMasks->APB1RSTR_mask
+		pI2cBus->Stm32l0.pConfig->APB1RSTR_mask
 		);
 
 	// un-reset it
 	McciArm_putRegClear(
 		MCCI_STM32L0_REG_RCC_APB1RSTR,
-		pI2cBus->Stm32l0.pMasks->APB1RSTR_mask
+		pI2cBus->Stm32l0.pConfig->APB1RSTR_mask
 		);
 
 	// disable the peripheral
 	McciArm_putRegClear(
 		MCCI_STM32L0_REG_RCC_APB1ENR,
-		pI2cBus->Stm32l0.pMasks->APB1ENR_mask
+		pI2cBus->Stm32l0.pConfig->APB1ENR_mask
 		);
 
 	return true;
@@ -340,7 +340,7 @@ i2cBusRead(
 	{
 	const size_t nBuffer_orig = nBuffer;
 	McciBootloaderDeviceI2cBusStm32l0_t * const pI2cBus = McciBootloader_DeviceI2cBus_getI2cBusStm32l0(pBus);
-	uint32_t const baseAddress = pI2cBus->Stm32l0.pMasks->baseAddress;
+	uint32_t const baseAddress = pI2cBus->Stm32l0.pConfig->baseAddress;
 	McciBootloader_Milliseconds_t tStart;
 	McciBootloaderI2cBusStm32l0_Status_t status;
 
@@ -434,7 +434,7 @@ i2cBusWrite(
 	{
 	const size_t nBuffer_orig = nBuffer;
 	McciBootloaderDeviceI2cBusStm32l0_t * const pI2cBus = McciBootloader_DeviceI2cBus_getI2cBusStm32l0(pBus);
-	uint32_t const baseAddress = pI2cBus->Stm32l0.pMasks->baseAddress;
+	uint32_t const baseAddress = pI2cBus->Stm32l0.pConfig->baseAddress;
 	McciBootloader_Milliseconds_t tStart;
 	McciBootloaderI2cBusStm32l0_Status_t status;
 

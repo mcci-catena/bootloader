@@ -61,7 +61,7 @@ struct McciBootloaderDeviceI2cBusStm32l0_Contents_s
 	McciBootloaderDeviceI2cBus_CONTENTS;
 
 	/// pointer to I2C channel-specific bit masks
-	const McciBootloaderDeviceI2cBusStm32l0_Masks_t *pMasks;
+	const McciBootloaderDeviceI2cBusSTm32l0_Config_t *pConfig;
 	uint32_t	timingr100k;		///< timing register value to use for 100k
 	};
 
