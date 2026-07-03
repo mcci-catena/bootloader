@@ -38,6 +38,9 @@ typedef struct McciBootloaderDeviceI2cBusStm32l0_Contents_s
 typedef union McciBootloaderDeviceI2cBusStm32l0_u
 		McciBootloaderDeviceI2cBusStm32l0_t;
 
+typedef struct McciBootloaderDeviceI2cBusStm32l0_Masks_s
+		McciBootloaderDeviceI2cBusStm32l0_Masks_t;
+
 #ifdef __cplusplus
 }
 #endif

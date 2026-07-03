@@ -62,6 +62,8 @@ enum McciBootloaderError_e
 	McciBootloaderError_FlashVerifyFailed,	///< flash verify failed after programming
 	McciBootloaderError_FlashNotFound,	///< flash didn't reply properly to SFDP
 	McciBootloaderError_FlashNotSupported,	///< flash SFDP contents are prior to JESD216B, or otherwise not suitable.
+	McciBootloaderError_InternalConsistency, ///< an internal consistency check failed.
+	McciBootloaderError_I2cBegin,		///< I2c bus failed begin.
 	};
 // typedef uint32_t McciBootloaderError_t; -- in mcci_bootloader_types.h.
 

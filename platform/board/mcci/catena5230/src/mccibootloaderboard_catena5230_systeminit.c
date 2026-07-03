@@ -102,7 +102,7 @@ McciBootloaderBoard_Catena5230_systemInit(
 	McciBootloader_Stm32L0Interface_initI2cBus(
 		pI2cBus, sizeof(*pI2cBus),
 		MCCI_STM32L0_REG_I2C2,                                // base address of controller
-		0x10B07EBA,                                           // timingr for 115k I2C
+		0x10B07EBA,                                           // timingr for 100k I2C
 		MCCI_BOOTLOADER_STM32L0_I2C_TIMINGR_NOT_SUPPORTED,    // no 400k
 		MCCI_BOOTLOADER_STM32L0_I2C_TIMINGR_NOT_SUPPORTED     // no 1m
 		);

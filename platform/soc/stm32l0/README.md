@@ -149,7 +149,7 @@ For the moment, we won't touch the flash driver which is totally integrated into
 The initialization sequence will be:
 
 1. The platform code first initializes the I2C bus driver used by the PMIC, and then initializes the PMIC driver passing the I2C bus driver and an address.
-2. The platform code will provide some RAM (via a static allocation of the object to be used as `&ram`, and call `McciBootloader_Stm32L0Interface_InitI2cBus(&ram, busIndex, timing)` to get a bus interface handle (an `McciBootloaderDeviceI2cBus_t`)
+2. The platform code will provide some RAM (via a static allocation of the object to be used as `&ram`, and call `McciBootloader_Stm32L0Interface_InitI2cBus(&ram, sizeof(ram), busIndex, timin100k, timing400k, timing1MHz)` to get a bus interface handle (an `McciBootloaderDeviceI2cBus_t`)
 3. The platform code then passes the bus interface handle to  `McciBootloaderDriver_PmicNPM1300_attach()`, along with the known I2C address of the PMIC.
 4. The PMIC driver allocates memory for an `McciBootloaderDeviceI2cDevice_t` (embedded in the header of the `McciBootloaderDevice_PmicNPM1300_t`) and registers with the I2C bus driver, getting a suitable interface for doing low level I/Os
 5. The platform calls `McciBootloaderDriver_PmicNPM1300_initializeRegisters()` which uses the bus driver to set up all the bytes in the PMIC. Note that the actual register values come from the platform. Our goal is not to operate the PMIC, just initialize it properly after a reset.
