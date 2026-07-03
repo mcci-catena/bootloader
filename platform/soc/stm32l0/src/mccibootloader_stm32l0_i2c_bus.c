@@ -78,38 +78,43 @@ static const McciBootloaderDeviceI2cBusMethods_t i2cBusMethods =
 	.pWrite = i2cBusWrite
 	};
 
-static const McciBootloaderDeviceI2cBusSTm32l0_Config_t skBusMasks[] =
+/// global config for I2C1. Linker discards this if not used.
+const McciBootloaderDeviceI2cBusStm32l0_Config_t gk_McciBootloaderDeviceI2cBusStm32l0_Config_I2c1 =
 	{
+	.baseAddress = MCCI_STM32L0_REG_I2C1,
+	.CCIPR_select =
 		{
-		.baseAddress = MCCI_STM32L0_REG_I2C1,
-		.CCIPR_select =
-			{
-			.mask = MCCI_STM32L0_REG_RCC_CCIPR_I2C1SEL,
-			.value = MCCI_STM32L0_REG_RCC_CCIPR_I2C1SEL_HSI16
-			},
-		.APB1ENR_mask = MCCI_STM32L0_REG_RCC_APB1ENR_I2C1EN,
-		.APB1RSTR_mask = MCCI_STM32L0_REG_RCC_APB1RSTR_I2C1RST,
+		.mask = MCCI_STM32L0_REG_RCC_CCIPR_I2C1SEL,
+		.value = MCCI_STM32L0_REG_RCC_CCIPR_I2C1SEL_HSI16
 		},
+	.APB1ENR_mask = MCCI_STM32L0_REG_RCC_APB1ENR_I2C1EN,
+	.APB1RSTR_mask = MCCI_STM32L0_REG_RCC_APB1RSTR_I2C1RST,
+	};
+
+/// global config for I2C2. Linker discards this if not used.
+const McciBootloaderDeviceI2cBusStm32l0_Config_t gk_McciBootloaderDeviceI2cBusStm32l0_Config_I2c2 =
+	{
+	.baseAddress = MCCI_STM32L0_REG_I2C2,
+	.CCIPR_select =
 		{
-		.baseAddress = MCCI_STM32L0_REG_I2C2,
-		.CCIPR_select =
-			{
-			.mask = 0,	// I2C2 doesn't support clock selection
-			.value = 0	// value doesn't matter, since mask is zero.
-			},
-		.APB1ENR_mask = MCCI_STM32L0_REG_RCC_APB1ENR_I2C2EN,
-		.APB1RSTR_mask = MCCI_STM32L0_REG_RCC_APB1RSTR_I2C2RST,
+		.mask = 0,	// I2C2 doesn't support clock selection
+		.value = 0	// value doesn't matter, since mask is zero.
 		},
+	.APB1ENR_mask = MCCI_STM32L0_REG_RCC_APB1ENR_I2C2EN,
+	.APB1RSTR_mask = MCCI_STM32L0_REG_RCC_APB1RSTR_I2C2RST,
+	};
+
+/// global config for I2C3. Linker discards this if not used.
+const McciBootloaderDeviceI2cBusStm32l0_Config_t gk_McciBootloaderDeviceI2cBusStm32l0_Config_I2c3 =
+	{
+	.baseAddress = MCCI_STM32L0_REG_I2C3,
+	.CCIPR_select =
 		{
-		.baseAddress = MCCI_STM32L0_REG_I2C3,
-		.CCIPR_select =
-			{
-			.mask = MCCI_STM32L0_REG_RCC_CCIPR_I2C3SEL,
-			.value = MCCI_STM32L0_REG_RCC_CCIPR_I2C3SEL_HSI16
-			},
-		.APB1ENR_mask = MCCI_STM32L0_REG_RCC_APB1ENR_I2C3EN,
-		.APB1RSTR_mask = MCCI_STM32L0_REG_RCC_APB1RSTR_I2C3RST,
+		.mask = MCCI_STM32L0_REG_RCC_CCIPR_I2C3SEL,
+		.value = MCCI_STM32L0_REG_RCC_CCIPR_I2C3SEL_HSI16
 		},
+	.APB1ENR_mask = MCCI_STM32L0_REG_RCC_APB1ENR_I2C3EN,
+	.APB1RSTR_mask = MCCI_STM32L0_REG_RCC_APB1RSTR_I2C3RST,
 	};
 
 /****************************************************************************\
@@ -131,7 +136,9 @@ Definition:
 		McciBootloader_Stm32L0Interface_initI2cBus(
 			void *pRamForBus,	// RAM to use for instance data
 			size_t sizeForBus,	// size of RAM
-			uint32_t baseAddress,	// base address of controller
+			const McciBootloaderDeviceI2cBusStm32l0_Config_t
+				*pConfig,	// config of I2C block: selects controller,
+						//   etc.
 			uint32_t timingr100k,	// value to use for 100k operations
 			uint32_t timingr400k,	// value to use for 400k operations
 			uint32_t timingr1m	// value to use for 1MHz operations
@@ -141,11 +148,17 @@ Description:
 	The device instance is initialized using the information passed in.
 	The actual pin assignment is left to the caller.
 
+	An alias is taken of pConfig.
+
 Returns:
 	Pointer to allocated and initialized device object.
 
 Notes:
-
+	For convenience, the library supplies appropriate McciBootloaderDeviceI2cBusStm32l0_Config_t
+	objects for I2C1, I2C2, and I2C3: gk_McciBootloaderDeviceI2cBusStm32l0_Config_I2c1,
+	gk_McciBootloaderDeviceI2cBusStm32l0_Config_I2c2 and
+	gk_McciBootloaderDeviceI2cBusStm32l0_Config_I2c3. Normally, clients will just
+	use one of these pre-cdefined values.
 
 */
 
@@ -153,14 +166,12 @@ McciBootloaderDeviceI2cBus_t *
 McciBootloader_Stm32L0Interface_initI2cBus(
 	void *pRamForBus,
 	size_t sizeForBus,
-	uint32_t baseAddress,
+	const McciBootloaderDeviceI2cBusStm32l0_Config_t *pConfig,
 	uint32_t timingr100k,
 	uint32_t timingr400k,
 	uint32_t timingr1m
 	)
 	{
-	const McciBootloaderDeviceI2cBusSTm32l0_Config_t *pConfig;
-
 	// check parameters
 	if (sizeForBus < sizeof(McciBootloaderDeviceI2cBusStm32l0_t))
 		McciBootloaderPlatform_fail(McciBootloaderError_InternalConsistency);
@@ -169,16 +180,6 @@ McciBootloader_Stm32L0Interface_initI2cBus(
 	    timingr400k != MCCI_BOOTLOADER_STM32L0_I2C_TIMINGR_NOT_SUPPORTED ||
 	    timingr1m != MCCI_BOOTLOADER_STM32L0_I2C_TIMINGR_NOT_SUPPORTED)
 		McciBootloaderPlatform_fail(McciBootloaderError_InternalConsistency);
-
-	pConfig = NULL;
-	for (unsigned i = 0; i < MCCIADK_LENOF(skBusMasks); ++i)
-		{
-		if (skBusMasks[i].baseAddress == baseAddress)
-			{
-			pConfig = &skBusMasks[i];
-			break;
-			}
-		}
 
 	if (pConfig == NULL)
 		{

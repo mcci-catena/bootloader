@@ -61,7 +61,7 @@ struct McciBootloaderDeviceI2cBusStm32l0_Contents_s
 	McciBootloaderDeviceI2cBus_CONTENTS;
 
 	/// pointer to I2C channel-specific bit masks
-	const McciBootloaderDeviceI2cBusSTm32l0_Config_t *pConfig;
+	const McciBootloaderDeviceI2cBusStm32l0_Config_t *pConfig;
 	uint32_t	timingr100k;		///< timing register value to use for 100k
 	};
 
@@ -76,8 +76,8 @@ union McciBootloaderDeviceI2cBusStm32l0_u
 ///
 /// @param pRamForBus 	Pointer to a block of RAM to be used for the driver instance data
 /// @param sizeForBus 	Size of the block of RAM. The driver checks this against the required size
-///			(must be >= sizeof(McciBootloaderDeivceI2cBus_t))
-/// @param baseAddress 	Base address of the I2C block
+///			(must be >= sizeof(McciBootloaderDeviceI2cBusStm32l0_t))
+/// @param pConfig 	Configuration of the I2C block; selects the controller, etc.
 /// @param timingr100k 	Value to use in timing register for 100kHz I2C operations
 /// @param timingr400k 	Value to use in timing register for 400kHz I2C operations,
 ///			or MCCI_BOOTLOADER_STM32L0_I2C_TIMINGR_NOT_SUPPORTED
@@ -96,7 +96,7 @@ McciBootloaderDeviceI2cBus_t *
 McciBootloader_Stm32L0Interface_initI2cBus(
 	void *pRamForBus,
 	size_t sizeForBus,
-	uint32_t baseAddress,
+	const McciBootloaderDeviceI2cBusStm32l0_Config_t *pConfig,
 	uint32_t timingr100k,
 	uint32_t timingr400k,
 	uint32_t timingr1m
@@ -104,6 +104,10 @@ McciBootloader_Stm32L0Interface_initI2cBus(
 
 /// value to use for timing parameters when a speed is not supported.
 #define	MCCI_BOOTLOADER_STM32L0_I2C_TIMINGR_NOT_SUPPORTED	UINT32_C(0xFFFFFFFF)
+
+extern const McciBootloaderDeviceI2cBusStm32l0_Config_t	gk_McciBootloaderDeviceI2cBusStm32l0_Config_I2c1;
+extern const McciBootloaderDeviceI2cBusStm32l0_Config_t	gk_McciBootloaderDeviceI2cBusStm32l0_Config_I2c2;
+extern const McciBootloaderDeviceI2cBusStm32l0_Config_t	gk_McciBootloaderDeviceI2cBusStm32l0_Config_I2c3;
 
 ///
 /// @brief upcast from device to enclosing McciBootloaderDeviceI2cBusStm32l0_t

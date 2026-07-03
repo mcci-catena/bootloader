@@ -101,7 +101,7 @@ McciBootloaderBoard_Catena5230_systemInit(
 	// initI2cBus will call the platform abort method for errors.
 	McciBootloader_Stm32L0Interface_initI2cBus(
 		pI2cBus, sizeof(*pI2cBus),
-		MCCI_STM32L0_REG_I2C2,                                // base address of controller
+		&gk_McciBootloaderDeviceI2cBusStm32l0_Config_I2c2,    // i2c controller info
 		0x10B07EBA,                                           // timingr for 100k I2C
 		MCCI_BOOTLOADER_STM32L0_I2C_TIMINGR_NOT_SUPPORTED,    // no 400k
 		MCCI_BOOTLOADER_STM32L0_I2C_TIMINGR_NOT_SUPPORTED     // no 1m

@@ -39,7 +39,7 @@ typedef union McciBootloaderDeviceI2cBusStm32l0_u
 		McciBootloaderDeviceI2cBusStm32l0_t;
 
 typedef struct McciBootloaderDeviceI2cBusStm32l0_Masks_s
-		McciBootloaderDeviceI2cBusSTm32l0_Config_t;
+		McciBootloaderDeviceI2cBusStm32l0_Config_t;
 
 #ifdef __cplusplus
 }
