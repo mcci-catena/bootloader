@@ -108,5 +108,15 @@ typedef struct McciBootloader_AppInfo_s McciBootloader_AppInfo_t;
 ///
 typedef struct McciBootloader_SignatureBlock_s McciBootloader_SignatureBlock_t;
 
+///
+/// \brief Time (in milliseconds)
+///
+/// \note An unsigned integral type that represents time since boot in
+///	milliseconds. It's unsigned because that maakes deadline handling
+///	easier to understand in the face of overflows. Time is used for
+///	timeouts for I/O drivers.
+///
+typedef uint32_t McciBootloader_Milliseconds_t;
+
 MCCI_BOOTLOADER_END_DECLS
 #endif /* _MCCI_BOOTLOADER_TYPES_H_ */
