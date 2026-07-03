@@ -347,8 +347,7 @@ i2cBusRead(
 	if (nBuffer > 0xFF)
 		McciBootloaderPlatform_fail(McciBootloaderError_InternalConsistency);
 
-	if (nBuffer == 0)
-		return 0;
+	// nBuffer == 0 is a read probe.
 
 	uint32_t cr2;
 
@@ -442,8 +441,7 @@ i2cBusWrite(
 	if (nBuffer > 0xFF)
 		McciBootloaderPlatform_fail(McciBootloaderError_InternalConsistency);
 
-	if (nBuffer == 0)
-		return 0;
+	// nBuffer == 0 is a write probe
 
 	uint32_t cr2;
 
