@@ -12,7 +12,7 @@ Copyright notice:
 		3520 Krums Corners Road
 		Ithaca, NY  14850
 
-	See accompanying LICENSE file for license information.
+	See accompanying LICENSE file for copyright and license information.
 
 Author:
 	Terry Moore, MCCI Corporation	July 2026
@@ -47,12 +47,18 @@ typedef enum McciBootloaderI2cBusStm32l0_Status_e
 	McciBootloaderI2cBusStm32l0_Status_TimeOut,
 	McciBootloaderI2cBusStm32l0_Status_BusError,
 	McciBootloaderI2cBusStm32l0_Status_NotBusy,
+	McciBootloaderI2cBusStm32l0_Status_NackError,
 	} McciBootloaderI2cBusStm32l0_Status_t;
 
 static McciBootloaderDevice_BeginFn_t		i2cBusBegin;
 static McciBootloaderDevice_EndFn_t		i2cBusEnd;
 static McciBootloaderDeviceI2cBus_ReadFn_t	i2cBusRead;
 static McciBootloaderDeviceI2cBus_WriteFn_t	i2cBusWrite;
+
+// temporary declaration so we can compile before implemenatation
+// of getMilliseconds() in platform:
+McciBootloader_Milliseconds_t
+McciBootloaderPlatform_getMilliseconds(void);
 
 /****************************************************************************\
 |
@@ -118,7 +124,7 @@ static const McciBootloaderDeviceI2cBusStm32l0_Masks_t skBusMasks[] =
 Name:	McciBootloader_Stm32L0Interface_initI2cBus()
 
 Function:
-	Iniitialze an I2C bus controller driver on an STM32L0.
+	Initialze an I2C bus controller driver on an STM32L0.
 
 Definition:
 	McciBootloaderDeviceI2cBus_t *
@@ -136,7 +142,7 @@ Description:
 	The actual pin assignment is left to the caller.
 
 Returns:
-	Pointer to allocated and initizlized device object.
+	Pointer to allocated and initialized device object.
 
 Notes:
 
@@ -199,7 +205,7 @@ McciBootloader_Stm32L0Interface_initI2cBus(
 
 /*
 
-Name:	McciBootloaderDeviceI2cBusStm32l0_t::ii2cBusBegin()
+Name:	McciBootloaderDeviceI2cBusStm32l0_t::i2cBusBegin()
 
 Function:
 	Initialize the I2C bus function and hardware.
@@ -270,7 +276,7 @@ i2cBusBegin(
 
 /*
 
-Name:	McciBootloaderDeviceI2cBusStm32l0_t::ii2cBusEnd()
+Name:	McciBootloaderDeviceI2cBusStm32l0_t::i2cBusEnd()
 
 Function:
 	Deinitialize the I2C bus function and hardware.
@@ -368,7 +374,7 @@ i2cBusRead(
 		cr2 | MCCI_STM32L0_I2C_CR2_START
 		);
 
-	// now, wait for TXE to be set
+	// now, wait for RXNE to be set
 	tStart = McciBootloaderPlatform_getMilliseconds();
 
 	status = McciBootloaderI2cBusStm32l0_Status_Busy;
@@ -387,30 +393,29 @@ i2cBusRead(
 		if (isr & MCCI_STM32L0_I2C_ISR_ARLO)
 			{
 			status = McciBootloaderI2cBusStm32l0_Status_ArbitrationLost;
-			break;
 			}
 
-		if (isr & MCCI_STM32L0_I2C_ISR_RXNE)
+		else if (isr & MCCI_STM32L0_I2C_ISR_RXNE)
 			{
 			*pBuffer = (uint8_t) McciArm_getReg(baseAddress + MCCI_STM32L0_I2C_RXDR);
 			++pBuffer, --nBuffer;
 			if (nBuffer == 0)
 				{
 				status = McciBootloaderI2cBusStm32l0_Status_Done;
-				break;
 				}
 
 			// restart the timer
 			tStart = McciBootloaderPlatform_getMilliseconds();
-			continue;
 			}
 
-		if (isr & MCCI_STM32L0_I2C_ISR_STOPF)
+		else if (isr & MCCI_STM32L0_I2C_ISR_STOPF)
 			{
 			status = McciBootloaderI2cBusStm32l0_Status_Stopped;
-			break;
 			}
-
+		else if (isr & MCCI_STM32L0_I2C_ISR_NACKF)
+			{
+			status = McciBootloaderI2cBusStm32l0_Status_NackError;
+			}
 		// otherwise go on... we'll time out eventually
 		}
 
@@ -470,6 +475,28 @@ i2cBusWrite(
 	tStart = McciBootloaderPlatform_getMilliseconds();
 
 	status = McciBootloaderI2cBusStm32l0_Status_Busy;
+
+	// wait for the bus busy indicaion to come on; that's different from "loop is busy"
+	// status.
+	while (status == McciBootloaderI2cBusStm32l0_Status_Busy)
+		{
+		if (McciBootloaderPlatform_getMilliseconds() - tStart > MCCI_BOOTLOADER_STM32L0_I2C_TIME_OUT_MS)
+			{
+			status = McciBootloaderI2cBusStm32l0_Status_TimeOut;
+			break;
+			}
+
+		uint32_t const isr = McciArm_getReg(
+			baseAddress + MCCI_STM32L0_I2C_ISR
+			);
+
+		if (isr & MCCI_STM32L0_I2C_ISR_BUSY)
+			{
+			// go on to main loop.
+			break;
+			}
+		}
+
 	while (status == McciBootloaderI2cBusStm32l0_Status_Busy)
 		{
 		if (McciBootloaderPlatform_getMilliseconds() - tStart > MCCI_BOOTLOADER_STM32L0_I2C_TIME_OUT_MS)
@@ -485,39 +512,37 @@ i2cBusWrite(
 		if (isr & MCCI_STM32L0_I2C_ISR_ARLO)
 			{
 			status = McciBootloaderI2cBusStm32l0_Status_ArbitrationLost;
-			break;
 			}
 
-		if (isr & MCCI_STM32L0_I2C_ISR_BERR)
+		else if (isr & MCCI_STM32L0_I2C_ISR_BERR)
 			{
 			status = McciBootloaderI2cBusStm32l0_Status_BusError;
-			break;
 			}
 
-		if (isr & MCCI_STM32L0_I2C_ISR_STOPF)
+		else if (isr & MCCI_STM32L0_I2C_ISR_NACKF)
+			{
+			status = McciBootloaderI2cBusStm32l0_Status_NackError;
+			}
+
+		else if (isr & MCCI_STM32L0_I2C_ISR_STOPF)
 			{
 			status = McciBootloaderI2cBusStm32l0_Status_Stopped;
-			break;
 			}
 
-		if (isr & MCCI_STM32L0_I2C_ISR_TXE)
+		else if (isr & MCCI_STM32L0_I2C_ISR_TXE)
 			{
 			if (nBuffer == 0)
 				{
 				status = McciBootloaderI2cBusStm32l0_Status_Done;
-				break;
 				}
+			else
+				{
+				McciArm_putReg(baseAddress + MCCI_STM32L0_I2C_TXDR, *pBuffer);
+				++pBuffer, --nBuffer;
 
-			McciArm_putReg(baseAddress + MCCI_STM32L0_I2C_TXDR, *pBuffer);
-			++pBuffer, --nBuffer;
-
-			// restart the timer
-			tStart = McciBootloaderPlatform_getMilliseconds();
-			}
-
-		if (! (isr & MCCI_STM32L0_I2C_ISR_BUSY))
-			{
-			status = McciBootloaderI2cBusStm32l0_Status_NotBusy;
+				// restart the timer
+				tStart = McciBootloaderPlatform_getMilliseconds();
+				}
 			}
 
 		// otherwise go on... we'll time out eventually
