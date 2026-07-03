@@ -48,6 +48,7 @@ typedef enum McciBootloaderI2cBusStm32l0_Status_e
 	McciBootloaderI2cBusStm32l0_Status_BusError,
 	McciBootloaderI2cBusStm32l0_Status_NotBusy,
 	McciBootloaderI2cBusStm32l0_Status_NackError,
+	McciBootloaderI2cBusStm32l0_Status__MAX,		///< muat always be last, for error checking.
 	} McciBootloaderI2cBusStm32l0_Status_t;
 
 static McciBootloaderDevice_BeginFn_t		i2cBusBegin;
@@ -617,6 +618,9 @@ status_getResult(
 		[McciBootloaderI2cBusStm32l0_Status_NotBusy]		= McciBootloaderDeviceI2cResult_BusError,
 		[McciBootloaderI2cBusStm32l0_Status_NackError]		= McciBootloaderDeviceI2cResult_Nack,
 		};
+
+	// if this assert fails, make sure you've added all the status codes to k_map.
+	MCCIADK_C_ASSERT(MCCIADK_LENOF(k_map) == McciBootloaderI2cBusStm32l0_Status__MAX);
 
 	if (status < MCCIADK_LENOF(k_map))
 		return k_map[status];
