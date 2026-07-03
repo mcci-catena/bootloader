@@ -42,9 +42,9 @@ Decisions to settle first:
 
 Abstract i2c layer (`driver/i2c/i/`):
 
-- [x] `mcci_bootloader_device_i2c_types.h` -- add `McciBootloaderDeviceI2cResult_t`
+- [x] `mcci_bootloader_device_i2c_common_types.h` -- add `McciBootloaderDeviceI2cResult_t`
       (next to `McciBootloaderDeviceI2cAddress_t`, line 37). Put the `enum
-      ..._Result_e` here too, or in a new `mcci_bootloader_device_i2c.h` if you
+      ..._Result_e` here too, or in a new `mcci_bootloader_device_i2c_common.h` if you
       want strict types.h/enum split parity with the State pattern.
 - [x] `mcci_bootloader_device_i2c_bus_types.h` -- `McciBootloaderDeviceI2cBus_ReadFn_t`
       (typedef 51-56) and `_WriteFn_t` (73-78): change return `size_t` ->
