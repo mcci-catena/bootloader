@@ -32,8 +32,8 @@ Author:
 # include "mcci_bootloader_device_i2c_bus_types.h"
 #endif
 
-#ifndef _mcci_bootloader_device_i2c_h_
-# include "mcci_bootloader_device_i2c.h"
+#ifndef _mcci_bootloader_device_i2c_common_h_
+# include "mcci_bootloader_device_i2c_common.h"
 #endif
 
 MCCI_BOOTLOADER_BEGIN_DECLS
@@ -53,7 +53,7 @@ struct McciBootloaderDeviceI2cDeviceMethods_s
 ///
 struct McciBootloaderDeviceI2cDevice_Contents_s
 	{
-	McciBootloaderDevice_CONTENTS;
+	McciBootloaderDeviceI2c_CONTENTS;
 
 	/// the method table
 	const McciBootloaderDeviceI2cDeviceMethods_t *pMethods;
@@ -72,13 +72,13 @@ struct McciBootloaderDeviceI2cDevice_Contents_s
 ///
 union McciBootloaderDeviceI2cDevice_u
 	{
-	McciBootloaderDevice_UNION;
+	McciBootloaderDeviceI2c_UNION;
 	McciBootloaderDeviceI2cDevice_Contents_t	I2cDevice;
 	};
 
 /// Macro for defining subclass unions derived frmo McciBootloaderDeviceI2cDevice_t
 #define McciBootloaderDeviceI2cDevice_UNION				\
-	McciBootloaderDevice_UNION;					\
+	McciBootloaderDeviceI2c_UNION;					\
 	McciBootloaderDeviceI2cDevice_Contents_t	I2cDevice;	\
 	McciBootloaderDeviceI2cDevice_t			I2cDeviceCast
 

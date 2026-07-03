@@ -192,4 +192,5 @@ McciBootloader_programAndCheckFlash(
 extern uint8_t g_McciBootloader_imageBlock[4096];
 
 MCCI_BOOTLOADER_END_DECLS
+
 #endif /* _MCCI_BOOTLOADER_H_ */

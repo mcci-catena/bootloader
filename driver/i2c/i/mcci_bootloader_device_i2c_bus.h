@@ -28,8 +28,8 @@ Author:
 # include "mcci_bootloader_device_i2c_bus_types.h"
 #endif
 
-#ifndef _mcci_bootloader_device_i2c_h_
-# include "mcci_bootloader_device_i2c.h"
+#ifndef _mcci_bootloader_device_i2c_common_h_
+# include "mcci_bootloader_device_i2c_common.h"
 #endif
 
 #ifdef __cplusplus
@@ -44,7 +44,7 @@ struct McciBootloaderDeviceI2cBusMethods_s
 
 struct McciBootloaderDeviceI2cBus_Contents_s
 	{
-	McciBootloaderDevice_CONTENTS;
+	McciBootloaderDeviceI2c_CONTENTS;
 
 	const McciBootloaderDeviceI2cBusMethods_t *pMethods;
 	};
@@ -54,12 +54,12 @@ struct McciBootloaderDeviceI2cBus_Contents_s
 
 union McciBootloaderDeviceI2cBus_u
 	{
-	McciBootloaderDevice_UNION;
+	McciBootloaderDeviceI2c_UNION;
 	McciBootloaderDeviceI2cBus_Contents_t	I2cBus;
 	};
 
 #define McciBootloaderDeviceI2cBus_UNION			\
-	McciBootloaderDevice_UNION;				\
+	McciBootloaderDeviceI2c_UNION;				\
 	McciBootloaderDeviceI2cBus_Contents_t	I2cBus;		\
 	McciBootloaderDeviceI2cBus_t		I2cBusCast
 

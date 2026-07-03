@@ -342,7 +342,7 @@ i2cBusRead(
 	McciBootloaderDeviceI2cAddress_t i2cAddress,
 	uint8_t *pBuffer,
 	size_t nBuffer,
-	size_t *pnResult
+	size_t *pnActual
 	)
 	{
 	const size_t nBuffer_orig = nBuffer;
@@ -351,12 +351,12 @@ i2cBusRead(
 	McciBootloader_Milliseconds_t tStart;
 	McciBootloaderI2cBusStm32l0_Status_t status;
 
-	if (pnResult == NULL)
+	if (pnActual == NULL)
 		return McciBootloaderDeviceI2cResult_InvalidParameter;
 
 	if (nBuffer > 0xFF)
 		{
-		*pnResult = 0;
+		*pnActual = 0;
 		return McciBootloaderDeviceI2cResult_InvalidParameter;
 		}
 
@@ -435,7 +435,7 @@ i2cBusRead(
 		);
 
 	// return result.
-	*pnResult = nBuffer_orig - nBuffer;
+	*pnActual = nBuffer_orig - nBuffer;
 	return status_getResult(status);
 	}
 
@@ -445,7 +445,7 @@ i2cBusWrite(
 	McciBootloaderDeviceI2cAddress_t i2cAddress,
 	const uint8_t *pBuffer,
 	size_t nBuffer,
-	size_t *pnResult
+	size_t *pnActual
 	)
 	{
 	const size_t nBuffer_orig = nBuffer;
@@ -454,12 +454,12 @@ i2cBusWrite(
 	McciBootloader_Milliseconds_t tStart;
 	McciBootloaderI2cBusStm32l0_Status_t status;
 
-	if (pnResult == NULL)
+	if (pnActual == NULL)
 		return McciBootloaderDeviceI2cResult_InvalidParameter;
 
 	if (nBuffer > 0xFF)
 		{
-		*pnResult = 0;
+		*pnActual = 0;
 		return McciBootloaderDeviceI2cResult_InvalidParameter;
 		}
 
@@ -596,7 +596,7 @@ i2cBusWrite(
 		);
 
 	// return result.
-	*pnResult = nBuffer_orig - nBuffer;
+	*pnActual = nBuffer_orig - nBuffer;
 	return status_getResult(status);
 	}
 

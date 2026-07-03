@@ -1,6 +1,6 @@
 /*
 
-Module:	mcci_bootloader_device_i2c_types.h
+Module:	mcci_bootloader_device_i2c_common_types.h
 
 Function:
 	Common types for I2C work.
@@ -19,8 +19,8 @@ Author:
 
 */
 
-#ifndef _mcci_bootloader_device_i2c_types_h_
-#define _mcci_bootloader_device_i2c_types_h_	/* prevent multiple includes */
+#ifndef _mcci_bootloader_device_i2c_common_types_h_
+#define _mcci_bootloader_device_i2c_common_types_h_	/* prevent multiple includes */
 
 #pragma once
 
@@ -50,6 +50,12 @@ typedef	uint16_t McciBootloaderDeviceI2cAddress_t;
 ///
 typedef uint32_t McciBootloaderDeviceI2cResult_t;
 
+/// the abstract object for all i2c bus or device object.
+typedef union McciBootloaderDeviceI2c_u McciBootloaderDeviceI2c_t;
+
+/// the abstract contents for all i2c bus or device objects
+typedef struct McciBootloaderDeviceI2c_Contents_s McciBootloaderDeviceI2c_Contents_t;
+
 MCCI_BOOTLOADER_END_DECLS
 
-#endif /* _mcci_bootloader_device_i2c_types_h_ */
+#endif /* _mcci_bootloader_device_i2c_common_types_h_ */

@@ -24,8 +24,8 @@ Author:
 
 #pragma once
 
-#ifndef _mcci_bootloader_device_i2c_types_h_
-# include "mcci_bootloader_device_i2c_types.h"
+#ifndef _mcci_bootloader_device_i2c_common_types_h_
+# include "mcci_bootloader_device_i2c_common_types.h"
 #endif
 
 MCCI_BOOTLOADER_BEGIN_DECLS
@@ -40,7 +40,7 @@ typedef struct McciBootloaderDeviceI2cDevice_Contents_s McciBootloaderDeviceI2cD
 /// @param [in] pI2cDevice indicates the device instance.
 /// @param [out] pBuffer points to the buffer to be filled with data.
 /// @param [in] nBuffer  number of bytes to be read into pBuffer.
-/// @param [out] pnResult  points to cell which will be set to actual byte count.
+/// @param [out] pnActual  points to cell which will be set to actual byte count.
 ///
 /// @returns
 ///	Status code. McciBootloaderDeviceI2cResult_OK for success, other values
@@ -50,7 +50,7 @@ typedef McciBootloaderDeviceI2cResult_t (McciBootloaderDeviceI2cDevice_ReadFn_t)
 		McciBootloaderDeviceI2cDevice_t *pI2cDevice,
 		uint8_t *pBuffer,
 		size_t nBuffer,
-		size_t *pnResult
+		size_t *pnActual
 		);
 
 ///
@@ -59,7 +59,7 @@ typedef McciBootloaderDeviceI2cResult_t (McciBootloaderDeviceI2cDevice_ReadFn_t)
 /// @param [in] pI2cDevice indicates the device instance.
 /// @param [in] pBuffer points to the buffer to be filled with data.
 /// @param [in] nBuffer  number of bytes to be read into pBuffer.
-/// @param [out] pnResult  points to cell which will be set to actual byte count.
+/// @param [out] pnActual  points to cell which will be set to actual byte count.
 ///
 /// @returns
 ///	Status code. McciBootloaderDeviceI2cResult_OK for success, other values
@@ -69,7 +69,7 @@ typedef McciBootloaderDeviceI2cResult_t (McciBootloaderDeviceI2cDevice_WriteFn_t
 		McciBootloaderDeviceI2cDevice_t *pI2cDevice,
 		const uint8_t *pBuffer,
 		size_t nBuffer,
-		size_t *pnResult
+		size_t *pnActual
 		);
 
 MCCI_BOOTLOADER_END_DECLS
