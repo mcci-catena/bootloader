@@ -301,7 +301,6 @@ Notes:
 
 */
 
-
 static bool
 i2cBusEnd(
 	McciBootloaderDevice_t *pDevice
