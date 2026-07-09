@@ -60,7 +60,9 @@ struct McciBootloaderDeviceI2cDevice_Contents_s
 	/// bus that controls this device.
 	McciBootloaderDeviceI2cBus_t		*pBus;
 	/// the 7-bit address of the target device, right justified
-	uint8_t					bAddress;
+	McciBootloaderDeviceI2cAddress_t	address;
+	/// the device speed, from the enum.
+	McciBootloaderDeviceI2cSpeed_t		bSpeed;
 	};
 
 /// Content macro for subclasses derived from McciBootloaderDeviceI2cDevice_t

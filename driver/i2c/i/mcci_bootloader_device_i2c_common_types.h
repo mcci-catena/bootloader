@@ -50,6 +50,16 @@ typedef	uint16_t McciBootloaderDeviceI2cAddress_t;
 ///
 typedef uint32_t McciBootloaderDeviceI2cResult_t;
 
+///
+/// \brief Bus speed codes for the portable I2C driver API.
+///
+/// \note enum types don't have predictable width. So we declare this as
+///	a `uint8_t`, and have a separate declaration for the enum.
+///
+/// \see McciBootloaderDeviceI2cSpeed_e
+///
+typedef uint8_t McciBootloaderDeviceI2cSpeed_t;
+
 /// the abstract object for all i2c bus or device object.
 typedef union McciBootloaderDeviceI2c_u McciBootloaderDeviceI2c_t;
 

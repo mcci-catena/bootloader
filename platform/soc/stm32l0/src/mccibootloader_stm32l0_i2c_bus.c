@@ -143,7 +143,7 @@ Definition:
 						//   etc.
 			uint32_t timingr100k,	// value to use for 100k operations
 			uint32_t timingr400k,	// value to use for 400k operations
-			uint32_t timingr1m	// value to use for 1MHz operations
+			uint32_t timingr1M	// value to use for 1MHz operations
 			);
 
 Description:
@@ -171,16 +171,20 @@ McciBootloader_Stm32L0Interface_initI2cBus(
 	const McciBootloaderDeviceI2cBusStm32l0_Config_t *pConfig,
 	uint32_t timingr100k,
 	uint32_t timingr400k,
-	uint32_t timingr1m
+	uint32_t timingr1M
 	)
 	{
 	// check parameters
 	if (sizeForBus < sizeof(McciBootloaderDeviceI2cBusStm32l0_t))
 		McciBootloaderPlatform_fail(McciBootloaderError_InternalConsistency);
 
-	if (timingr100k == MCCI_BOOTLOADER_STM32L0_I2C_TIMINGR_NOT_SUPPORTED ||
-	    timingr400k != MCCI_BOOTLOADER_STM32L0_I2C_TIMINGR_NOT_SUPPORTED ||
-	    timingr1m != MCCI_BOOTLOADER_STM32L0_I2C_TIMINGR_NOT_SUPPORTED)
+	// 100k must be supported
+	if (timingr100k == MCCI_BOOTLOADER_STM32L0_I2C_TIMINGR_NOT_SUPPORTED)
+		McciBootloaderPlatform_fail(McciBootloaderError_InternalConsistency);
+
+	// if 400k is not supported, 1m also must be "not supported"
+	if (timingr400k == MCCI_BOOTLOADER_STM32L0_I2C_TIMINGR_NOT_SUPPORTED &&
+		 timingr1M != MCCI_BOOTLOADER_STM32L0_I2C_TIMINGR_NOT_SUPPORTED)
 		McciBootloaderPlatform_fail(McciBootloaderError_InternalConsistency);
 
 	if (pConfig == NULL)
@@ -197,7 +201,9 @@ McciBootloader_Stm32L0Interface_initI2cBus(
 	pI2cBus->Device.pMethods = &i2cBusDeviceMethods;
 	pI2cBus->I2cBus.pMethods = &i2cBusMethods;
 	pI2cBus->Stm32l0.pConfig = pConfig;
-	pI2cBus->Stm32l0.timingr100k = timingr100k;
+	pI2cBus->Stm32l0.timingr[McciBootloaderDeviceI2cSpeed_100k] = timingr100k;
+	pI2cBus->Stm32l0.timingr[McciBootloaderDeviceI2cSpeed_400k] = timingr400k;
+	pI2cBus->Stm32l0.timingr[McciBootloaderDeviceI2cSpeed_1M]   = timingr1M;
 
 	// initialize
 	if (! (*pI2cBus->Device.pMethods->pBegin)(&pI2cBus->DeviceCast))
@@ -268,10 +274,10 @@ i2cBusBegin(
 		pI2cBus->Stm32l0.pConfig->APB1RSTR_mask
 		);
 
-	// set up timing register
+	// set up timing register to default for 100kbps
 	McciArm_putReg(
 		baseAddress + MCCI_STM32L0_I2C_TIMINGR,
-		pI2cBus->Stm32l0.timingr100k
+		pI2cBus->Stm32l0.timingr[McciBootloaderDeviceI2cSpeed_100k]
 		);
 
 	return true;

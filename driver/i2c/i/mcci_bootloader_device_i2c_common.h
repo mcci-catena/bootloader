@@ -80,6 +80,18 @@ union McciBootloaderDeviceI2c_u
 	McciBootloaderDeviceI2c_Contents_t		I2cCommon;	\
 	McciBootloaderDeviceI2c_t			I2CommonCast
 
+///
+/// Supported i2c speeds
+///
+enum McciBootloaderDeviceI2cSpeed_e
+	{
+	McciBootloaderDeviceI2cSpeed_100k = 0,		///< 100kbps, "Standard Mode"
+	McciBootloaderDeviceI2cSpeed_400k,		///< 400kbps, "Fast Mode"
+	McciBootloaderDeviceI2cSpeed_1M,		///< 1Mbps, "Fast Mode Plus"
+	McciBootloaderDeviceI2cSpeed__MAX,		///< Count of speeds defined.
+	};
+
+// typedef uint8_t McciBootloaderDeviceI2cSpeed_t;	-- in mcci_bootloader_device_i2c_common_types.h
 
 
 MCCI_BOOTLOADER_END_DECLS
