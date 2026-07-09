@@ -23,6 +23,7 @@ Author:
 
 #include "mcci_bootloader.h"
 #include "mcci_bootloader_platform.h"
+#include "mcci_bootloader_device_i2c_device_stm32l0.h"
 #include "mcci_stm32l0xx.h"
 #include "mcci_arm_cm0plus.h"
 
@@ -341,7 +342,7 @@ i2cBusEnd(
 static McciBootloaderDeviceI2cResult_t
 i2cBusRead(
 	McciBootloaderDeviceI2cBus_t *pBus,
-	McciBootloaderDeviceI2cAddress_t i2cAddress,
+	McciBootloaderDeviceI2cDevice_t *pDevice,
 	uint8_t *pBuffer,
 	size_t nBuffer,
 	size_t *pnActual
@@ -352,6 +353,8 @@ i2cBusRead(
 	uint32_t const baseAddress = pI2cBus->Stm32l0.pConfig->baseAddress;
 	McciBootloader_Milliseconds_t tStart;
 	McciBootloaderI2cBusStm32l0_Status_t status;
+	McciBootloaderDeviceI2cAddress_t const i2cAddress = pDevice->I2cDevice.address;
+	McciBootloaderDeviceI2cSpeed_t const bSpeed = pDevice->I2cDevice.bSpeed;
 
 	if (pnActual == NULL)
 		return McciBootloaderDeviceI2cResult_InvalidParameter;
@@ -364,6 +367,7 @@ i2cBusRead(
 
 	// nBuffer == 0 is a read probe.
 
+	// compute CR2
 	uint32_t cr2;
 
 	cr2 = MCCI_BOOTLOADER_FIELD_SET_VALUE(MCCI_STM32L0_I2C_CR2_SADD, i2cAddress << 1)
@@ -372,11 +376,19 @@ i2cBusRead(
 	    | MCCI_STM32L0_I2C_CR2_RD_WRN
 	    ;
 
+	// set TIMINGR.
+	McciArm_putReg(
+		baseAddress + MCCI_STM32L0_I2C_TIMINGR,
+		pI2cBus->Stm32l0.timingr[bSpeed]
+		);
+
+	// enable
 	McciArm_putReg(
 		baseAddress + MCCI_STM32L0_I2C_CR1,
 		MCCI_STM32L0_I2C_CR1_PE
 		);
 
+	// write CR2
 	McciArm_putReg(
 		baseAddress + MCCI_STM32L0_I2C_CR2,
 		cr2
@@ -444,7 +456,7 @@ i2cBusRead(
 static McciBootloaderDeviceI2cResult_t
 i2cBusWrite(
 	McciBootloaderDeviceI2cBus_t *pBus,
-	McciBootloaderDeviceI2cAddress_t i2cAddress,
+	McciBootloaderDeviceI2cDevice_t *pDevice,
 	const uint8_t *pBuffer,
 	size_t nBuffer,
 	size_t *pnActual
@@ -455,6 +467,8 @@ i2cBusWrite(
 	uint32_t const baseAddress = pI2cBus->Stm32l0.pConfig->baseAddress;
 	McciBootloader_Milliseconds_t tStart;
 	McciBootloaderI2cBusStm32l0_Status_t status;
+	McciBootloaderDeviceI2cAddress_t const i2cAddress = pDevice->I2cDevice.address;
+	McciBootloaderDeviceI2cSpeed_t const bSpeed = pDevice->I2cDevice.bSpeed;
 
 	if (pnActual == NULL)
 		return McciBootloaderDeviceI2cResult_InvalidParameter;
@@ -467,6 +481,7 @@ i2cBusWrite(
 
 	// nBuffer == 0 is a write probe
 
+	// compute cr2
 	uint32_t cr2;
 
 	cr2 = MCCI_BOOTLOADER_FIELD_SET_VALUE(MCCI_STM32L0_I2C_CR2_SADD, i2cAddress << 1)
@@ -474,11 +489,19 @@ i2cBusWrite(
 	    | MCCI_STM32L0_I2C_CR2_AUTOEND
 	    ;
 
+	// set TIMINGR.
+	McciArm_putReg(
+		baseAddress + MCCI_STM32L0_I2C_TIMINGR,
+		pI2cBus->Stm32l0.timingr[bSpeed]
+		);
+
+	// enable
 	McciArm_putReg(
 		baseAddress + MCCI_STM32L0_I2C_CR1,
 		MCCI_STM32L0_I2C_CR1_PE
 		);
 
+	// write cr2
 	McciArm_putReg(
 		baseAddress + MCCI_STM32L0_I2C_CR2,
 		cr2
