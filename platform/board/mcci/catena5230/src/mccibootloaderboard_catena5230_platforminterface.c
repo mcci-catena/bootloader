@@ -44,6 +44,7 @@ gk_McciBootloaderPlatformInterface =
 	.pPrepareForLaunch = McciBootloaderBoard_Catena5230_prepareForLaunch,
 	.pFail = McciBootloaderBoard_Catena1sj_fail,
 	.pDelayMs = McciBootloaderBoard_Catena1sj_delayMs,
+	.pGetMilliseconds = McciBootloaderBoard_Catena1sj_getMilliseconds,
 	.pGetUpdate = McciBootloaderBoard_Catena1sj_getUpdate,
 	.pSetUpdate = McciBootloaderBoard_Catena1sj_setUpdate,
 	.pSystemFlashErase = McciBootloader_Stm32L0_systemFlashErase,

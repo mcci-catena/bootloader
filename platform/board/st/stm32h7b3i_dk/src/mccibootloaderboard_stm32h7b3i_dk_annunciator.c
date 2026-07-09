@@ -120,7 +120,7 @@ nextBit(void)
 	}
 
 void
-McciBootloaderBoard_Stm32h7b3iDk_handleSysTick(
+McciBootloaderBoard_Stm32h7b3iDk_annunciatorHandleSysTick(
 	void
 	)
 	{

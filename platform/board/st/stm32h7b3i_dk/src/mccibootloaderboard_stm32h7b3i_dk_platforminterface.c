@@ -41,6 +41,7 @@ gk_McciBootloaderPlatformInterface =
 	.pPrepareForLaunch = McciBootloaderBoard_Stm32h7b3iDk_prepareForLaunch,
 	.pFail = McciBootloaderBoard_Stm32h7b3iDk_fail,
 	.pDelayMs = McciBootloaderBoard_Stm32h7b3iDk_delayMs,
+	.pGetMilliseconds = McciBootloaderBoard_Stm32h7b3iDk_getMilliseconds,
 	.pGetUpdate = McciBootloaderBoard_Stm32h7b3iDk_getUpdate,
 	.pSetUpdate = McciBootloaderBoard_Stm32h7b3iDk_setUpdate,
 	.pSystemFlashErase = McciBootloader_Stm32h7_systemFlashErase,

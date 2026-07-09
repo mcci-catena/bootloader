@@ -61,6 +61,8 @@ delayTick(void);
 |
 \****************************************************************************/
 
+/// the tick count for STM32h7b3i_dk platforms
+static volatile McciBootloader_Milliseconds_t s_tickCount;
 
 /*
 
@@ -198,20 +200,36 @@ McciBootloaderBoard_Stm32h7b3iDk_clearLed(void)
 void
 McciBootloaderBoard_Stm32h7b3iDk_delayMs(uint32_t ms)
 	{
+	// TODO(tmm@mcci.com): this won't really work if clock interrupts
+	// are enabled. Condition this delay on "systick interrupts can happen";
+	// use the loop if they cannot, watch s_tickCount if they can.
 	for (++ms; ms > 0; --ms)
 		{
 		while ((McciArm_getReg(MCCI_CM7_SYSTICK_CSR) &
 			MCCI_CM7_SYSTICK_CSR_COUNTFLAG) == 0)
 			;
+
+		++s_tickCount;
 		}
 	}
 
 static void
 delayTick(void)
 	{
-	while ((McciArm_getReg(MCCI_CM7_SYSTICK_CSR) &
-		MCCI_CM7_SYSTICK_CSR_COUNTFLAG) == 0)
-		;
+	McciBootloaderBoard_Stm32h7b3iDk_delayMs(1);
+	}
+
+void
+McciBootloaderBoard_Stm32h7b3iDk_handleSysTick(void)
+	{
+	++s_tickCount;
+	McciBootloaderBoard_Stm32h7b3iDk_annunciatorHandleSysTick();
+	}
+
+McciBootloader_Milliseconds_t
+McciBootloaderBoard_Stm32h7b3iDk_getMilliseconds(void)
+	{
+	return s_tickCount;
 	}
 
 void
@@ -235,7 +253,7 @@ McciBootloaderBoard_Stm32h7b3iDk_fail(
 		for (; timeToReboot > 0; --timeToReboot)
 			{
 			delayTick();
-			McciBootloaderBoard_Stm32h7b3iDk_handleSysTick();
+			McciBootloaderBoard_Stm32h7b3iDk_annunciatorHandleSysTick();
 			}
 
 		McciArm_DataSynchBarrier();

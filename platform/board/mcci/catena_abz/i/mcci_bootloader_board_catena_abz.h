@@ -90,6 +90,9 @@ MCCI_BOOTLOADER_NORETURN_SFX;
 McciBootloaderPlatform_DelayMsFn_t
 McciBootloaderBoard_CatenaAbz_delayMs;
 
+McciBootloaderPlatform_GetMillisecondsFn_t
+McciBootloaderBoard_CatenaAbz_getMilliseconds;
+
 McciBootloaderPlatform_GetUpdateFlagFn_t
 McciBootloaderBoard_CatenaAbz_getUpdate;
 
@@ -117,6 +120,7 @@ McciBootloaderBoard_CatenaAbz_annunciatorInit;
 McciBootloaderPlatform_AnnunciatorIndicateStateFn_t
 McciBootloaderBoard_CatenaAbz_annunciatorIndicateState;
 
+void McciBootloaderBoard_CatenaAbz_annunciatorHandleSysTick(void);
 void McciBootloaderBoard_CatenaAbz_clearLed(void);
 void McciBootloaderBoard_CatenaAbz_handleSysTick(void);
 void McciBootloaderBoard_CatenaAbz_setLed(void);

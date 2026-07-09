@@ -88,7 +88,7 @@ Callers:
 
 ## Platform
 
-- [ ] Implement `McciBootloaderPlatform_getMilliseconds()`. The STM32L0 I2C bus
+- [x] Implement `McciBootloaderPlatform_getMilliseconds()`. The STM32L0 I2C bus
       driver carries a temporary forward declaration
       (`platform/soc/stm32l0/src/mccibootloader_stm32l0_i2c_bus.c:58-61`) so it
       compiles; remove that stub once the platform provides the function.

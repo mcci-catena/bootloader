@@ -120,7 +120,7 @@ nextBit(void)
 	}
 
 void
-McciBootloaderBoard_CatenaAbz_handleSysTick(
+McciBootloaderBoard_CatenaAbz_annunciatorHandleSysTick(
 	void
 	)
 	{

@@ -88,6 +88,24 @@ typedef void
 	);
 
 ///
+/// \brief get current millisecond tick count
+///
+/// \details The bootloader calls this function in order to get a monotonically
+///	incrementing count of milliseconds. This is primarily used for timeouts.
+///	In general, we have a clock tick interrupt running that is used
+///	for modulating the LED during boot, however the rest of the bootloader
+///	doesn't care about how this is actually implemented. Timeout loops are
+///	the main users of this API, so it's possible to implement this by watching
+///	changes in a counter register. The actual timebase is not critical,
+///	but to avoid premature timeouts, the returned counter should not advance
+///	faster than real time.
+///
+typedef McciBootloader_Milliseconds_t
+(McciBootloaderPlatform_GetMillisecondsFn_t)(
+	void
+	);
+
+///
 /// \brief Get the "update flag"
 ///
 /// The bootloader needs to know if an update has been requested; no

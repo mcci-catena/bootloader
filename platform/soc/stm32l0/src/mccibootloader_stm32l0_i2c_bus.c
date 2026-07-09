@@ -62,11 +62,6 @@ status_getResult(
 	McciBootloaderI2cBusStm32l0_Status_t status
 	);
 
-// temporary declaration so we can compile before implementation
-// of getMilliseconds() in platform:
-McciBootloader_Milliseconds_t
-McciBootloaderPlatform_getMilliseconds(void);
-
 /****************************************************************************\
 |
 |	Read-only data.

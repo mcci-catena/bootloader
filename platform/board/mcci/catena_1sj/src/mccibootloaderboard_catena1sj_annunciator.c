@@ -111,7 +111,7 @@ Returns:
 	No explicit result.
 
 Notes:
-	This assumes that McciBootloaderBoard_Catena1sj_handleSysTick()
+	This assumes that McciBootloaderBoard_Catena1sj_annunciatorHandleSysTick()
 	calls McciBootloader_LED_handleSysTick() and updates
 	the LED state appropriately.
 
@@ -126,7 +126,7 @@ McciBootloaderBoard_Catena1sj_annunciatorIndicateState(
 	}
 
 void
-McciBootloaderBoard_Catena1sj_handleSysTick(
+McciBootloaderBoard_Catena1sj_annunciatorHandleSysTick(
 	void
 	)
 	{
