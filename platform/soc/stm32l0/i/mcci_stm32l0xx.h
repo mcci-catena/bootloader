@@ -896,6 +896,24 @@ extern "C" {
 #define	MCCI_STM32L0_GPIO_OTYPE_OD	UINT32_C(1)	//< Output is open drain (pull-down only)
 ///	@}
 
+/// \brief compute the mask for the mode bits for port bits 0..15
+///
+/// Normally we compute a mask using an expression like:
+///
+///	`MCCI_BOOTLOADER_FIELD_SET_VALUE(
+///		MCCI_STM32L0_GPIO_OTYPE_P(3), // bit 3 in port
+///		MCCI_STM32L0_GPIO_OTYPE_PP
+///		)`
+///
+#define	MCCI_STM32L0_GPIO_OTYPE_P(p)		(UINT32_C(1) << (p))
+
+///
+/// \brief directly compute a GPIO OTYPE mask
+/// \param p is the bit number in the port
+/// \param v is the value (MCCI_STM32L0_GPIO_OTYPE_PP or MCCI_STM32L0_GPIO_OTYPE_OD)
+///
+#define	MCCI_STM32L0_GPIO_OTYPE_PV(p, v)	(((v) & 1u) << (p))
+
 /// \name GPIO_OSPEEDR bits -- used to select pin speed, two bits per pin
 ///	@{
 #define MCCI_STM32L0_GPIO_OSPEED_MASK	UINT32_C(3)	//< speed bit masks
