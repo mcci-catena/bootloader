@@ -934,9 +934,9 @@ extern "C" {
 #define	MCCI_STM32L0_GPIO_OSPEED_P(p)	(UINT32_C(3) << (2 * (p)))
 ///	@}
 
-/// \name GPIO_PUPDR bits -- used to select pin speed, two bits per pin
+/// \name GPIO_PUPDR bits -- used to select pin pullup/pulldown, two bits per pin
 ///	@{
-#define MCCI_STM32L0_GPIO_PUPD_MASK	UINT32_C(3)	//< speed bit masks
+#define MCCI_STM32L0_GPIO_PUPD_MASK	UINT32_C(3)	//< pullup/pulldown bit masks
 #define MCCI_STM32L0_GPIO_PUPD_NONE	UINT32_C(0)	//< no pullup/pulldown
 #define MCCI_STM32L0_GPIO_PUPD_PULLUP	UINT32_C(1)	//< pullup
 #define MCCI_STM32L0_GPIO_PUPD_PULLDOWN	UINT32_C(2)	//< pulldown
