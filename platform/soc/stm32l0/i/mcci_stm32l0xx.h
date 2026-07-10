@@ -892,7 +892,8 @@ extern "C" {
 
 /// \name GPIO_OTYPER bits
 ///	@{
-#define	MCCI_STM32L0_GPIO_OTYPE_OD	UINT32_C(1)	//<
+#define	MCCI_STM32L0_GPIO_OTYPE_PP	UINT32_C(0)	//< Output is push-pull (totem-pole)
+#define	MCCI_STM32L0_GPIO_OTYPE_OD	UINT32_C(1)	//< Output is open drain (pull-down only)
 ///	@}
 
 /// \name GPIO_OSPEEDR bits -- used to select pin speed, two bits per pin
