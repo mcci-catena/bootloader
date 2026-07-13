@@ -22,7 +22,7 @@ Decisions to settle first:
       about success ignore it; a probe passes NULL. (Alternative: keep the byte
       count as the return and add a status out-param -- rejected, keeps the
       "0 is ambiguous" problem.) See implementation.
-- [s] **Result type.** Mirror the `McciBootloaderError_t` pattern exactly: a
+- [x] **Result type.** Mirror the `McciBootloaderError_t` pattern exactly: a
       fixed-width `typedef uint32_t McciBootloaderDeviceI2cResult_t;` (the actual
       return type -- portable width) plus a separate `enum
       McciBootloaderDeviceI2cResult_e { ... }` for the named values. Model:
@@ -116,7 +116,7 @@ forces software NSS management. Every board SPI driver assumes hardware NSS toda
 
 ## Remaining 5230 integration (see doc/plan-catena-51xx-52xx-bootloader-support.md)
 
-- [ ] PB10/PB11 as AF6 open-drain with pull-up, and the I2C2 pin/clock setup, in
+- [x] PB10/PB11 as AF6 open-drain with pull-up, and the I2C2 pin/clock setup, in
       the 5230 board layer (initI2cBus takes no pin args).
 - [ ] NPM1300 device driver (`driver/npm1300/` is headers only:
       `createAndAttach`, `initializeRegisters`).
