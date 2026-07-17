@@ -24,6 +24,7 @@ Author:
 #include "mcci_bootloader.h"
 #include "mcci_bootloader_platform.h"
 #include "mcci_bootloader_device_i2c_device_stm32l0.h"
+#include "mcci_bootloader_device_internal.h"
 #include "mcci_stm32l0xx.h"
 #include "mcci_arm_cm0plus.h"
 
@@ -207,7 +208,7 @@ McciBootloader_Stm32L0Interface_initI2cBus(
 	pI2cBus->Stm32l0.timingr[McciBootloaderDeviceI2cSpeed_1M]   = timingr1M;
 
 	// initialize
-	if (! (*pI2cBus->Device.pMethods->pBegin)(&pI2cBus->DeviceCast))
+	if (! McciBootloaderDevice_begin(&pI2cBus->DeviceCast))
 		McciBootloaderPlatform_fail(McciBootloaderError_I2cBegin);
 
 	return &pI2cBus->I2cBusCast;

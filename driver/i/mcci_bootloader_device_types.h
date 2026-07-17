@@ -32,9 +32,11 @@ Author:
 extern "C" {
 #endif
 
-typedef struct McciBootloaderDeviceMethods_s McciBootloaderDeviceMethods_t;
 typedef struct McciBootloaderDevice_Contents_s McciBootloaderDevice_Contents_t;
+typedef struct McciBootloaderDeviceMethods_s McciBootloaderDeviceMethods_t;
+typedef struct McciBootloaderDeviceStatusFlags_s McciBootloaderDeviceStatusFlags_t;
 typedef union McciBootloaderDevice_u McciBootloaderDevice_t;
+typedef union McciBootloaderDeviceStatus_u McciBootloaderDeviceStatus_t;
 
 typedef bool (McciBootloaderDevice_BeginFn_t)(McciBootloaderDevice_t *);
 typedef bool (McciBootloaderDevice_EndFn_t)(McciBootloaderDevice_t *);

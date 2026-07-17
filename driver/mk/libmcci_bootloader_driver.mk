@@ -23,6 +23,8 @@ INCLUDES_libmcci_bootloader_driver :=					\
 # end INCLUDES_libmcci_bootloader_driver
 
 SOURCES_libmcci_bootloader_driver :=					\
+	$_/src/mccibootloaderdevice_begin.c				\
+	$_/src/mccibootloaderdevice_end.c				\
 # end SOURCES_libmcci_bootloader_driver
 
 endif # _GUARD_libmcci_bootloader_driver.mk
