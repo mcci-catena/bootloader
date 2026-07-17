@@ -38,8 +38,9 @@ extern "C" {
 
 struct McciBootloaderDeviceI2cBusMethods_s
 	{
-	McciBootloaderDeviceI2cBus_ReadFn_t	*pRead;
-	McciBootloaderDeviceI2cBus_WriteFn_t	*pWrite;
+	McciBootloaderDeviceI2cBus_AddDeviceFn_t *pAddDevice;	///< the add-device method function
+	McciBootloaderDeviceI2cBus_ReadFn_t	*pRead;		///< the read method function
+	McciBootloaderDeviceI2cBus_WriteFn_t	*pWrite;	///< the write method function
 	};
 
 struct McciBootloaderDeviceI2cBus_Contents_s

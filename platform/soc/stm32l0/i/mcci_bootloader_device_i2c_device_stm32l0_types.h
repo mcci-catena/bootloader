@@ -28,9 +28,7 @@ Author:
 # include "mcci_bootloader_device_i2c_device_types.h"
 #endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+MCCI_BOOTLOADER_BEGIN_DECLS
 
 typedef	struct McciBootloaderDeviceI2cDeviceStm32l0_Contents_s
 		McciBootloaderDeviceI2cDeviceStm32l0_Contents_t;
@@ -38,8 +36,6 @@ typedef	struct McciBootloaderDeviceI2cDeviceStm32l0_Contents_s
 typedef	union McciBootloaderDeviceI2cDeviceStm32l0_u
 		McciBootloaderDeviceI2cDeviceStm32l0_t;
 
-#ifdef __cplusplus
-}
-#endif
+MCCI_BOOTLOADER_END_DECLS
 
 #endif /* _mcci_bootloader_device_i2c_device_stm32l0_types_h_ */

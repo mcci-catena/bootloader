@@ -54,16 +54,6 @@ union McciBootloaderDeviceSpiBusStm32l0_u
 	McciBootloaderDeviceSpiBusStm32l0_Contents_t	Stm32l0;
 	};
 
-McciBootloaderDeviceSpiBus_t *
-McciBootloader_Stm32L0Interface_initSpiBus(
-	void *pRamForBus,
-	size_t sizeForBus,
-	uint32_t baseAddress,
-	uint32_t timingr100k,
-	uint32_t timingr400k,
-	uint32_t timingr1m
-	);
-
 bool McciBootloaderDeviceSpiBusStm32l0_attach(
 	McciBootloaderDeviceSpiBusStm32l0_t *pBus,
 	McciBootloaderDeviceSpiDeviceStm32l0_t *pDevice

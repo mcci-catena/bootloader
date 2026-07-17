@@ -174,7 +174,7 @@ extern const McciBootloaderDeviceI2cBusStm32l0_Config_t	gk_McciBootloaderDeviceI
 ///
 static inline
 McciBootloaderDeviceI2cBusStm32l0_t *
-McciBootloader_Device_getI2cBusStm32l0(
+McciBootloaderDevice_getI2cBusStm32l0(
 	McciBootloaderDevice_t *pDevice
 	)
 	{
@@ -192,7 +192,7 @@ McciBootloader_Device_getI2cBusStm32l0(
 ///
 static inline
 McciBootloaderDeviceI2cBusStm32l0_t *
-McciBootloader_DeviceI2cBus_getI2cBusStm32l0(
+McciBootloaderDeviceI2cBus_getI2cBusStm32l0(
 	McciBootloaderDeviceI2cBus_t *pDevice
 	)
 	{

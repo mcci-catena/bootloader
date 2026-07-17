@@ -41,6 +41,27 @@ typedef union McciBootloaderDeviceI2cBus_u McciBootloaderDeviceI2cBus_t;
 typedef struct McciBootloaderDeviceI2cBus_Contents_s McciBootloaderDeviceI2cBus_Contents_t;
 
 ///
+/// @brief Add a device object to an i2c bus
+///
+/// @param [in] pBus pointer to bus
+/// @param [inout] pDevice uninitialized block of memory of size \c sizeDevice bytes
+/// @param [in] sizeDevice size of memory block
+/// @param [in] i2cAddress the device address
+/// @param [in] i2cSpeed the device speed
+///
+/// @returns
+///	Status code. McciBootloaderDeviceI2cResult_OK for success, other values
+///	for failure.
+///
+typedef McciBootloaderDeviceI2cResult_t (McciBootloaderDeviceI2cBus_AddDeviceFn_t)(
+		McciBootloaderDeviceI2cBus_t *pBus,
+		McciBootloaderDeviceI2cDevice_t *pDevice,
+		size_t sizeDevice,
+		McciBootloaderDeviceI2cAddress_t i2cAddress,
+		McciBootloaderDeviceI2cSpeed_t i2cSpeed
+		);
+
+///
 /// @brief read bytes from an I2C device connected to this bus.
 ///
 /// @param [in] pBus	points to the bus object to be used for this transfer.

@@ -32,9 +32,7 @@ Author:
 # include "mcci_bootloader_device_i2c_device.h"
 #endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+MCCI_BOOTLOADER_BEGIN_DECLS
 
 struct McciBootloaderDeviceI2cDeviceStm32l0_Contents_s
 	{
@@ -57,8 +55,44 @@ union McciBootloaderDeviceI2cDeviceStm32l0_u
 	McciBootloaderDeviceI2cDeviceStm32l0_Contents_t	Stm32l0;	\
 	McciBootloaderDeviceI2cDeviceStm32l0_t		Stm32l0Cast
 
-#ifdef __cplusplus
-}
-#endif
+///
+/// @brief upcast from device to enclosing McciBootloaderDeviceI2cDeviceStm32l0_t
+/// @param pDevice Pointer to device
+/// @return pointer to enclosing object
+///
+/// @note
+///	This is only safe to call when you know that the device is part of
+///	a STM32L0 I2C Bus Controller driver instance.
+///
+static inline
+McciBootloaderDeviceI2cDeviceStm32l0_t *
+McciBootloaderDevice_getI2cDeviceStm32l0(
+	McciBootloaderDevice_t *pDevice
+	)
+	{
+	return (McciBootloaderDeviceI2cDeviceStm32l0_t *)pDevice;
+	}
+
+///
+/// @brief upcast from i2c controller device to enclosing McciBootloaderDeviceI2cDeviceStm32l0_t
+/// @param pDevice Pointer to i2c controller device
+/// @return pointer to enclosing object
+///
+/// @note
+///	This is only safe to call when you know that the device is part of
+///	a STM32L0 I2C Bus Controller driver instance.
+///
+static inline
+McciBootloaderDeviceI2cDeviceStm32l0_t *
+McciBootloaderDeviceI2cDevice_getI2cDeviceStm32l0(
+	McciBootloaderDeviceI2cDevice_t *pDevice
+	)
+	{
+	return (McciBootloaderDeviceI2cDeviceStm32l0_t *)pDevice;
+	}
+
+
+
+MCCI_BOOTLOADER_END_DECLS
 
 #endif /* _mcci_bootloader_device_i2c_device_stm32l0_h_ */

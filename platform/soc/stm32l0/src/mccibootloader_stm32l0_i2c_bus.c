@@ -55,8 +55,12 @@ typedef enum McciBootloaderI2cBusStm32l0_Status_e
 
 static McciBootloaderDevice_BeginFn_t		i2cBusBegin;
 static McciBootloaderDevice_EndFn_t		i2cBusEnd;
+static McciBootloaderDeviceI2cBus_AddDeviceFn_t	i2cBusAddDevice;
 static McciBootloaderDeviceI2cBus_ReadFn_t	i2cBusRead;
 static McciBootloaderDeviceI2cBus_WriteFn_t	i2cBusWrite;
+
+static McciBootloaderDeviceI2cDevice_ReadFn_t	i2cDeviceRead;
+static McciBootloaderDeviceI2cDevice_WriteFn_t	i2cDeviceWrite;
 
 static
 McciBootloaderDeviceI2cResult_t
@@ -70,14 +74,15 @@ status_getResult(
 |
 \****************************************************************************/
 
-static const McciBootloaderDeviceMethods_t i2cBusDeviceMethods =
+static const McciBootloaderDeviceMethods_t i2cBus_deviceMethods =
 	{
 	.pBegin = i2cBusBegin,
 	.pEnd = i2cBusEnd
 	};
 
-static const McciBootloaderDeviceI2cBusMethods_t i2cBusMethods =
+static const McciBootloaderDeviceI2cBusMethods_t i2cBus_i2cBusMethods =
 	{
+	.pAddDevice = i2cBusAddDevice,
 	.pRead = i2cBusRead,
 	.pWrite = i2cBusWrite
 	};
@@ -119,6 +124,27 @@ const McciBootloaderDeviceI2cBusStm32l0_Config_t gk_McciBootloaderDeviceI2cBusSt
 		},
 	.APB1ENR_mask = MCCI_STM32L0_REG_RCC_APB1ENR_I2C3EN,
 	.APB1RSTR_mask = MCCI_STM32L0_REG_RCC_APB1RSTR_I2C3RST,
+	};
+
+/// @brief I2C device node methods.
+///
+/// I2C device nodes are the equivalent of Windows PDOs; they are
+/// drivers, but they exist to export device-specific functionality
+/// from the parent bus driver to the function driver that uses
+/// the specific I2C device. Thus, we can null out the method functions
+/// as the framework behavior is sufficient.
+///
+static const McciBootloaderDeviceMethods_t i2cDevice_deviceMethods =
+	{
+	.pBegin = NULL,
+	.pEnd = NULL
+	};
+
+/// @brief I2C device accessor methods
+static const McciBootloaderDeviceI2cDeviceMethods_t i2cDevice_i2cDeviceMethods =
+	{
+	.pRead = i2cDeviceRead,
+	.pWrite = i2cDeviceWrite
 	};
 
 /****************************************************************************\
@@ -200,8 +226,8 @@ McciBootloader_Stm32L0Interface_initI2cBus(
 	// fill it in
 	McciBootloaderDeviceI2cBusStm32l0_t * const pI2cBus = pRamForBus;
 
-	pI2cBus->Device.pMethods = &i2cBusDeviceMethods;
-	pI2cBus->I2cBus.pMethods = &i2cBusMethods;
+	pI2cBus->Device.pMethods = &i2cBus_deviceMethods;
+	pI2cBus->I2cBus.pMethods = &i2cBus_i2cBusMethods;
 	pI2cBus->Stm32l0.pConfig = pConfig;
 	pI2cBus->Stm32l0.timingr[McciBootloaderDeviceI2cSpeed_100k] = timingr100k;
 	pI2cBus->Stm32l0.timingr[McciBootloaderDeviceI2cSpeed_400k] = timingr400k;
@@ -245,7 +271,7 @@ i2cBusBegin(
 	McciBootloaderDevice_t *pDevice
 	)
 	{
-	McciBootloaderDeviceI2cBusStm32l0_t * const pI2cBus = McciBootloader_Device_getI2cBusStm32l0(pDevice);
+	McciBootloaderDeviceI2cBusStm32l0_t * const pI2cBus = McciBootloaderDevice_getI2cBusStm32l0(pDevice);
 	uint32_t const baseAddress = pI2cBus->Stm32l0.pConfig->baseAddress;
 
 	// select the clock source
@@ -316,7 +342,7 @@ i2cBusEnd(
 	McciBootloaderDevice_t *pDevice
 	)
 	{
-	McciBootloaderDeviceI2cBusStm32l0_t * const pI2cBus = McciBootloader_Device_getI2cBusStm32l0(pDevice);
+	McciBootloaderDeviceI2cBusStm32l0_t * const pI2cBus = McciBootloaderDevice_getI2cBusStm32l0(pDevice);
 	// uint32_t const baseAddress = pI2cBus->Stm32l0.pConfig->baseAddress;
 
 	// reset it
@@ -350,7 +376,7 @@ i2cBusRead(
 	)
 	{
 	const size_t nBuffer_orig = nBuffer;
-	McciBootloaderDeviceI2cBusStm32l0_t * const pI2cBus = McciBootloader_DeviceI2cBus_getI2cBusStm32l0(pBus);
+	McciBootloaderDeviceI2cBusStm32l0_t * const pI2cBus = McciBootloaderDeviceI2cBus_getI2cBusStm32l0(pBus);
 	uint32_t const baseAddress = pI2cBus->Stm32l0.pConfig->baseAddress;
 	McciBootloader_Milliseconds_t tStart;
 	McciBootloaderI2cBusStm32l0_Status_t status;
@@ -464,7 +490,7 @@ i2cBusWrite(
 	)
 	{
 	const size_t nBuffer_orig = nBuffer;
-	McciBootloaderDeviceI2cBusStm32l0_t * const pI2cBus = McciBootloader_DeviceI2cBus_getI2cBusStm32l0(pBus);
+	McciBootloaderDeviceI2cBusStm32l0_t * const pI2cBus = McciBootloaderDeviceI2cBus_getI2cBusStm32l0(pBus);
 	uint32_t const baseAddress = pI2cBus->Stm32l0.pConfig->baseAddress;
 	McciBootloader_Milliseconds_t tStart;
 	McciBootloaderI2cBusStm32l0_Status_t status;
@@ -651,6 +677,122 @@ status_getResult(
 		return k_map[status];
 	else
 		return McciBootloaderDeviceI2cResult_InternalError;
+	}
+
+/*
+
+Name:	i2cBusAddDevice()
+
+Function:
+	Implement McciBootloaderI2cBusAddDeviceFn_t method for STM32L0.
+
+Definition:
+	McciBootloaderDeviceI2cResult_t
+		i2cBusAddDevice(
+			McciBootloaderDeviceI2cBus_t *pBus,
+			McciBootloaderDeviceI2cDevice_t *pDevice,
+			size_t sizeDevice,
+			McciBootloaderDeviceI2cAddress_t i2cAddress,
+			McciBootloaderDeviceI2cSpeed_t i2cSpeed
+			);
+
+Description:
+	This function initializes the I2C device object at pDevice to operate
+	with the bus dirver at pBus. i2cAddress respresents the i2c address to be
+	used, and i2cSpeed represents the operating speed.
+
+	This function only sets up data structures. It does not actually probe the
+	bus, which does not need to be started yet.
+
+Returns:
+	McciBootloaderDeviceI2cResult_OK for success, some other result for failure.
+
+*/
+
+static McciBootloaderDeviceI2cResult_t
+i2cBusAddDevice(
+	McciBootloaderDeviceI2cBus_t *pBusAbstract,
+	McciBootloaderDeviceI2cDevice_t *pDeviceAbstract,
+	size_t sizeDevice,
+	McciBootloaderDeviceI2cAddress_t i2cAddress,
+	McciBootloaderDeviceI2cSpeed_t i2cSpeed
+	)
+	{
+	McciBootloaderDeviceI2cBusStm32l0_t * const pBus =
+		McciBootloaderDeviceI2cBus_getI2cBusStm32l0(pBusAbstract);
+	McciBootloaderDeviceI2cDeviceStm32l0_t * const pDevice =
+		McciBootloaderDeviceI2cDevice_getI2cDeviceStm32l0(pDeviceAbstract);
+
+	if (pDevice == NULL || sizeDevice < sizeof(*pDevice))
+		return McciBootloaderDeviceI2cResult_InvalidParameter;
+
+	memset(pDevice, 0, sizeof(*pDevice));
+
+	if (i2cSpeed >= MCCIADK_LENOF(pBus->Stm32l0.timingr))
+		return McciBootloaderDeviceI2cResult_InvalidParameter;
+
+	// decrement speed if we find an invalid speed.
+	// timingr[0] must not be MCCI_BOOTLOADER_STM32L0_I2C_TIMINGR_NOT_SUPPORTED
+	while (pBus->Stm32l0.timingr[i2cSpeed] == MCCI_BOOTLOADER_STM32L0_I2C_TIMINGR_NOT_SUPPORTED)
+		{
+		if (i2cSpeed == 0)
+			return McciBootloaderDeviceI2cResult_InternalError;
+
+		--i2cSpeed;
+		}
+
+	if (i2cAddress >= 0x80)
+		{
+		// not supporting 10-bit addresses yet.
+		return McciBootloaderDeviceI2cResult_InvalidParameter;
+		}
+
+	// set methods, which means device is now initialized.
+	pDevice->Device.pMethods = &i2cDevice_deviceMethods;
+
+	// set class methods
+	pDevice->I2cDevice.pMethods = &i2cDevice_i2cDeviceMethods;
+
+	// set the device information.
+	pDevice->I2cDevice.address = i2cAddress;
+	pDevice->I2cDevice.bSpeed = i2cSpeed;
+	pDevice->I2cDevice.pBus = &pBus->I2cBusCast;
+
+	return McciBootloaderDeviceI2cResult_OK;
+	}
+
+static McciBootloaderDeviceI2cResult_t
+i2cDeviceRead(
+	McciBootloaderDeviceI2cDevice_t *pI2cDevice,
+	uint8_t *pBuffer,
+	size_t nBuffer,
+	size_t *pnActual
+	)
+	{
+	return (*pI2cDevice->I2cDevice.pBus->I2cBus.pMethods->pRead)(
+		pI2cDevice->I2cDevice.pBus,
+		pI2cDevice,
+		pBuffer,
+		nBuffer,
+		pnActual
+		);
+	}
+
+static McciBootloaderDeviceI2cResult_t
+i2cDeviceWrite(
+	McciBootloaderDeviceI2cDevice_t *pI2cDevice,
+	const uint8_t *pBuffer,
+	size_t nBuffer,
+	size_t *pnActual
+	)
+	{
+	return (*pI2cDevice->I2cDevice.pBus->I2cBus.pMethods->pWrite)(
+		pI2cDevice->I2cDevice.pBus,
+		pI2cDevice,
+		pBuffer,
+		nBuffer,
+		pnActual
+		);
 	}
 
 /**** end of mccibootloader_stm32l0_i2c_bus.c ****/
