@@ -40,6 +40,8 @@ Author:
 # include "mcci_bootloader_device_npm1300_types.h"
 #endif
 
+MCCI_BOOTLOADER_BEGIN_DECLS
+
 struct McciBootloaderDeviceNpm1300_Contents_s
 	{
 	McciBootloaderDevice_CONTENTS;
@@ -77,7 +79,7 @@ struct McciBootloaderDriver_NPM1300_Init_s
 ///
 /// @param pI2cBus [in] the bus to be used to connect
 /// @param pI2cDeviceForPmic [out] a pointer to an uninitialized i2c device object to be initialized and used for the attachment
-/// @param sizeI2cDeviceForPmic [in] size in bytes of the objectc at \c pI2cDeviceForPmic
+/// @param sizeI2cDeviceForPmic [in] size in bytes of the object at \c pI2cDeviceForPmic
 ///
 /// @return pointer to (statically allocated) NPM1300 device object, or NULL in case of errors.
 ///
@@ -98,6 +100,8 @@ McciBootloaderDriver_NPM1300_createAndAttach(
 /// @param pPmic [in]		points to the PMIC device object
 /// @param pvInitValues 	points to an array of address/value pairs
 /// @param nInitValues 		count of entries in the array of ninit values.
+///				Use MCCIADK_LENOF() to calculatioe, not
+///				sizeof().
 ///
 /// @return \c true for success, \c false for any I2C error.
 ///
@@ -108,8 +112,17 @@ McciBootloaderDevice_NPM1300_initializeRegisters(
 	size_t nInitValues
 	);
 
-#ifdef __cplusplus
-}
-#endif
+/// @brief upcast an abstract device to a concrete NPM1300 object
+/// @param pDeviceAbstract [in] pointer to the abscract device
+/// @return corresponding pointer to NPM1300 object.
+static inline McciBootloaderDeviceNpm1300_t *
+McciBootloaderDevice_getDeviceNpm1300(
+	McciBootloaderDevice_t *pDeviceAbstract
+	)
+	{
+	return (McciBootloaderDeviceNpm1300_t *)pDeviceAbstract;
+	}
+
+MCCI_BOOTLOADER_END_DECLS
 
 #endif /* _mcci_bootloader_device_npm1300_h_ */

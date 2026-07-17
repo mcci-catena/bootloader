@@ -28,8 +28,12 @@ Author:
 extern "C" {
 #endif
 
+
 /// @name C-style definitions for Nordic NPM1300 register addresses
 /// @{
+
+/// @brief Base address of I2C port for NPM1300
+#define	MCCI_PMIC_NPM1300_I2C_ADDRESS			UINT8_C(0x6b)
 
 ///	@name Event and interrupt registers
 ///    	@{

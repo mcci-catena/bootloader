@@ -7,6 +7,7 @@
 # get the pre-conditions
 include platform/board/mcci/catena_1sj/mk/libmcci_bootloader_catena_1sj.mk
 include platform/driver/flash_mx25v8035f/mk/libmcci_bootloader_flash_mx25v8035f.mk
+include driver/npm1300/mk/libmcci_bootloader_driver_npm1300.mk
 
 # set things up
 LIBRARIES += libmcci_bootloader_catena5230
@@ -19,9 +20,7 @@ INCLUDES_libmcci_bootloader_catena5230 :=				\
 	$(INCLUDES_libmcci_bootloader_catena_1sj)			\
 	platform/driver/flash_mx25v8035f/i				\
 	$_/i								\
-	driver/i2c/i							\
-	driver/npm1300/i						\
-	driver/i							\
+	$(INCLUDES_libmcci_bootloader_driver_npm1300)			\
 # end INCLUDES_libmcci_bootloader_catena5230
 
 SOURCES_libmcci_bootloader_catena5230 :=				\

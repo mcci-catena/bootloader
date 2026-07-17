@@ -26,6 +26,7 @@ include mk/setup.mk
 
 include platform/board/mcci/catena4801/mk/mcci_bootloader_4801.mk
 include platform/board/mcci/catena46xx/mk/mcci_bootloader_46xx.mk
+include platform/board/mcci/catena5230/mk/mcci_bootloader_5230.mk
 
 # post processing
 include mk/tail.mk
