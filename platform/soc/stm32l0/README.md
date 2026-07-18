@@ -144,7 +144,7 @@ McciBootloaderDeviceI2cDevice_t : McciBootloaderDeviceI2cBus_t *pBus
 McciBootloaderDeviceI2cDevice_t : McciBootloaderDeviceI2cResult_t read(uint8_t *pBuffer, size_t nBuffer, size_t *pnActual)
 McciBootloaderDeviceI2cDevice_t : McciBootloaderDeviceI2cResult_t write(const uint8_t *pBuffer, size_t nBuffer, size_t *pnActual)
 
-McciBootloaderDeviceNpm1300_t : bool initializeRegisters(const McciBootloaderDriver_NPM1300_Init_t *pvInitValues, size_t nInitValues)
+McciBootloaderDeviceNpm1300_t : McciBootloaderDeviceI2cResult_t initializeRegisters(const McciBootloaderDriver_NPM1300_Init_t *pvInitValues, size_t nInitValues)
 @enduml
 ```
 
