@@ -4,7 +4,7 @@ Temporary file; delete when done.
 
 ## Portable I2C API
 
-- [ ] Add an error/status return to the portable I2C read/write API
+- [x] Add an error/status return to the portable I2C read/write API
       (`McciBootloaderDeviceI2cBus_ReadFn_t` / `WriteFn_t` and the device-layer
       equivalents in `driver/i2c/i/`). Today they return bytes transferred
       (`nBuffer_orig - nBuffer`). A zero-length probe returns 0 whether the device
@@ -78,11 +78,11 @@ SoC implementation (`platform/soc/stm32l0/src/mccibootloader_stm32l0_i2c_bus.c`)
 
 Callers:
 
-- [ ] `driver/npm1300/` device driver (headers only today) -- write its register
+- [x] `driver/npm1300/` device driver (headers only today) -- write its register
       read/write wrappers, `createAndAttach`, and `initializeRegisters` to the new
       signature and propagate the result. Only future consumer of the device i2c
       API, so changing the API now costs nothing here.
-- [ ] `mccibootloaderboard_catena5230_systeminit.c` -- goes through the NPM1300
+- [x] `mccibootloaderboard_catena5230_systeminit.c` -- goes through the NPM1300
       driver, not the bus API directly, so it only changes if the NPM1300 API
       surfaces the new result.
 
@@ -118,7 +118,7 @@ forces software NSS management. Every board SPI driver assumes hardware NSS toda
 
 - [x] PB10/PB11 as AF6 open-drain with pull-up, and the I2C2 pin/clock setup, in
       the 5230 board layer (initI2cBus takes no pin args).
-- [ ] NPM1300 device driver (`driver/npm1300/` is headers only:
+- [x] NPM1300 device driver (`driver/npm1300/` is headers only:
       `createAndAttach`, `initializeRegisters`).
 - [ ] 5230 `prepareForLaunch`: disable LOADSW2 before launch for micropower while
       keeping the PMIC's low-power init.

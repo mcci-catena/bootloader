@@ -58,10 +58,15 @@ src/    Implementation
   transfers control to the application image, so the application starts
   in a clean, near-reset state.
 
-- *I2C driver -- TBD.* Driver for the STM32L0 I2C peripheral, used on
-  boards that need to talk to a PMIC (e.g. NPM1300 on the Catena 5230) or
-  other I2C devices during boot. Documentation for the
-  source files will be added when the driver lands.
+- [`mccibootloader_stm32l0_i2c_bus.c`](src/mccibootloader_stm32l0_i2c_bus.c)
+  -- STM32L0 I2C bus driver, used on boards that talk to a PMIC (the
+  NPM1300 on the Catena 5230) or other I2C devices during boot. It makes
+  concrete the abstract I2C bus contract from
+  [`driver/i2c/`](../../../driver/i2c/) (`McciBootloaderDeviceI2cBus_t`):
+  the `begin`/`end` device methods plus `addDevice`, `read`, and `write`.
+  Board code creates a bus by calling
+  `McciBootloader_Stm32L0Interface_initI2cBus()`; see
+  "Notes on I2C Bus" below.
 
   There is a strong family resemblance among I2C programming models across
   the STM32 family, but the controllers are not 100% compatible. In particular,
@@ -71,26 +76,23 @@ src/    Implementation
   by ST (`@frederic.pillon`) for the NUCLEO-F091RC in 2017 and has been carried
   forward in MCCI's Arduino BSP since then.
 
-  We expect that I2C will be needed in many bootloaders, so we plan an abstract
-  I2C API that will be made concrete by a combination of #defines and static inline
-  functions. The board level will instantiate the concrete driver by calling a
-  concrete initialization function with parameters; the initialization function will return a handle. That
-  handle will then be passed to concrete read and write functions that satisfy an
-  abstract contract. As with the rest of the bootloader, the mapping will be made concrete at compile time
-  (rather than deferring to link time using pointers as MCCI does in post-boot
-  software). The I2C API will include (in essence) these methods:
+  The driver initializes three `I2C_TIMINGR` values (100 kHz, 400 kHz, and
+  1 MHz), one per supported speed; the board passes them to `initI2cBus()`.
+  A speed of `..._NOT_SUPPORTED` for 400 kHz or 1 MHz drops the device to the
+  next lower supported speed.
 
-  - `i2c::read(uint8_t target, uint8_t *pBuffer, size_t nBuffer) -> status`: read bytes and return success or failure.
-  - `i2c::write(uint8_t target, const uint8_t *pBuffer, size_t nBuffer) -> status`: write bytes and return success or failure.
-
-  Of course, in C, methods like `i2c::read` will turn into `read(self, ...)`. We've not yet determined whether `self` will be:
-
-  - a pointer to a statically-allocated RAM object (allocated at compile time, initialized at run time, containing a pointer to the controller registers, configuration info, and run-time state);
-  - a pointer to a const object (created and initialized at compile time, containing a pointer to the controller registers along with other configuration info);
-  - just the pointer to the controller registers (implying that there's no configuration or run-time state beyond the register values); or
-  - completely optimized out (implying that only one I2C controller is supported).
-
-  The best guess is that it will be a pointer to the controller registers, as we don't currently know of a need for run-time state or configuration info after the controller is initialized.
+  The abstract I2C API is made concrete with per-instance method tables of
+  function pointers, dispatched at run time through those pointers, the same
+  style MCCI uses in post-boot software. Static inline helpers upcast an
+  abstract device back to its concrete object. In C the methods take `self`
+  as the first argument.
+  `self` is a pointer to a statically-allocated RAM object, allocated at
+  compile time and initialized at run time: the bus object holds a pointer to
+  its `pConfig` (register base address and RCC masks), the three timing
+  values, and run-time status. Read and write take that bus object plus the
+  target device object, and return a status code
+  (`McciBootloaderDeviceI2cResult_t`); the count of bytes transferred comes
+  back separately through `*pnActual`.
 
 ## Build (`mk/`)
 
@@ -112,70 +114,88 @@ For I2C we don't want to put the interface structure into the platform structure
 class McciBootloaderDevice_t
 class McciBootloaderDeviceI2cBus_t
 class McciBootloaderDeviceI2cDevice_t
-class McciBootloaderDevicePmicNPM1300_t
-class McciBootloaderDeviceI2cBusStm32L0_t
-class McciBootloaderDevicePmicNPM1300_t
+class McciBootloaderDeviceNpm1300_t
+class McciBootloaderDeviceI2cBusStm32l0_t
+class McciBootloaderDeviceI2cDeviceStm32l0_t
 
 McciBootloaderDevice_t "1" <--* "1" McciBootloaderDeviceI2cBus_t
-
-McciBootloaderDeviceI2cBus_t "1" <--* "1" McciBootloaderDeviceI2cBusStm32L0_t
-
-McciBootloaderDeviceI2cBus_t "1" <-- McciBootloaderDeviceI2cDevice_t
+McciBootloaderDeviceI2cBus_t "1" <--* "1" McciBootloaderDeviceI2cBusStm32l0_t
 
 McciBootloaderDevice_t "1" <--* "1" McciBootloaderDeviceI2cDevice_t
-McciBootloaderDeviceI2cDevice_t "1" <--* "1" McciBootloaderDevicePmicNPM1300_t
+McciBootloaderDeviceI2cDevice_t "1" <--* "1" McciBootloaderDeviceI2cDeviceStm32l0_t
+McciBootloaderDeviceI2cDevice_t "1" --> "1" McciBootloaderDeviceI2cBus_t : pBus
 
-McciBootloaderDeviceI2cBus_t : bool attach(McciBootLoaderDeviceI2cDevice_t *pDevice)
-McciBootloaderDeviceI2cBus_t : size_t read(McciBootloaderDeviceI2cAddress_t i2cAddress, uint8_t *pBuffer, size_t nBytes)
-McciBootloaderDeviceI2cBus_t : size_t write(McciBootloaderDeviceI2cAddress_t i2cAddress, const uint8_t *pBuffer, size_t nBytes)
+McciBootloaderDevice_t "1" <--* "1" McciBootloaderDeviceNpm1300_t
+McciBootloaderDeviceNpm1300_t "1" --> "1" McciBootloaderDeviceI2cDevice_t : pI2cDevice
 
-McciBootloaderDeviceI2cBusStm32L0_t : uint32_t baseAddress
-McciBootloaderDeviceI2cBusStm32L0_t : uint32_t timingr
+McciBootloaderDevice_t : bool begin()
+McciBootloaderDevice_t : bool end()
 
-McciBootloaderDeviceI2cDevice_t : McciBootloaderDeviceI2cAddress_t bAddress
+McciBootloaderDeviceI2cBus_t : McciBootloaderDeviceI2cResult_t addDevice(McciBootloaderDeviceI2cDevice_t *pDevice, size_t sizeDevice, McciBootloaderDeviceI2cAddress_t i2cAddress, McciBootloaderDeviceI2cSpeed_t i2cSpeed)
+McciBootloaderDeviceI2cBus_t : McciBootloaderDeviceI2cResult_t read(McciBootloaderDeviceI2cDevice_t *pDevice, uint8_t *pBuffer, size_t nBuffer, size_t *pnActual)
+McciBootloaderDeviceI2cBus_t : McciBootloaderDeviceI2cResult_t write(McciBootloaderDeviceI2cDevice_t *pDevice, const uint8_t *pBuffer, size_t nBuffer, size_t *pnActual)
+
+McciBootloaderDeviceI2cBusStm32l0_t : const ..._Config_t *pConfig
+McciBootloaderDeviceI2cBusStm32l0_t : uint32_t timingr[3]
+
+McciBootloaderDeviceI2cDevice_t : McciBootloaderDeviceI2cAddress_t address
+McciBootloaderDeviceI2cDevice_t : McciBootloaderDeviceI2cSpeed_t bSpeed
 McciBootloaderDeviceI2cDevice_t : McciBootloaderDeviceI2cBus_t *pBus
-McciBootloaderDeviceI2cDevice_t : size_t read(uint8_t *pbValue, size_t nValue)
-McciBootloaderDeviceI2cDevice_t : size_t write(const uint8_t *pbValue, size_t nValue)
+McciBootloaderDeviceI2cDevice_t : McciBootloaderDeviceI2cResult_t read(uint8_t *pBuffer, size_t nBuffer, size_t *pnActual)
+McciBootloaderDeviceI2cDevice_t : McciBootloaderDeviceI2cResult_t write(const uint8_t *pBuffer, size_t nBuffer, size_t *pnActual)
 
-McciBootloaderDevicePmicNPM1300_t : bool initializeRegisters(\n\tconst McciBootloaderDevicePmicNPM1300_RegisterValues\n\t\t\t*pValues,\n\tsize_t sizeValues);
-McciBootloaderDevicePmicNPM1300_t : bool attach(\n\tMcciBootloaderDeviceI2cBus_t *pBus,\n\McciBootloaderDeviceI2cAddress_t bAddress)
+McciBootloaderDeviceNpm1300_t : bool initializeRegisters(const McciBootloaderDriver_NPM1300_Init_t *pvInitValues, size_t nInitValues)
 @enduml
 ```
 
-For this object hierarchy, we need to have a number of header files and the usual MCCI Russian doll series of nested structures.
+The hierarchy uses the usual MCCI Russian-doll series of nested structures, so
+it needs a number of header files. `begin` and `end` belong to the base
+`McciBootloaderDevice_t`; clients call the framework wrappers
+`McciBootloaderDevice_begin()` and `McciBootloaderDevice_end()` rather than the
+raw `pBegin`/`pEnd` method pointers. The wrappers track a `fStarted` flag, skip
+redundant begin/end calls, and refuse to operate on an uninitialized device.
 
-For the moment, we won't touch the flash driver which is totally integrated into the platform object.
+An I2C device node (`McciBootloaderDeviceI2cDevice_t`) is the equivalent of a
+Windows PDO: it carries the device's address, speed, and parent bus, and its
+`read`/`write` methods just forward to the bus, which does the actual transfer.
+Its `begin`/`end` methods are null; the framework behavior is enough.
 
-The initialization sequence will be:
+For the moment, we don't touch the flash driver, which is fully integrated into
+the platform object.
 
-1. The platform code first initializes the I2C bus driver used by the PMIC, and then initializes the PMIC driver passing the I2C bus driver and an address.
-2. The platform code will provide some RAM (via a static allocation of the object to be used as `&ram`, and call `McciBootloader_Stm32L0Interface_InitI2cBus(&ram, sizeof(ram), busIndex, timin100k, timing400k, timing1MHz)` to get a bus interface handle (an `McciBootloaderDeviceI2cBus_t`)
-3. The platform code then passes the bus interface handle to  `McciBootloaderDriver_PmicNPM1300_attach()`, along with the known I2C address of the PMIC.
-4. The PMIC driver allocates memory for an `McciBootloaderDeviceI2cDevice_t` (embedded in the header of the `McciBootloaderDevice_PmicNPM1300_t`) and registers with the I2C bus driver, getting a suitable interface for doing low level I/Os
-5. The platform calls `McciBootloaderDriver_PmicNPM1300_initializeRegisters()` which uses the bus driver to set up all the bytes in the PMIC. Note that the actual register values come from the platform. Our goal is not to operate the PMIC, just initialize it properly after a reset.
+The initialization sequence, as done in
+[`mccibootloaderboard_catena5230_systeminit.c`](../../board/mcci/catena5230/src/mccibootloaderboard_catena5230_systeminit.c),
+is:
 
-We also need to have code for prepareForExit. The only critical code is in the bus driver, which will need to restore the I2C controller registers to the initial state after hardware reset.
+1. The platform statically allocates the bus object
+   (`McciBootloaderDeviceI2cBusStm32l0_t`) and the PMIC's device object
+   (`McciBootloaderDeviceI2cDeviceStm32l0_t`).
+2. It calls
+   `McciBootloader_Stm32L0Interface_initI2cBus(&bus, sizeof(bus), &config, timingr100k, timingr400k, timingr1M)`,
+   which zeroes the object, installs the method tables, records the config and
+   timing values, starts the controller (calls `begin`), and returns an
+   `McciBootloaderDeviceI2cBus_t *`. Any error calls the platform fail handler.
+   The board then configures the I2C pins (alternate function, open-drain,
+   pull-up) itself.
+3. It calls
+   `McciBootloaderDriver_NPM1300_createAndAttach(pBus, &pmicDevice.I2cDeviceCast, sizeof(pmicDevice))`.
+   The driver asks the bus to `addDevice` (which fills in the device object
+   with the PMIC's fixed address `MCCI_PMIC_NPM1300_I2C_ADDRESS` (0x6B) at
+   100 kHz and links it to the bus), begins the device, and returns a pointer
+   to the statically-allocated `McciBootloaderDeviceNpm1300_t`. The PMIC
+   address is fixed in the driver, not passed by the caller.
+4. It calls
+   `McciBootloaderDevice_NPM1300_initializeRegisters(pPmic, pmicInitTable, MCCIADK_LENOF(pmicInitTable))`
+   to write the platform's register/value table
+   (`McciBootloaderDriver_NPM1300_Init_t[]`) into the PMIC. The values come
+   from the platform; the goal is to initialize the PMIC after reset, not to
+   operate it.
 
-```c
-void
-McciBootloaderBoard_Catena5230_prepareForLaunch(void)
-  {
-  static McciBootloaderDeviceI2cBusStm32L0_t * const pI2cBus =
-    &McciBootloaderBoard_Catena5230_i2cBus2;
-
-  // shut down the PMIC
-  if (g_McciBootloader_Device_pPmicNPM1300 != NULL)
-    {
-    g_McciBootloader_Device_pPmicNPM1300->Device.pMethods->pEndFn(
-        &g_McciBootloader_Device_pPmicNPM1300->DeviceCast
-        );
-    g_McciBootloader_Device_pPmicNPM1300 = NULL;
-    }
-
-  // shut down the I2C driver and restore to reset state.
-  pI2cBus->Device.pMethods->pEndFn(&pI2cBus->DeviceCast);
-
-  // invoke the common launch function
-  McciBootloaderBoard_Catena1sj_prepareForLaunch();
-  }
-```
+Teardown before app launch is not yet wired in: today
+`McciBootloaderBoard_Catena5230_prepareForLaunch()` only delegates to the
+common Catena1SJ path. The bus driver's `end` method restores the I2C
+controller registers to their reset state, reached through
+`McciBootloaderDevice_end(&bus.DeviceCast)`. The PMIC teardown policy is still
+open: per the 51xx/52xx plan we want to keep the PMIC's low-power init while
+disabling power to the SPI flash (NPM1300 LOADSW2) before launch, which is
+deliberately different from restoring the PMIC to defaults.
