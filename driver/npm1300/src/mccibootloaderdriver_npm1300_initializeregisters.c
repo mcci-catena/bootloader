@@ -47,7 +47,7 @@ Copyright and License:
 |
 \****************************************************************************/
 
-bool
+McciBootloaderDeviceI2cResult_t
 McciBootloaderDevice_NPM1300_initializeRegisters(
 	McciBootloaderDeviceNpm1300_t *pPmic,
 	const McciBootloaderDriver_NPM1300_Init_t *pvInitValues,

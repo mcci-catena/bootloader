@@ -100,12 +100,13 @@ McciBootloaderDriver_NPM1300_createAndAttach(
 /// @param pPmic [in]		points to the PMIC device object
 /// @param pvInitValues 	points to an array of address/value pairs
 /// @param nInitValues 		count of entries in the array of ninit values.
-///				Use MCCIADK_LENOF() to calculatioe, not
+///				Use MCCIADK_LENOF() to calculate, not
 ///				sizeof().
 ///
-/// @return \c true for success, \c false for any I2C error.
+/// @return \c McciBootloaderDeviceI2cResult_OK for success, other values
+///		for errors.
 ///
-bool
+McciBootloaderDeviceI2cResult_t
 McciBootloaderDevice_NPM1300_initializeRegisters(
 	McciBootloaderDeviceNpm1300_t *pPmic,
 	const McciBootloaderDriver_NPM1300_Init_t *pvInitValues,
