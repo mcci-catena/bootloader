@@ -178,7 +178,7 @@ is:
    The board then configures the I2C pins (alternate function, open-drain,
    pull-up) itself.
 3. It calls
-   `McciBootloaderDriver_NPM1300_createAndAttach(pBus, &pmicDevice.I2cDeviceCast, sizeof(pmicDevice))`.
+   `McciBootloaderDevice_NPM1300_createAndAttach(pBus, &pmicDevice.I2cDeviceCast, sizeof(pmicDevice))`.
    The driver asks the bus to `addDevice` (which fills in the device object
    with the PMIC's fixed address `MCCI_PMIC_NPM1300_I2C_ADDRESS` (0x6B) at
    100 kHz and links it to the bus), begins the device, and returns a pointer

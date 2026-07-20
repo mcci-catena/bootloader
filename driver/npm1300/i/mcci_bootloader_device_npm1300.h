@@ -65,7 +65,7 @@ union McciBootloaderDeviceNpm1300_u
 	McciBootloaderDeviceNpm1300_t		Npm1300Cast
 
 /// structure for initializeing the PMIC1300.
-struct McciBootloaderDriver_NPM1300_Init_s
+struct McciBootloaderDevice_NPM1300_Init_s
 	{
 	uint16_t	address;	//< internal address of the register
 	uint8_t		value;		//< value to be written to the register
@@ -88,7 +88,7 @@ struct McciBootloaderDriver_NPM1300_Init_s
 ///	address supported by the NPM1300.
 ///
 McciBootloaderDeviceNpm1300_t *
-McciBootloaderDriver_NPM1300_createAndAttach(
+McciBootloaderDevice_NPM1300_createAndAttach(
 	McciBootloaderDeviceI2cBus_t		*pI2cBus,
 	McciBootloaderDeviceI2cDevice_t		*pI2cDeviceForPmic,
 	size_t					sizeI2cDeviceForPmic
@@ -109,8 +109,27 @@ McciBootloaderDriver_NPM1300_createAndAttach(
 McciBootloaderDeviceI2cResult_t
 McciBootloaderDevice_NPM1300_initializeRegisters(
 	McciBootloaderDeviceNpm1300_t *pPmic,
-	const McciBootloaderDriver_NPM1300_Init_t *pvInitValues,
+	const McciBootloaderDevice_NPM1300_Init_t *pvInitValues,
 	size_t nInitValues
+	);
+
+///
+/// @brief write a single NPM1300 register
+///
+/// @param pPmic [in]		points to the PMIC device object
+/// @param wAddress [in] 	points to an array of address/value pairs
+/// @param bValue [in]		count of entries in the array of ninit values.
+///				Use MCCIADK_LENOF() to calculate, not
+///				sizeof().
+///
+/// @return \c McciBootloaderDeviceI2cResult_OK for success, other values
+///		for errors.
+///
+McciBootloaderDeviceI2cResult_t
+McciBootloaderDevice_NPM1300_writeRegister(
+	McciBootloaderDeviceNpm1300_t *pPmic,
+	uint16_t wAddress,
+	uint8_t bValue
 	);
 
 /// @brief upcast an abstract device to a concrete NPM1300 object

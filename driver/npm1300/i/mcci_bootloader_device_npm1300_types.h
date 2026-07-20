@@ -42,8 +42,8 @@ typedef	struct McciBootloaderDeviceNpm1300_Contents_s
 typedef union McciBootloaderDeviceNpm1300_u
 		McciBootloaderDeviceNpm1300_t;
 
-typedef struct McciBootloaderDriver_NPM1300_Init_s
-		McciBootloaderDriver_NPM1300_Init_t;
+typedef struct McciBootloaderDevice_NPM1300_Init_s
+		McciBootloaderDevice_NPM1300_Init_t;
 
 #ifdef __cplusplus
 }

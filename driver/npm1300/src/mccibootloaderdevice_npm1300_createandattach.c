@@ -1,11 +1,9 @@
-/* mccibootloaderdriver_npm1300_createandattach.c	Mon Jul 13 2026 13:42:39 tmm */
-
 /*
 
-Module:	mccibootloaderdriver_npm1300_createandattach.c
+Module:	mccibootloaderdevice_npm1300_createandattach.c
 
 Function:
-	McciBootloaderDriver_NPM1300_createAndAttach()
+	McciBootloaderDevice_NPM1300_createAndAttach()
 
 Copyright and License:
 	This file copyright (C) 2026 by
@@ -61,14 +59,14 @@ static McciBootloaderDeviceNpm1300_t s_npm1300;
 
 /*
 
-Name:	McciBootloaderDriver_NPM1300_createAndAttach()
+Name:	McciBootloaderDevice_NPM1300_createAndAttach()
 
 Function:
 	Initialize and attach an I2C device object for the NPM1300 PMIC.
 
 Definition:
 	McciBootloaderDeviceNpm1300_t *
-		McciBootloaderDriver_NPM1300_createAndAttach(
+		McciBootloaderDevice_NPM1300_createAndAttach(
 			McciBootloaderDeviceI2cBus_t		*pI2cBus,
 			McciBootloaderDeviceI2cDevice_t		*pI2cDeviceForPmic,
 			size_t					sizeI2cDeviceForPmic
@@ -90,7 +88,7 @@ Notes:
 */
 
 McciBootloaderDeviceNpm1300_t *
-McciBootloaderDriver_NPM1300_createAndAttach(
+McciBootloaderDevice_NPM1300_createAndAttach(
 	McciBootloaderDeviceI2cBus_t		*pI2cBus,
 	McciBootloaderDeviceI2cDevice_t		*pI2cDeviceForPmic,
 	size_t					sizeI2cDeviceForPmic
@@ -182,4 +180,4 @@ npm1300_end(McciBootloaderDevice_t *pDevice)
 	return true;
 	}
 
-/**** end of mccibootloaderdriver_npm1300_createandattach.c ****/
+/**** end of mccibootloaderdevice_npm1300_createandattach.c ****/

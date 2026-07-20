@@ -23,8 +23,9 @@ INCLUDES_libmcci_bootloader_driver_npm1300 :=				\
 # end INCLUDES_libmcci_bootloader_driver_npm1300
 
 SOURCES_libmcci_bootloader_driver_npm1300 :=				\
-	$_/src/mccibootloaderdriver_npm1300_createandattach.c		\
-	$_/src/mccibootloaderdriver_npm1300_initializeregisters.c	\
+	$_/src/mccibootloaderdevice_npm1300_createandattach.c		\
+	$_/src/mccibootloaderdevice_npm1300_initializeregisters.c	\
+	$_/src/mccibootloaderdevice_npm1300_writeregister.c		\
 # end SOURCES_libmcci_bootloader_driver_npm1300
 
 endif # _GUARD_libmcci_bootloader_driver_npm1300.mk

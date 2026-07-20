@@ -157,7 +157,7 @@ McciBootloaderBoard_Catena5230_systemInit(
 
 	// createAndAttach will also call the platform abort method for errors.
 	g_McciBootloaderBoard_Catena5230_pNPM1300 =
-		McciBootloaderDriver_NPM1300_createAndAttach(
+		McciBootloaderDevice_NPM1300_createAndAttach(
 			&pI2cBus->I2cBusCast,
 			&g_McciBootloaderBoard_Catena5220_i2cDevice_NPM1300.I2cDeviceCast,
 			sizeof(g_McciBootloaderBoard_Catena5220_i2cDevice_NPM1300)
@@ -167,7 +167,7 @@ McciBootloaderBoard_Catena5230_systemInit(
 	// we set the registers for our platform.
 	// we assume that the PMIC drivers exports McciBootloaderDriver_PmicNPM1300_Init_t,
 	// which is a register/value pair.
-	const static McciBootloaderDriver_NPM1300_Init_t pmicInitTable[] =
+	const static McciBootloaderDevice_NPM1300_Init_t pmicInitTable[] =
 		{
 		{ MCCI_PMIC_NPM1300_REG_BCHGVTERM,         0x08 },
 		{ MCCI_PMIC_NPM1300_REG_BCHGVTERMR,        0x08 },
