@@ -95,7 +95,7 @@ Callers:
 
 ## I2C bus driver loose ends
 
-- [ ] `McciBootloaderDeviceI2cBusStm32l0_attach()` is declared in
+- [x] `McciBootloaderDeviceI2cBusStm32l0_attach()` is declared in
       `mcci_bootloader_device_i2c_bus_stm32l0.h` but not defined. Implement it, or
       confirm the NPM1300 `createAndAttach` path is what wires device->bus and drop
       the declaration.

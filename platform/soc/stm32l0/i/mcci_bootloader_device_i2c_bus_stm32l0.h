@@ -199,11 +199,6 @@ McciBootloaderDeviceI2cBus_getI2cBusStm32l0(
 	return (McciBootloaderDeviceI2cBusStm32l0_t *)pDevice;
 	}
 
-bool McciBootloaderDeviceI2cBusStm32l0_attach(
-	McciBootloaderDeviceI2cBusStm32l0_t *pBus,
-	McciBootloaderDeviceI2cDeviceStm32l0_t *pDevice
-	);
-
 #ifdef __cplusplus
 }
 #endif
