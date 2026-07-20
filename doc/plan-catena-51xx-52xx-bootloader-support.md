@@ -330,8 +330,8 @@ Sequence:
 5. Reset I2C2 (`RCC_APB1RSTR_I2C2RST`)
 6. Set I2C2 TIMINGR for 100 kHz from 32 MHz PCLK1 (value ~`0x10805E89`, verify from RM)
 7. Enable I2C2 (set PE in CR1)
-8. I2C write to 0x6B: `[0x08, 0x09, 0x00]` -- select LOADSW2 as load switch
-9. I2C write to 0x6B: `[0x08, 0x02, 0x01]` -- enable LOADSW2 (task trigger)
+8. I2C write to 0x6B: `[0x08, 0x09, 0x00]` -- select LOADSW2 as load switch (`MCCI_PMIC_NPM1300_REG_LDSWLDOSEL_2`)
+9. I2C write to 0x6B: `[0x08, 0x02, 0x01]` -- enable LOADSW2 (task trigger) (`MCCI_PMIC_NPM1300_REG_TASKLDSWSET_2`)
 10. Delay 50ms for power stabilization
 11. `McciBootloaderPlatform_spiInit()` -- init SPI1
 12. `McciBootloaderFlash_Mx25v8035f_storageInit()` -- init flash
@@ -347,7 +347,7 @@ I2C write transaction (each 3-byte write):
 
 The PMIC's LOADSW2 setting is latched in the NPM1300's internal registers and survives MCU peripheral reset. To achieve micropower state before app launch:
 
-1. I2C write to 0x6B: `[0x08, 0x03, 0x01]` -- disable LOADSW2 (task trigger on LDSW2 disable register 0x0803)
+1. I2C write to 0x6B: `[0x08, 0x03, 0x01]` -- disable LOADSW2 (task trigger on LDSW2 disable register 0x0803) (`MCCI_PMIC_NPM1300_REG_TASKLDSWCLR_2`)
 2. Poll ISR.STOPF, clear
 3. Call `McciBootloader_Stm32L0_prepareForLaunch()` -- resets all MCU peripherals including I2C2, switches to MSI
 
