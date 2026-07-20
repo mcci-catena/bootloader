@@ -45,6 +45,38 @@ Copyright and License:
 |
 \****************************************************************************/
 
+
+/*
+
+Name:	McciBootloaderDevice_NPM1300_writeRegister()
+
+Function:
+	Write a single register value to the NPM1300 PMIC.
+
+Definition:
+	McciBootloaderDeviceI2cResult_t
+		McciBootloaderDevice_NPM1300_writeRegister(
+			McciBootloaderDeviceNpm1300_t *pPmic,
+			uint16_t wAddress,
+			uint8_t bValue
+			);
+
+Description:
+	A three byte sequence, consisting of bits 15..8 of wAddress,
+	bits 7..0 of wAddress, and bValue, is written to the NPM1300
+	as a single transaction.
+
+Returns:
+	McciBootloaderDeviceI2cResult_OK for success, some other value for
+	failure.
+
+Notes:
+	If the I2C bus returns success, but the number of bytes transferred
+	doesn't match expectations, this routine returns
+	McciBootloaderDeviceI2cResult_BusError.
+
+*/
+
 McciBootloaderDeviceI2cResult_t
 McciBootloaderDevice_NPM1300_writeRegister(
 	McciBootloaderDeviceNpm1300_t *pPmic,
