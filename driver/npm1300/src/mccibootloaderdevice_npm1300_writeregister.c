@@ -72,7 +72,7 @@ McciBootloaderDevice_NPM1300_writeRegister(
 	if (result != McciBootloaderDeviceI2cResult_OK)
 		return result;
 	if (nActual != sizeof(messageBuf))
-		return McciBootloaderDeviceI2cResult_InternalError;
+		return McciBootloaderDeviceI2cResult_BusError;
 
 	return McciBootloaderDeviceI2cResult_OK;
 	}
