@@ -20,7 +20,11 @@ Author:
 */
 
 #include "mcci_bootloader_board_catena5230.h"
+
+#include "mcci_bootloader.h"
 #include "mcci_bootloader_board_catena_1sj.h"
+#include "mcci_bootloader_device_npm1300.h"
+#include "mcci_npm1300.h"
 
 /****************************************************************************\
 |
@@ -74,8 +78,19 @@ McciBootloaderBoard_Catena5230_prepareForLaunch(
 	void
 	)
 	{
+	const McciBootloaderDeviceI2cResult_t result =
+		McciBootloaderDevice_NPM1300_writeRegister(
+			g_McciBootloaderBoard_Catena5230_pNPM1300,
+			MCCI_PMIC_NPM1300_REG_TASKLDSWCLR_2,
+			1
+			);
+
+	if (result != McciBootloaderDeviceI2cResult_OK)
+		{
+		McciBootloaderPlatform_fail(McciBootloaderError_StoragePowerDownFailed);
+		}
+
 	McciBootloaderBoard_Catena1sj_prepareForLaunch();
 	}
-
 
 /**** end of mccibootloaderboard_catena5230_prepareforlaunch.c ****/

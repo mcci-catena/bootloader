@@ -40,6 +40,10 @@ Author:
 # include "mcci_bootloader_device_npm1300_types.h"
 #endif
 
+#ifndef _mcci_bootloader_device_i2c_common_h_
+# include "mcci_bootloader_device_i2c_common.h"
+#endif
+
 MCCI_BOOTLOADER_BEGIN_DECLS
 
 struct McciBootloaderDeviceNpm1300_Contents_s

@@ -24,8 +24,25 @@ Author:
 
 #pragma once
 
-#include "mcci_bootloader_platform.h"
-#include "mcci_bootloader_board_catena_1sj.h"
+#ifndef _mcci_bootloader_platform_h_
+# include "mcci_bootloader_platform.h"
+#endif
+
+#ifndef _mcci_bootloader_board_catena_1sj_h_
+# include "mcci_bootloader_board_catena_1sj.h"
+#endif
+
+#ifndef _mcci_bootloader_device_i2c_bus_stm32l0_types_
+# include "mcci_bootloader_device_i2c_bus_stm32l0_types.h"
+#endif
+
+#ifndef _mcci_bootloader_device_i2c_device_stm32l0_types_h_
+# include "mcci_bootloader_device_i2c_device_stm32l0_types.h"
+#endif
+
+#ifndef _mcci_bootloader_device_npm1300_types_h_
+# include "mcci_bootloader_device_npm1300_types.h"
+#endif
 
 MCCI_BOOTLOADER_BEGIN_DECLS
 
@@ -37,6 +54,15 @@ McciBootloaderBoard_Catena5230_prepareForLaunch;
 
 McciBootloaderPlatform_StorageInitFn_t
 McciBootloaderBoard_Catena5230_storageInit;
+
+extern McciBootloaderDeviceI2cBusStm32l0_t
+g_McciBootloaderBoard_Catena5230_i2cBus2;
+
+extern McciBootloaderDeviceI2cDeviceStm32l0_t
+g_McciBootloaderBoard_Catena5220_i2cDevice_NPM1300;
+
+extern McciBootloaderDeviceNpm1300_t *
+g_McciBootloaderBoard_Catena5230_pNPM1300;
 
 MCCI_BOOTLOADER_END_DECLS
 
