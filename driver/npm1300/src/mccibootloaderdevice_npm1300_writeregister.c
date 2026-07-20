@@ -84,14 +84,16 @@ McciBootloaderDevice_NPM1300_writeRegister(
 	uint8_t bValue
 	)
 	{
-	uint8_t messageBuf[3];	// 2 bytes for addess, one for value
-	size_t nActual;
-
-	// wAddress is big-endian, per figures 46 and 47 of Nordic
+	// 2 bytes for addess, one for value.
+	// Address on bus is big-endian, per figures 46 and 47 of Nordic
 	// NPM1300-QEAA-R.pdf, section 7.1
-	messageBuf[0] = (uint8_t) (wAddress >> 8);
-	messageBuf[1] = (uint8_t) (wAddress & 0xFFu);
-	messageBuf[2] = bValue;
+	const uint8_t messageBuf[3] =
+		{
+		[0] = (uint8_t) (wAddress >> 8),
+		[1] = (uint8_t) (wAddress & 0xFFu),
+		[2] = bValue,
+		};
+	size_t nActual;
 
 	McciBootloaderDeviceI2cResult_t const result =
 		(*pPmic->Npm1300.pI2cDevice->I2cDevice.pMethods->pWrite)(
