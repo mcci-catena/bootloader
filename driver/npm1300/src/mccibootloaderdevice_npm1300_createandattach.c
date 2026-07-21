@@ -83,7 +83,7 @@ Returns:
 
 Notes:
 	Only one object is statically allocated, so it's an error to call
-	this more than onece.
+	this more than once.
 
 */
 
@@ -99,7 +99,7 @@ McciBootloaderDevice_NPM1300_createAndAttach(
 	bool fBeginStatus;
 
 	if (pNpm1300->Device.pMethods != NULL)
-		// already inititialized.
+		// already initialized.
 		return NULL;
 
 	// we need to ask the bus driver to init the device
@@ -114,18 +114,18 @@ McciBootloaderDevice_NPM1300_createAndAttach(
 	if (result != McciBootloaderDeviceI2cResult_OK)
 		return NULL;
 
+	pNpm1300->Device.pMethods = &sk_npm1300_deviceMethods;
+	pNpm1300->Npm1300.pI2cDevice = pI2cDeviceForPmic;
+
 	// do a begin on the device
 	fBeginStatus = McciBootloaderDevice_begin(
-			&pI2cDeviceForPmic->DeviceCast
+			&pNpm1300->DeviceCast
 			);
 
 	if (! fBeginStatus)
 		return NULL;
-
-	pNpm1300->Device.pMethods = &sk_npm1300_deviceMethods;
-	pNpm1300->Npm1300.pI2cDevice = pI2cDeviceForPmic;
-
-	return pNpm1300;
+	else
+		return pNpm1300;
 	}
 
 /*

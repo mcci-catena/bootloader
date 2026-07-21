@@ -21,6 +21,7 @@ Author:
 
 #include "mcci_bootloader_board_catena5230.h"
 
+#include "mcci_bootloader.h"
 #include "mcci_bootloader_device_i2c_bus_stm32l0.h"
 #include "mcci_bootloader_device_i2c_device_stm32l0.h"
 #include "mcci_bootloader_device_npm1300.h"
@@ -53,7 +54,7 @@ McciBootloaderDeviceI2cBusStm32l0_t
 g_McciBootloaderBoard_Catena5230_i2cBus2;
 
 McciBootloaderDeviceI2cDeviceStm32l0_t
-g_McciBootloaderBoard_Catena5220_i2cDevice_NPM1300;
+g_McciBootloaderBoard_Catena5230_i2cDevice_NPM1300;
 
 McciBootloaderDeviceNpm1300_t *
 g_McciBootloaderBoard_Catena5230_pNPM1300;
@@ -159,14 +160,12 @@ McciBootloaderBoard_Catena5230_systemInit(
 	g_McciBootloaderBoard_Catena5230_pNPM1300 =
 		McciBootloaderDevice_NPM1300_createAndAttach(
 			&pI2cBus->I2cBusCast,
-			&g_McciBootloaderBoard_Catena5220_i2cDevice_NPM1300.I2cDeviceCast,
-			sizeof(g_McciBootloaderBoard_Catena5220_i2cDevice_NPM1300)
+			&g_McciBootloaderBoard_Catena5230_i2cDevice_NPM1300.I2cDeviceCast,
+			sizeof(g_McciBootloaderBoard_Catena5230_i2cDevice_NPM1300)
 			);
 
 	// the device driver is created and initialized, now
 	// we set the registers for our platform.
-	// we assume that the PMIC drivers exports McciBootloaderDriver_PmicNPM1300_Init_t,
-	// which is a register/value pair.
 	const static McciBootloaderDevice_NPM1300_Init_t pmicInitTable[] =
 		{
 		{ MCCI_PMIC_NPM1300_REG_BCHGVTERM,         0x08 },
@@ -193,11 +192,17 @@ McciBootloaderBoard_Catena5230_systemInit(
 		{ MCCI_PMIC_NPM1300_REG_LEDDRVMODESEL_1,   0x00 },
 		};
 
-	McciBootloaderDevice_NPM1300_initializeRegisters(
-		g_McciBootloaderBoard_Catena5230_pNPM1300,
-		pmicInitTable,
-		MCCIADK_LENOF(pmicInitTable)
-		);
+	const McciBootloaderDeviceI2cResult_t result =
+		McciBootloaderDevice_NPM1300_initializeRegisters(
+			g_McciBootloaderBoard_Catena5230_pNPM1300,
+			pmicInitTable,
+			MCCIADK_LENOF(pmicInitTable)
+			);
+
+	if (result != McciBootloaderDeviceI2cResult_OK)
+		{
+		McciBootloaderPlatform_fail(McciBootloaderError_PmicInitFailed);
+		}
 
 	// the PMIC is now set up correctly.
 	}

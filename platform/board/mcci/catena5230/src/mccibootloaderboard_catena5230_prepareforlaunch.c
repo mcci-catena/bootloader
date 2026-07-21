@@ -23,6 +23,7 @@ Author:
 
 #include "mcci_bootloader.h"
 #include "mcci_bootloader_board_catena_1sj.h"
+#include "mcci_bootloader_device_i2c_bus_stm32l0.h"
 #include "mcci_bootloader_device_npm1300.h"
 #include "mcci_npm1300.h"
 
@@ -90,6 +91,13 @@ McciBootloaderBoard_Catena5230_prepareForLaunch(
 		McciBootloaderPlatform_fail(McciBootloaderError_StoragePowerDownFailed);
 		}
 
+	// done with the PMIC
+	(void) McciBootloaderDevice_end(&g_McciBootloaderBoard_Catena5230_pNPM1300->DeviceCast);
+
+	// done with the I2C bus
+	(void) McciBootloaderDevice_end(&g_McciBootloaderBoard_Catena5230_i2cBus2.DeviceCast);
+
+	// tear down everything else.
 	McciBootloaderBoard_Catena1sj_prepareForLaunch();
 	}
 

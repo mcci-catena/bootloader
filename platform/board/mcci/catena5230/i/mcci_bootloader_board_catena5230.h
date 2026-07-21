@@ -59,7 +59,7 @@ extern McciBootloaderDeviceI2cBusStm32l0_t
 g_McciBootloaderBoard_Catena5230_i2cBus2;
 
 extern McciBootloaderDeviceI2cDeviceStm32l0_t
-g_McciBootloaderBoard_Catena5220_i2cDevice_NPM1300;
+g_McciBootloaderBoard_Catena5230_i2cDevice_NPM1300;
 
 extern McciBootloaderDeviceNpm1300_t *
 g_McciBootloaderBoard_Catena5230_pNPM1300;

@@ -7,9 +7,6 @@ Module:  mcci_bootloader_types.h
 Function:
 	Format of on-media data for the MCCI bootloader.
 
-Version:
-	V0.1.0	Mon Jun 29 2020 10:14:36 tmm	Edit level 1
-
 Copyright notice:
 	This file copyright (C) 2020 by
 

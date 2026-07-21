@@ -5,9 +5,6 @@ Module:	mccibootloaderdevice_npm1300_writeregister.c
 Function:
 	McciBootloaderDevice_NPM1300_writeRegister()
 
-Version:
-	Vx.yy	Fri Jul 17 2026 21:22:07 tmm	Edit level 1
-
 Copyright and License:
 	This file copyright (C) 2026 by
 
