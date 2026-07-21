@@ -397,6 +397,7 @@ Within Phase 7, steps 7.1-7.2 (52xx) and 7.3-7.5 (51xx) are independent. Steps 7
 2. **I2C/PMIC driver layering**: Resolved as built. I2C is factored into the STM32L0 bus driver (`platform/soc/stm32l0/`) over the abstract `driver/i2c/` contract; the PMIC is a separate device driver in `driver/npm1300/`. The board code calls the drivers, not I2C registers.
 3. **AF6 for I2C2**: PB10=I2C2_SCL(AF6), PB11=I2C2_SDA(AF6) per STM32L072 datasheet Table 17. Requires AFR register writes (the fixed macros from Phase 2.1).
 4. **NPM1300 LOADSW2 disable register**: As built, enable via `TASKLDSWSET_2` (0x0802) in storageInit, disable via `TASKLDSWCLR_2` (0x0803) in prepareForLaunch. Both confirmed against the cNPM1300 library register map.
+5. **SPI CS pin: hardware NSS vs. GPIO**: Every board SPI driver today assumes hardware NSS (SSOE + SPE toggle). Routing a flash chip-select to a non-NSS pin forces software NSS management. Confirmed so far: ABZ (`catena_abz`) CS=PB12=SPI2_NSS at AF0, hardware NSS; 1SJ (`catena_1sj`) CS=PA8, no NSS, manual GPIO CS done. Still open: 51xx / 5082 (Model 5082, STM32L082) and any other new board -- confirm the CS pin is a real SPI NSS pin before assuming hardware NSS; otherwise add manual GPIO CS. (The Arduino SPI driver may handle GPIO CS on its own; out of scope here.)
 
 ## Key Source Files to Reference
 
