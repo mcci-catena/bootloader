@@ -156,13 +156,19 @@ McciBootloaderBoard_Catena5230_systemInit(
 		 MCCI_BOOTLOADER_FIELD_SET_VALUE(MCCI_STM32L0_GPIO_OSPEED_P(10), MCCI_STM32L0_GPIO_OSPEED_MEDIUM))
 		);
 
-	// createAndAttach will also call the platform abort method for errors.
+	// set up PMIC
 	g_McciBootloaderBoard_Catena5230_pNPM1300 =
 		McciBootloaderDevice_NPM1300_createAndAttach(
 			&pI2cBus->I2cBusCast,
 			&g_McciBootloaderBoard_Catena5230_i2cDevice_NPM1300.I2cDeviceCast,
 			sizeof(g_McciBootloaderBoard_Catena5230_i2cDevice_NPM1300)
 			);
+
+	// above can fail if there's a hardware problem.
+	if (g_McciBootloaderBoard_Catena5230_pNPM1300 == NULL)
+		{
+		McciBootloaderPlatform_fail(McciBootloaderError_PmicProbeFailed);
+		}
 
 	// the device driver is created and initialized, now
 	// we set the registers for our platform.

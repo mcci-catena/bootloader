@@ -55,6 +55,7 @@ enum McciBootloaderError_e
 	McciBootloaderError_FlashNotSupported,	///< flash SFDP contents are prior to JESD216B, or otherwise not suitable.
 	McciBootloaderError_InternalConsistency, ///< an internal consistency check failed.
 	McciBootloaderError_I2cBegin,		///< I2c bus failed begin.
+	McciBootloaderError_PmicProbeFailed,	///< failed to probe PMIC.
 	McciBootloaderError_PmicInitFailed,	///< failed to initialize PMIC.
 	McciBootloaderError_StoragePowerUpFailed,	///< failed to initialize storage power.
 	McciBootloaderError_StoragePowerDownFailed,	///< failed to turn off storage power.
