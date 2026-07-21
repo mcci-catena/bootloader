@@ -144,7 +144,7 @@ McciBootloaderDeviceI2cDevice_t : McciBootloaderDeviceI2cBus_t *pBus
 McciBootloaderDeviceI2cDevice_t : McciBootloaderDeviceI2cResult_t read(uint8_t *pBuffer, size_t nBuffer, size_t *pnActual)
 McciBootloaderDeviceI2cDevice_t : McciBootloaderDeviceI2cResult_t write(const uint8_t *pBuffer, size_t nBuffer, size_t *pnActual)
 
-McciBootloaderDeviceNpm1300_t : McciBootloaderDeviceI2cResult_t initializeRegisters(const McciBootloaderDriver_NPM1300_Init_t *pvInitValues, size_t nInitValues)
+McciBootloaderDeviceNpm1300_t : McciBootloaderDeviceI2cResult_t initializeRegisters(const McciBootloaderDevice_NPM1300_Init_t *pvInitValues, size_t nInitValues)
 @enduml
 ```
 
@@ -187,15 +187,17 @@ is:
 4. It calls
    `McciBootloaderDevice_NPM1300_initializeRegisters(pPmic, pmicInitTable, MCCIADK_LENOF(pmicInitTable))`
    to write the platform's register/value table
-   (`McciBootloaderDriver_NPM1300_Init_t[]`) into the PMIC. The values come
+   (`McciBootloaderDevice_NPM1300_Init_t[]`) into the PMIC. The values come
    from the platform; the goal is to initialize the PMIC after reset, not to
-   operate it.
+   operate it. `storageInit` later enables the flash rail with a two-entry
+   table (`LDSWLDOSEL_2`=0, `TASKLDSWSET_2`=1), waits 50 ms, then inits SPI
+   and the flash.
 
-Teardown before app launch is not yet wired in: today
-`McciBootloaderBoard_Catena5230_prepareForLaunch()` only delegates to the
-common Catena1SJ path. The bus driver's `end` method restores the I2C
-controller registers to their reset state, reached through
-`McciBootloaderDevice_end(&bus.DeviceCast)`. The PMIC teardown policy is still
-open: per the 51xx/52xx plan we want to keep the PMIC's low-power init while
-disabling power to the SPI flash (NPM1300 LOADSW2) before launch, which is
-deliberately different from restoring the PMIC to defaults.
+Teardown before app launch, in `McciBootloaderBoard_Catena5230_prepareForLaunch()`:
+it cuts SPI-flash power by writing `TASKLDSWCLR_2` (0x0803) through
+`McciBootloaderDevice_NPM1300_writeRegister()`, then stops the PMIC and the I2C
+bus with `McciBootloaderDevice_end()` (the bus `end` clears the I2C2 clock
+enable), then delegates to the common Catena1SJ path, which calls
+`McciBootloader_Stm32L0_prepareForLaunch()` to reset the remaining peripherals
+and switch back to MSI. This keeps the PMIC's low-power init while cutting flash
+power, deliberately different from restoring the PMIC to defaults.

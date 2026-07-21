@@ -12,9 +12,7 @@ The MCCI Trusted Bootloader currently supports Catena 46xx and 4801 boards (Mura
 The key hardware differences from existing boards are:
 - 52xx uses **SPI1 on PA4-PA7** for flash (ABZ uses SPI2 on PB12-PB15), but LED is **PB2** (same as ABZ)
 - 51xx uses **SPI2 on PB12-PB15** for flash (same as ABZ), but LED is **PB5** (ABZ uses PB2)
-- 5230 has an NPM1300 PMIC on I2C2 (PB10/PB11, addr 0x6B) that must enable LOADSW2 to power the SPI flash, then disable it before app launch for micropower
-
-**[[note to Claude from tmm]]**: the NPM1300 *also* needs to be initialized for least power use in general on the 5230. So the pattern will be: 1) initialize the PMIC for least power; 2) if reading SPI, enable power to the SPI flash; 3) prior to launching, make sure power to SPI is off (but maintain the PMIC initialization). This is deliberately different than "restoring the PMIC to defaults"; we want to make sure we don't have a path that will burn the battery more quickly. You should remove this note on the next directed edit pass, as part of the alignment between plan and actual execution, but put the info in the right place(s) in the body text.
+- 5230 has an NPM1300 PMIC on I2C2 (PB10/PB11, addr 0x6B). The power pattern has three steps: (1) `systemInit` initializes the PMIC for low power in general; (2) `storageInit` enables LOADSW2 to power the SPI flash before reads; (3) `prepareForLaunch` disables LOADSW2 before app launch for micropower, keeping the rest of the PMIC init. This is deliberately different from restoring the PMIC to defaults: the goal is to avoid any path that drains the battery faster.
 
 ## Hardware Pin Summary
 
@@ -320,38 +318,34 @@ With the skeleton building, fill in real function bodies. Each step is independe
 #### 7.5 catena51xx storageInit
 - Simple: `McciBootloaderPlatform_spiInit()` + `McciBootloaderFlash_Mx25v8035f_storageInit()` (no power control needed, flash on +VDD)
 
-#### 7.6 catena5230 storageInit (most complex new code)
+#### 7.6 catena5230 systemInit and storageInit (as built)
 
-Sequence:
-1. Enable GPIOB clock (for I2C2 pins PB10/PB11)
-2. Configure PB10 (SCL) as AF open-drain with pull-up, AF6 (I2C2_SCL)
-3. Configure PB11 (SDA) as AF open-drain with pull-up, AF6 (I2C2_SDA)
-4. Enable I2C2 clock (`RCC_APB1ENR_I2C2EN`)
-5. Reset I2C2 (`RCC_APB1RSTR_I2C2RST`)
-6. Set I2C2 TIMINGR for 100 kHz from 32 MHz PCLK1 (value ~`0x10805E89`, verify from RM)
-7. Enable I2C2 (set PE in CR1)
-8. I2C write to 0x6B: `[0x08, 0x09, 0x00]` -- select LOADSW2 as load switch (`MCCI_PMIC_NPM1300_REG_LDSWLDOSEL_2`)
-9. I2C write to 0x6B: `[0x08, 0x02, 0x01]` -- enable LOADSW2 (task trigger) (`MCCI_PMIC_NPM1300_REG_TASKLDSWSET_2`)
-10. Delay 50ms for power stabilization
-11. `McciBootloaderPlatform_spiInit()` -- init SPI1
-12. `McciBootloaderFlash_Mx25v8035f_storageInit()` -- init flash
+The I2C and PMIC work is factored into two drivers: the STM32L0 I2C bus driver (`platform/soc/stm32l0/`, `driver/i2c/`) and the NPM1300 device driver (`driver/npm1300/`). The board code calls them; it does not touch I2C registers directly.
 
-I2C write transaction (each 3-byte write):
-- Set CR2: slave addr `(0x6B << 1)`, NBYTES=3, write, START, AUTOEND
-- Poll ISR.TXIS, write byte to TXDR (repeat x3)
-- Poll ISR.STOPF, clear via ICR.STOPCF
+`systemInit` (`mccibootloaderboard_catena5230_systeminit.c`):
+1. `McciBootloaderBoard_Catena1sj_systemInit()` for the common setup.
+2. `McciBootloader_Stm32L0Interface_initI2cBus()` on I2C2, using `gk_McciBootloaderDeviceI2cBusStm32l0_Config_I2c2` and the three `MCCI_BOOTLOADER_STM32L0_I2C_TIMINGR_*` values. This starts the controller.
+3. Configure PB10/PB11 as AF6 open-drain with pull-up (I2C2_SCL/SDA).
+4. `McciBootloaderDevice_NPM1300_createAndAttach()` to attach the PMIC at 0x6B.
+5. `McciBootloaderDevice_NPM1300_initializeRegisters()` with the platform's low-power PMIC table (charger, bucks, LDO1, LEDs; LOADSW2 left off). This is step 1 of the power pattern: PMIC configured for low power, flash unpowered.
 
-**Driver layering note**: The I2C and PMIC operations could be structured as separate drivers (PMIC over I2C) or kept inline in storageinit. This architectural decision is left to the implementer.
+`storageInit` (`mccibootloaderboard_catena5230_storageinit.c`) is step 2:
+1. `McciBootloaderDevice_NPM1300_initializeRegisters()` with a two-entry table: `LDSWLDOSEL_2`=0 (LOADSW2 as a load switch) then `TASKLDSWSET_2`=1 (enable) -- bus writes `[0x08,0x09,0x00]` then `[0x08,0x02,0x01]`.
+2. `McciBootloaderPlatform_delayMs(50)` for power stabilization.
+3. `McciBootloaderPlatform_spiInit()`.
+4. `McciBootloaderFlash_Mx25v8035f_storageInit()`.
+
+Each PMIC access is a 3-byte I2C write (`[addrHi, addrLo, value]`), handled by the bus driver.
 
 #### 7.7 catena5230 prepareForLaunch (custom)
 
-The PMIC's LOADSW2 setting is latched in the NPM1300's internal registers and survives MCU peripheral reset. To achieve micropower state before app launch:
+The PMIC's LOADSW2 setting is latched in the NPM1300's internal registers and survives MCU peripheral reset. Step 3 of the power pattern, before app launch:
 
-1. I2C write to 0x6B: `[0x08, 0x03, 0x01]` -- disable LOADSW2 (task trigger on LDSW2 disable register 0x0803) (`MCCI_PMIC_NPM1300_REG_TASKLDSWCLR_2`)
-2. Poll ISR.STOPF, clear
-3. Call `McciBootloader_Stm32L0_prepareForLaunch()` -- resets all MCU peripherals including I2C2, switches to MSI
+1. `McciBootloaderDevice_NPM1300_writeRegister(pPmic, MCCI_PMIC_NPM1300_REG_TASKLDSWCLR_2, 1)` -- disable LOADSW2 (task trigger on 0x0803); bus writes `[0x08,0x03,0x01]`.
+2. `McciBootloaderDevice_end()` on the PMIC, then on the I2C bus (the bus `end` clears the I2C2 clock enable).
+3. `McciBootloaderBoard_Catena1sj_prepareForLaunch()`, which calls `McciBootloader_Stm32L0_prepareForLaunch()` -- resets the remaining MCU peripherals and switches to MSI.
 
-I2C2 is still configured from storageInit, so the disable command can be sent directly.
+I2C2 is still configured from systemInit, so the disable command goes out directly.
 
 ### Phase 8: Hardware Verification
 
@@ -400,9 +394,9 @@ Within Phase 7, steps 7.1-7.2 (52xx) and 7.3-7.5 (51xx) are independent. Steps 7
 ## Open Items for Implementer
 
 1. **I2C TIMINGR value**: Must be calculated or verified for 100 kHz from 32 MHz PCLK1. Candidate: `0x10805E89`. Consult STM32L0 RM Section 27.4.9 or use STM32CubeMX.
-2. **I2C/PMIC driver layering**: The plan describes register-level operations inline in storageinit. The implementer may choose to factor I2C into a separate driver module and/or create a PMIC abstraction. The need for this is identified; the architecture is left to the implementer.
+2. **I2C/PMIC driver layering**: Resolved as built. I2C is factored into the STM32L0 bus driver (`platform/soc/stm32l0/`) over the abstract `driver/i2c/` contract; the PMIC is a separate device driver in `driver/npm1300/`. The board code calls the drivers, not I2C registers.
 3. **AF6 for I2C2**: PB10=I2C2_SCL(AF6), PB11=I2C2_SDA(AF6) per STM32L072 datasheet Table 17. Requires AFR register writes (the fixed macros from Phase 2.1).
-4. **NPM1300 LOADSW2 disable register**: Verify 0x0803 is the correct task-disable register for LDSW2. The enable task register is 0x0802 (confirmed from cNPM1300 library).
+4. **NPM1300 LOADSW2 disable register**: As built, enable via `TASKLDSWSET_2` (0x0802) in storageInit, disable via `TASKLDSWCLR_2` (0x0803) in prepareForLaunch. Both confirmed against the cNPM1300 library register map.
 
 ## Key Source Files to Reference
 

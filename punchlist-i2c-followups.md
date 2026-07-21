@@ -120,5 +120,5 @@ forces software NSS management. Every board SPI driver assumes hardware NSS toda
       the 5230 board layer (initI2cBus takes no pin args).
 - [x] NPM1300 device driver (`driver/npm1300/` is headers only:
       `createAndAttach`, `initializeRegisters`).
-- [ ] 5230 `prepareForLaunch`: disable LOADSW2 before launch for micropower while
+- [x] 5230 `prepareForLaunch`: disable LOADSW2 before launch for micropower while
       keeping the PMIC's low-power init.
