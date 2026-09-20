@@ -173,7 +173,19 @@ McciBootloaderBoard_Catena1sj_spiInit(void)
 		MCCI_STM32L0_REG_SPI1 + MCCI_STM32L0_SPI_CR1,
 		(
 		 MCCI_STM32L0_SPI_CR1_BR_2 |	// fastest
-		 MCCI_STM32L0_SPI_CR1_MSTR	// master mode
+		 MCCI_STM32L0_SPI_CR1_MSTR |	// master mode
+		 // NSS on this board is a plain GPIO (PA8), manually driven by
+		 // spiTransfer() -- it is not connected to the SPI1 peripheral's
+		 // own NSS/AF function. With SSM=0 (the reset default), the
+		 // peripheral still watches its internal NSS signal and treats
+		 // it going low, while master, as another device contending for
+		 // the bus -- triggering MODF (mode fault), which immediately
+		 // clears SPE and permanently disables the peripheral. SSM=1
+		 // disables that hardware NSS monitoring; SSI=1 forces the
+		 // internal NSS signal to a fixed high, matching "I am solely
+		 // the master, chip-select is my own responsibility."
+		 MCCI_STM32L0_SPI_CR1_SSM |	// software (not hardware) NSS management
+		 MCCI_STM32L0_SPI_CR1_SSI	// force internal NSS high
 		)
 		);
 
