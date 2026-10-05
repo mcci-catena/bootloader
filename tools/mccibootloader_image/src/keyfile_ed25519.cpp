@@ -30,6 +30,7 @@ Author:
 #include <fstream>
 #include <stdexcept>
 #include <sstream>
+#include <cstdint>
 
 using namespace std;
 
