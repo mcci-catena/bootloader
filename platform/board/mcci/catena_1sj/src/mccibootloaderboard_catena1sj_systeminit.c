@@ -146,16 +146,10 @@ McciBootloaderBoard_Catena1sj_clearLed(void)
 void
 McciBootloaderBoard_Catena1sj_delayMs(uint32_t ms)
 	{
-	// TODO(tmm@mcci.com): this won't really work if clock interrupts
-	// are enabled. Condition this delay on "systick interrupts can happen";
-	// use the loop if they cannot, watch s_tickCount if they can.
-	for (++ms; ms > 0; --ms)
-		{
-		while ((McciArm_getReg(MCCI_CM0PLUS_SYSTICK_CSR) & MCCI_CM0PLUS_SYSTICK_CSR_COUNTFLAG) == 0)
-			;
+	uint32_t const start = McciBootloaderBoard_Catena1sj_getMilliseconds();
 
-		++s_tickCount;
-		}
+	while (McciBootloaderBoard_Catena1sj_getMilliseconds() - start <= ms)
+		;
 	}
 
 static void
@@ -174,7 +168,75 @@ McciBootloaderBoard_Catena1sj_handleSysTick(void)
 McciBootloader_Milliseconds_t
 McciBootloaderBoard_Catena1sj_getMilliseconds(void)
 	{
-	return s_tickCount;
+	bool fSysTickCanPreempt = false;
+	uint32_t const systick_csr = McciArm_getReg(MCCI_CM0PLUS_SYSTICK_CSR);
+
+	// In case the clock isn't enabled at all, we can't provide this service.
+	if ((systick_csr & MCCI_CM0PLUS_SYSTICK_CSR_ENABLE) == 0)
+		{
+		// ticks can't happen! This is a fundamental service that everyone uses,
+		// so we can't actually crash because crash display will try to use the clock.
+		// Our solution: spin for a fixed number of loops, and then advance
+		// by "1 ms". 32000/12 is used so that we'll get 1ms at 32MHz (the loop takes
+		// 12 clocks), longer at slower clock rates.
+		for (volatile unsigned i = 0; i < 32000 / 12; ++i)
+			;
+
+		++s_tickCount;
+		return s_tickCount;
+		}
+
+	/* systick is an exception, not an interrupt. But it can be blocked by primask. */
+	/* if interrupts are enabled, clocks still might be blocked */
+	if (McciArm_getPRIMASK() == 0)
+		{
+		// determine the current CM0 urgency
+		uint32_t const ipsr = McciArm_getIPSR();
+
+		// in thread mode, we can be preempted.
+		if (McciArmIPSR_queryThreadMode(ipsr))
+			fSysTickCanPreempt = true;
+
+		// if in an exception, systick can preempt if higher priority
+		else
+			{
+			int32_t const intpri = McciArmNvic_getPriority(McciArmIPSR_toIRQ(ipsr));
+			int32_t const systickpri = McciArm_getSysTickPriority();
+
+			if (systickpri < intpri)
+				fSysTickCanPreempt = true;
+			}
+
+		// otherwise: can't be preempted.
+		}
+
+	// SysTick could preempt us, but it might not be enabled:
+	if (fSysTickCanPreempt)
+		{
+		if ((systick_csr & MCCI_CM0PLUS_SYSTICK_CSR_TICKINT) == 0)
+			{
+			// ticks can't interrupt us
+			fSysTickCanPreempt = false;
+			}
+		}
+
+	// if systick can preempt us, use the count it maintains.
+	if (fSysTickCanPreempt)
+		{
+		// if we saw COUNTFLAG set, we assume that the CM0+ will still
+		// be interrupted. We depend on our systick handler not caring about
+		// the value of COUNTFLAG when it is entered.
+		return s_tickCount;
+		}
+
+	// if systick can't preempt us, count roll-overs.
+	else
+		{
+		if ((systick_csr & MCCI_CM0PLUS_SYSTICK_CSR_COUNTFLAG) != 0)
+			++s_tickCount;
+
+		return s_tickCount;
+		}
 	}
 
 void

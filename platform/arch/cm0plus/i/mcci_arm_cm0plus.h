@@ -29,6 +29,7 @@ Author:
 #endif
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -453,9 +454,148 @@ void McciArm_DataSynchBarrier(
 	__asm volatile ("dsb 0xF" ::: "memory");
 	}
 
+
+///
+/// \brief get IPSR
+///
+/// \return current value of IPSR register
+///
+/// \note the result is 0 for thread mode; and >= 16 for the current IRQ number.
+///		1..15 is used for exception handlers.
+///
+__attribute__((always_inline)) static inline
+uint32_t McciArm_getIPSR(
+	void
+	)
+	{
+	uint32_t ipsr;
+
+	__asm volatile ("MRS %0, ipsr" : "=r"(ipsr));
+	return ipsr;
+	}
+
 #else
 # error "Compiler not supported"
 #endif
+
+///
+/// @brief test IPSR to see if Cortex-M0+ is in thread mode.
+///
+/// @param ipsr [in]	image of IPSR register.
+///
+/// @return \c true if in thread mode, \c false otherwise.
+///
+static inline
+bool McciArmIPSR_queryThreadMode(uint32_t ipsr)
+	{
+	return ipsr == 0;
+	}
+
+///
+/// @brief test IPSR to see if Cortex-M0+ is in an IRQ handler
+///
+/// @param ipsr [in]	image of IPSR register
+///
+/// @return \c true if in an ISR, \c false otherwise.
+///
+static inline
+bool McciArmIPSR_queryIrqHandler(uint32_t ipsr)
+	{
+	return ipsr >= 16;
+	}
+
+///
+/// @brief convert IPSR value to IRQ number, if in handler.
+///
+/// @param ipsr [in]	image of IPSR register
+///
+/// @return IRQ number (>= 0) if in an IRQ handler; -16 if in thread mode, -15..-1 if in an
+///         exception handler.
+///
+static inline
+int32_t McciArmIPSR_toIRQ(uint32_t ipsr)
+	{
+	return ipsr - 16;
+	}
+
+///
+/// @brief return priority of SysTick exception.
+///
+/// @return value in 0..3.
+///
+static inline
+uint32_t McciArm_getSysTickPriority(void)
+	{
+	uint32_t const shpr3 = McciArm_getReg(MCCI_CM0PLUS_SCB_SHPR3);
+	uint32_t const shprbits = (shpr3 >> (24 + 6));
+
+	return shprbits & 3u;
+	}
+
+///
+/// @brief return priority of SVC exception.
+///
+/// @return value in 0..3.
+///
+static inline
+uint32_t McciArm_getSvcPriority(void)
+	{
+	uint32_t const shpr2 = McciArm_getReg(MCCI_CM0PLUS_SCB_SHPR2);
+	uint32_t const shprbits = (shpr2 >> (24 + 6));
+
+	return shprbits & 3u;
+	}
+
+///
+/// @brief return priority of PendSv exception.
+///
+/// @return value in 0..3.
+///
+static inline
+uint32_t McciArm_getPendSvPriority(void)
+	{
+	uint32_t const shpr3 = McciArm_getReg(MCCI_CM0PLUS_SCB_SHPR3);
+	uint32_t const shprbits = (shpr3 >> (16 + 6));
+
+	return shprbits & 3u;
+	}
+
+///
+/// @brief return priority of speciified IRQ
+/// @param irq [in] interrupt request index, in [-16..31]
+/// @return interrupt priority in -1..4
+///
+/// @note if the input parameter is corresponds to a request with
+///		programmable priority, the result is 0..3. If the input
+///		is -16 (thread mode), the result is 4. If the input is any
+///		of the other higher-priority exceptions, the result is -1.
+///
+static inline
+int32_t McciArmNvic_getPriority(int32_t irq)
+	{
+	if (irq < 0 || irq >= 32)
+		{
+		switch (irq)
+			{
+		case -1: return McciArm_getSysTickPriority();
+		case -2: return McciArm_getPendSvPriority();
+		case -5: return McciArm_getSvcPriority();
+		case -16: return 4;
+		default:
+			// out of range or hard wired.
+			return -1;
+			}
+		}
+	else
+		{
+		uint32_t const ip = McciArm_getReg(MCCI_CM0PLUS_NVIC_IP0 + (irq & ~3u));
+
+		uint32_t const ipbits = ip >> (8 * (irq & 3u) + 6);
+
+		return ipbits & 3;
+		}
+	}
+
 
 /****************************************************************************\
 |
