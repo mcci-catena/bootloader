@@ -1,14 +1,9 @@
-/* mcci_bootloader.h	Tue Jul 14 2020 11:31:05 tmm */
-
 /*
 
 Module:  mcci_bootloader.h
 
 Function:
 	Main header file for MCCI bootloader for STM32L0
-
-Version:
-	V0.1.0	Tue Jul 14 2020 11:31:05 tmm	Edit level 1
 
 Copyright notice:
 	This file copyright (C) 2020, 2026 by
@@ -24,10 +19,6 @@ Copyright notice:
 
 Author:
 	Terry Moore, MCCI Corporation	July 2020
-
-Revision history:
-   0.1.0  Tue Jul 14 2020 11:31:05  tmm
-	Module created.
 
 */
 
@@ -62,12 +53,18 @@ enum McciBootloaderError_e
 	McciBootloaderError_FlashVerifyFailed,	///< flash verify failed after programming
 	McciBootloaderError_FlashNotFound,	///< flash didn't reply properly to SFDP
 	McciBootloaderError_FlashNotSupported,	///< flash SFDP contents are prior to JESD216B, or otherwise not suitable.
+	McciBootloaderError_InternalConsistency, ///< an internal consistency check failed.
+	McciBootloaderError_I2cBegin,		///< I2c bus failed begin.
+	McciBootloaderError_PmicProbeFailed,	///< failed to probe PMIC.
+	McciBootloaderError_PmicInitFailed,	///< failed to initialize PMIC.
+	McciBootloaderError_StoragePowerUpFailed,	///< failed to initialize storage power.
+	McciBootloaderError_StoragePowerDownFailed,	///< failed to turn off storage power.
 	};
 // typedef uint32_t McciBootloaderError_t; -- in mcci_bootloader_types.h.
 
 enum McciBootloaderState_e
 	{
-	McciBootloaderState_Initial = 0,	///< initial state when annunciator launched
+	McciBootloaderState_Initial = 0,			///< initial state when annunciator launched
 	McciBootloaderState_CheckingPrimaryStorageHash,
 	McciBootloaderState_CheckingPrimaryStorageSignature,
 	McciBootloaderState_CheckingFallbackStorageHash,
@@ -190,4 +187,5 @@ McciBootloader_programAndCheckFlash(
 extern uint8_t g_McciBootloader_imageBlock[4096];
 
 MCCI_BOOTLOADER_END_DECLS
+
 #endif /* _MCCI_BOOTLOADER_H_ */

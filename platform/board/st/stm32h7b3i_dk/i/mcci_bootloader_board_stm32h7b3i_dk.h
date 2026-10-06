@@ -92,6 +92,9 @@ MCCI_BOOTLOADER_NORETURN_SFX;
 McciBootloaderPlatform_DelayMsFn_t
 McciBootloaderBoard_Stm32h7b3iDk_delayMs;
 
+McciBootloaderPlatform_GetMillisecondsFn_t
+McciBootloaderBoard_Stm32h7b3iDk_getMilliseconds;
+
 McciBootloaderPlatform_GetUpdateFlagFn_t
 McciBootloaderBoard_Stm32h7b3iDk_getUpdate;
 
@@ -116,6 +119,7 @@ McciBootloaderBoard_Stm32h7b3iDk_annunciatorInit;
 McciBootloaderPlatform_AnnunciatorIndicateStateFn_t
 McciBootloaderBoard_Stm32h7b3iDk_annunciatorIndicateState;
 
+void McciBootloaderBoard_Stm32h7b3iDk_annunciatorHandleSysTick(void);
 void McciBootloaderBoard_Stm32h7b3iDk_clearLed(void);
 void McciBootloaderBoard_Stm32h7b3iDk_handleSysTick(void);
 void McciBootloaderBoard_Stm32h7b3iDk_setLed(void);

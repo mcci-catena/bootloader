@@ -58,6 +58,7 @@ struct McciBootloaderPlatform_Interface_s
 	McciBootloaderPlatform_PrepareForLaunchFn_t	*pPrepareForLaunch;	///< Prepare to launch application
 	McciBootloaderPlatform_FailFn_t			*pFail;			///< Stop the boot, due to a failure
 	McciBootloaderPlatform_DelayMsFn_t		*pDelayMs;		///< Delay execution some number of milliseconds
+	McciBootloaderPlatform_GetMillisecondsFn_t	*pGetMilliseconds;	///< Get the millisecond tick count.
 	McciBootloaderPlatform_GetUpdateFlagFn_t	*pGetUpdate;		///< Find out whether firmware update was requested
 	McciBootloaderPlatform_SetUpdateFlagFn_t	*pSetUpdate;		///< Set value of firmware-update flag
 	McciBootloaderPlatform_SystemFlashEraseFn_t	*pSystemFlashErase;	///< Erase flash
@@ -197,6 +198,12 @@ McciBootloaderPlatform_annunciatorIndicateState(
 	)
 	{
 	(*gk_McciBootloaderPlatformInterface.Annunciator.pIndicateState)(state);
+	}
+
+static inline McciBootloader_Milliseconds_t
+McciBootloaderPlatform_getMilliseconds(void)
+	{
+	return (*gk_McciBootloaderPlatformInterface.pGetMilliseconds)();
 	}
 
 void

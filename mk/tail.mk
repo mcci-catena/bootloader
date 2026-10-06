@@ -45,6 +45,35 @@ MCCI_POSTCOMPILE = mv -f $(@:.o=.td) $(@:.o=.d)
 
 ##############################################################################
 #
+# 	The top-level targets
+#
+##############################################################################
+
+#
+# all: rebuild everything.
+#
+.DEFAULT_GOAL := all
+.PHONY: all all-pre all-post
+all: all-pre
+all-pre:
+all-post:
+
+#
+# clean: remove all the generated files
+#
+.PHONY: clean clean-pre clean-post
+clean: clean-pre
+clean-pre:
+clean-post:
+
+#
+# source-release: source release
+#
+.PHONY: source-release
+source-release:
+
+##############################################################################
+#
 # Macro:  MCCI_DOCOMPILE
 #
 # Function:
@@ -475,9 +504,8 @@ endef
 #	TAG_$1		tag to use when releasing.
 #
 # Output:
-#	release: is updated to create build/$1-TAG.tar.gz
-#	clean: is updated to remove releases
-#	MCCI_CLEANFILES is similarly updated.
+#	source-release: is updated to create build/$1-TAG.tar.gz
+#	MCCI_CLEANFILES is similarly updated so that make clean will remove.
 #
 ##############################################################################
 
@@ -582,6 +610,10 @@ install-$1-$2:
 
 all: all-$1-$2
 clean: clean-$1-$2
+
+# all-pre builds tools (e.g. mccibootloader_image) that the family
+# builds use, so make sure it finishes first, even with -j.
+all-$1-$2: | all-pre
 endef
 
 define MCCI_DOFAMILY
@@ -608,22 +640,9 @@ $(foreach F,$(FAMILY_MAKEFILES),$(eval $(call MCCI_DOFAMILY,$(F))))
 
 ##############################################################################
 #
-# 	The top-level targets
+# 	Final rules
 #
 ##############################################################################
-
-#
-# all: rebuild everything.
-#
-.DEFAULT_GOAL := all
-.PHONY: all
-all:
-
-#
-# clean: remove all the generated files
-#
-.PHONY: clean
-clean:
 
 # if we have things to clean, add.
 ifneq ($(strip $(MCCI_CLEANFILES) $(OBJECTS) $(DEPENDS)),)
@@ -637,13 +656,11 @@ endif
 install: $(addprefix install-,$(PROGRAMS) $(LIBRARIES))
 .PHONY: install $(addprefix install-,$(PROGRAMS) $(LIBRARIES))
 
-#
-# source-release: source release
-#
-.PHONY: source-release
-source-release:
-
 # pick up the dependencies.
 -include $(DEPENDS)
+
+# pick up the post-conditions
+all: all-post
+clean: clean-post
 
 #### end of file ####

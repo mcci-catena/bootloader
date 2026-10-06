@@ -27,6 +27,30 @@ FAMILY_MAKEFILES := $(wildcard Makefile-*.mk)
 
 ##############################################################################
 #
+#	mccibootloader_image
+#
+##############################################################################
+
+.PHONY: mccibootloader_image clean-mccibootloader_image
+
+mccibootloader_image:
+	@printf '%s\n' 'build tool: mccibootloader_image (release)'
+	$(MAKEHUSH)$(MAKE) -C tools/mccibootloader_image --no-print-directory CROSS_COMPILE= all BUILDTYPE=release
+	@printf '%s\n' 'build tool: mccibootloader_image (debug)'
+	$(MAKEHUSH)$(MAKE) -C tools/mccibootloader_image --no-print-directory CROSS_COMPILE= all BUILDTYPE=debug
+
+clean-mccibootloader_image:
+	@printf '%s\n' 'clean tool: mccibootloader_image (release)'
+	$(MAKEHUSH)$(MAKE) -C tools/mccibootloader_image --no-print-directory CROSS_COMPILE= clean BUILDTYPE=release
+	@printf '%s\n' 'clean tool: mccibootloader_image (debug)'
+	$(MAKEHUSH)$(MAKE) -C tools/mccibootloader_image --no-print-directory CROSS_COMPILE= clean BUILDTYPE=debug
+
+clean-pre:	clean-mccibootloader_image
+
+all-pre:	mccibootloader_image
+
+##############################################################################
+#
 #	doxygen documentation
 #
 ##############################################################################
@@ -42,10 +66,11 @@ doxygen:
 	@printf '${T_BUILDTREE}/doxygen.log: %s messages\n' $$(wc -l < ${T_BUILDTREE}/doxygen.log)
 
 clean-doxygen:
-	rm -rf doc/doxygen ${T_BUILDTREE}/doxygen.log
+	@printf '%s\n' 'clean doxygen'
+	$(MAKEHUSH)rm -rf doc/doxygen ${T_BUILDTREE}/doxygen.log
 
-clean: clean-doxygen
-all: doxygen
+clean-post: clean-doxygen
+all-post: doxygen
 
 # post processing
 include mk/tail.mk

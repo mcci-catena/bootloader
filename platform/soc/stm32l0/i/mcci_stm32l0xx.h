@@ -892,8 +892,27 @@ extern "C" {
 
 /// \name GPIO_OTYPER bits
 ///	@{
-#define	MCCI_STM32L0_GPIO_OTYPE_OD	UINT32_C(1)	//<
+#define	MCCI_STM32L0_GPIO_OTYPE_PP	UINT32_C(0)	//< Output is push-pull (totem-pole)
+#define	MCCI_STM32L0_GPIO_OTYPE_OD	UINT32_C(1)	//< Output is open drain (pull-down only)
 ///	@}
+
+/// \brief compute the mask for the mode bits for port bits 0..15
+///
+/// Normally we compute a mask using an expression like:
+///
+///	`MCCI_BOOTLOADER_FIELD_SET_VALUE(
+///		MCCI_STM32L0_GPIO_OTYPE_P(3), // bit 3 in port
+///		MCCI_STM32L0_GPIO_OTYPE_PP
+///		)`
+///
+#define	MCCI_STM32L0_GPIO_OTYPE_P(p)		(UINT32_C(1) << (p))
+
+///
+/// \brief directly compute a GPIO OTYPE mask
+/// \param p is the bit number in the port
+/// \param v is the value (MCCI_STM32L0_GPIO_OTYPE_PP or MCCI_STM32L0_GPIO_OTYPE_OD)
+///
+#define	MCCI_STM32L0_GPIO_OTYPE_PV(p, v)	(((v) & 1u) << (p))
 
 /// \name GPIO_OSPEEDR bits -- used to select pin speed, two bits per pin
 ///	@{
@@ -915,9 +934,9 @@ extern "C" {
 #define	MCCI_STM32L0_GPIO_OSPEED_P(p)	(UINT32_C(3) << (2 * (p)))
 ///	@}
 
-/// \name GPIO_PUPDR bits -- used to select pin speed, two bits per pin
+/// \name GPIO_PUPDR bits -- used to select pin pullup/pulldown, two bits per pin
 ///	@{
-#define MCCI_STM32L0_GPIO_PUPD_MASK	UINT32_C(3)	//< speed bit masks
+#define MCCI_STM32L0_GPIO_PUPD_MASK	UINT32_C(3)	//< pullup/pulldown bit masks
 #define MCCI_STM32L0_GPIO_PUPD_NONE	UINT32_C(0)	//< no pullup/pulldown
 #define MCCI_STM32L0_GPIO_PUPD_PULLUP	UINT32_C(1)	//< pullup
 #define MCCI_STM32L0_GPIO_PUPD_PULLDOWN	UINT32_C(2)	//< pulldown
@@ -957,15 +976,20 @@ extern "C" {
 
 /// \name GPIO_AFRx bits
 ///	@{
-/// \brief get reg offset for GPIO_AFRx
-#define	MCCI_STM32L0_GPIO_AFRx_P(p)	(MCCI_STM32L0_GPIO_AFRL + ((p) / UINT32_C(8)))	//< f
+/// \brief get reg offset for GPIO_AFRx for port bit \p p. This is the byte offset
+/// relative to the base of the GPIO block.
+///
+#define	MCCI_STM32L0_GPIO_AFRx_P(p)	(MCCI_STM32L0_GPIO_AFRL + (((p) / 8u) * 4u))
 
 /// \brief get AFRx mask for port bit \p p.
 ///
 /// Normal use:
-///	MCCI_BOOTLOADER_FIELD_SET_VALUE(MCCI_STM32L0_GPIO_AFSEL_P(bitnum), 0..7)
+///	`MCCI_BOOTLOADER_FIELD_SET_VALUE(MCCI_STM32L0_GPIO_AFSEL_P(bitnum), 0..15)`
 ///
-#define	MCCI_STM32L0_GPIO_AFSEL_P(p)	(UINT32_C(0xF) << ((p) & 0x7u)
+#define	MCCI_STM32L0_GPIO_AFSEL_P(p)	(UINT32_C(0xF) << (((p) & 7u) * 4u))
+
+/// \brief make a mask of AFRx value \p v for port bit \p p..
+#define	MCCI_STM32L0_GPIO_AFSEL_PV(p, v)	(((v) & UINT32_C(0xF)) << (((p) & 7u) * 4u))
 ///	@}
 
 /****************************************************************************\
@@ -1067,6 +1091,148 @@ extern "C" {
 #define MCCI_STM32L0_SPI_I2SCFGR_DATLEN_32	MCCI_BOOTLOADER_FIELD_SET_VALUE(MCCI_STM32L0_SPI_I2SCFGR_DATLEN, 2)	///< 32-bit data
 #define MCCI_STM32L0_SPI_I2SCFGR_DATLEN_XX	MCCI_BOOTLOADER_FIELD_SET_VALUE(MCCI_STM32L0_SPI_I2SCFGR_DATLEN, 3)	///< invalid data length
 #define MCCI_STM32L0_SPI_I2SCFGR_CHLEN		(UINT32_C(1) << 0)	///< channel 32-bits wide (not 16)
+///	@}
+
+/****************************************************************************\
+|
+|	I2C Control Registers (Section 27.7)
+|
+\****************************************************************************/
+
+/// \name I2C register offsets
+///	@{
+#define	MCCI_STM32L0_I2C_CR1		UINT32_C(0x00)	///< Section 27.7.1: control register 1
+#define	MCCI_STM32L0_I2C_CR2		UINT32_C(0x04)	///< Section 27.7.2: control register 2
+#define	MCCI_STM32L0_I2C_OAR1		UINT32_C(0x08)	///< Section 27.7.3: own address register 1
+#define	MCCI_STM32L0_I2C_OAR2		UINT32_C(0x0C)	///< Section 27.7.4: own address register 2
+#define	MCCI_STM32L0_I2C_TIMINGR	UINT32_C(0x10)	///< Section 27.7.5: timing register
+#define	MCCI_STM32L0_I2C_TIMEOUTR	UINT32_C(0x14)	///< Section 27.7.6: timeout register
+#define	MCCI_STM32L0_I2C_ISR		UINT32_C(0x18)	///< Section 27.7.7: interrupt and status register
+#define	MCCI_STM32L0_I2C_ICR		UINT32_C(0x1C)	///< Section 27.7.8: interrupt clear register
+#define	MCCI_STM32L0_I2C_PECR		UINT32_C(0x20)	///< Section 27.7.9: PEC register
+#define	MCCI_STM32L0_I2C_RXDR		UINT32_C(0x24)	///< Section 27.7.10: receive data register
+#define	MCCI_STM32L0_I2C_TXDR		UINT32_C(0x28)	///< Section 27.7.11: transmit data register
+///	@}
+
+/// \name I2C_CR1 bits
+///	@{
+#define MCCI_STM32L0_I2C_CR1_RSV24	UINT32_C(0xFF000000)	///< reserved: do not change
+#define	MCCI_STM32L0_I2C_CR1_PECEN	(UINT32_C(1) << 23)	///< PEC calculation enable
+#define	MCCI_STM32L0_I2C_CR1_ALERTEN	(UINT32_C(1) << 22)	///< SMBus alert enable
+#define	MCCI_STM32L0_I2C_CR1_SMBDEN	(UINT32_C(1) << 21)	///< SMBus device default address enable
+#define	MCCI_STM32L0_I2C_CR1_SMBHEN	(UINT32_C(1) << 20)	///< SMBus host address enable
+#define	MCCI_STM32L0_I2C_CR1_GCEN	(UINT32_C(1) << 19)	///< general call enable
+#define	MCCI_STM32L0_I2C_CR1_WUPEN	(UINT32_C(1) << 18)	///< wakeup from Stop mode enable
+#define	MCCI_STM32L0_I2C_CR1_NOSTRETCH	(UINT32_C(1) << 17)	///< clock stretching disable
+#define	MCCI_STM32L0_I2C_CR1_SBC	(UINT32_C(1) << 16)	///< slave byte control
+#define	MCCI_STM32L0_I2C_CR1_RXDMAEN	(UINT32_C(1) << 15)	///< DMA reception requests enable
+#define	MCCI_STM32L0_I2C_CR1_TXDMAEN	(UINT32_C(1) << 14)	///< DMA transmission requests enable
+#define	MCCI_STM32L0_I2C_CR1_RSV13	(UINT32_C(1) << 13)	///< reserved: do not change
+#define	MCCI_STM32L0_I2C_CR1_ANFOFF	(UINT32_C(1) << 12)	///< analog noise filter OFF
+#define	MCCI_STM32L0_I2C_CR1_DNF	(UINT32_C(0xF) << 8)	///< digital noise filter [3:0]
+#define	MCCI_STM32L0_I2C_CR1_ERRIE	(UINT32_C(1) << 7)	///< error interrupts enable
+#define	MCCI_STM32L0_I2C_CR1_TCIE	(UINT32_C(1) << 6)	///< transfer complete interrupt enable
+#define	MCCI_STM32L0_I2C_CR1_STOPIE	(UINT32_C(1) << 5)	///< STOP detection interrupt enable
+#define	MCCI_STM32L0_I2C_CR1_NACKIE	(UINT32_C(1) << 4)	///< NACK received interrupt enable
+#define	MCCI_STM32L0_I2C_CR1_ADDRIE	(UINT32_C(1) << 3)	///< address match interrupt enable (slave)
+#define	MCCI_STM32L0_I2C_CR1_RXIE	(UINT32_C(1) << 2)	///< RX interrupt enable
+#define	MCCI_STM32L0_I2C_CR1_TXIE	(UINT32_C(1) << 1)	///< TX interrupt enable
+#define	MCCI_STM32L0_I2C_CR1_PE		(UINT32_C(1) << 0)	///< peripheral enable
+///	@}
+
+/// \name I2C_CR2 bits
+///	@{
+#define	MCCI_STM32L0_I2C_CR2_RSV27	UINT32_C(0xf8000000)	///< reserved: do not change
+#define	MCCI_STM32L0_I2C_CR2_PECBYTE	(UINT32_C(1) << 26)	///< packet error checking byte
+#define	MCCI_STM32L0_I2C_CR2_AUTOEND	(UINT32_C(1) << 25)	///< automatic end mode (master)
+#define	MCCI_STM32L0_I2C_CR2_RELOAD	(UINT32_C(1) << 24)	///< NBYTES reload mode
+#define	MCCI_STM32L0_I2C_CR2_NBYTES	(UINT32_C(0xFF) << 16)	///< number of bytes [7:0]
+#define	MCCI_STM32L0_I2C_CR2_NACK	(UINT32_C(1) << 15)	///< NACK generation (slave)
+#define	MCCI_STM32L0_I2C_CR2_STOP	(UINT32_C(1) << 14)	///< STOP generation (master)
+#define	MCCI_STM32L0_I2C_CR2_START	(UINT32_C(1) << 13)	///< START generation
+#define	MCCI_STM32L0_I2C_CR2_HEAD10R	(UINT32_C(1) << 12)	///< 10-bit address header only read direction
+#define	MCCI_STM32L0_I2C_CR2_ADD10	(UINT32_C(1) << 11)	///< 10-bit addressing mode (master)
+#define	MCCI_STM32L0_I2C_CR2_RD_WRN	(UINT32_C(1) << 10)	///< transfer direction: 1=read, 0=write
+#define	MCCI_STM32L0_I2C_CR2_SADD	(UINT32_C(0x3FF) << 0)	///< slave address [9:0]
+///	@}
+
+/// \name I2C_OAR1 bits
+///	@{
+#define	MCCI_STM32L0_I2C_OAR1_RSV16	UINT32_C(0xFFFF0000)	///< reserved: do not change
+#define	MCCI_STM32L0_I2C_OAR1_OA1EN	(UINT32_C(1) << 15)	///< own address 1 enable
+#define	MCCI_STM32L0_I2C_OAR1_RSV11	(UINT32_C(0xF) << 11)	///< reserved: do not change
+#define	MCCI_STM32L0_I2C_OAR1_OA1MODE	(UINT32_C(1) << 10)	///< own address 1 10-bit mode
+#define	MCCI_STM32L0_I2C_OAR1_OA1	(UINT32_C(0x3FF) << 0)	///< own address 1 [9:0]
+///	@}
+
+/// \name I2C_OAR2 bits
+///	@{
+#define	MCCI_STM32L0_I2C_OAR2_RSV16	UINT32_C(0xFFFF0000)	///< reserved: do not change
+#define	MCCI_STM32L0_I2C_OAR2_OA2EN	(UINT32_C(1) << 15)	///< own address 2 enable
+#define	MCCI_STM32L0_I2C_OAR2_RSV11	(UINT32_C(0xF) << 11)	///< reserved: do not change
+#define	MCCI_STM32L0_I2C_OAR2_OA2MSK	(UINT32_C(0x7) << 8)	///< own address 2 masks [2:0]
+#define	MCCI_STM32L0_I2C_OAR2_OA2	(UINT32_C(0x7F) << 1)	///< own address 2 [7:1]
+#define	MCCI_STM32L0_I2C_OAR2_RSV0	(UINT32_C(1) << 0)	///< reserved: do not change
+///	@}
+
+/// \name I2C_TIMINGR bits
+///	@{
+#define	MCCI_STM32L0_I2C_TIMINGR_PRESC	(UINT32_C(0xF) << 28)	///< timing prescaler [3:0]
+#define	MCCI_STM32L0_I2C_TIMINGR_RSV24	(UINT32_C(0xF) << 24)	///< reserved: do not change
+#define	MCCI_STM32L0_I2C_TIMINGR_SCLDEL	(UINT32_C(0xF) << 20)	///< data setup time [3:0]
+#define	MCCI_STM32L0_I2C_TIMINGR_SDADEL	(UINT32_C(0xF) << 16)	///< data hold time [3:0]
+#define	MCCI_STM32L0_I2C_TIMINGR_SCLH	(UINT32_C(0xFF) << 8)	///< SCL high period [7:0] (master)
+#define	MCCI_STM32L0_I2C_TIMINGR_SCLL	(UINT32_C(0xFF) << 0)	///< SCL low period [7:0] (master)
+///	@}
+
+/// \name I2C_TIMEOUTR bits
+///	@{
+#define	MCCI_STM32L0_I2C_TIMEOUTR_TEXTEN	(UINT32_C(1) << 31)	///< extended clock timeout enable
+#define	MCCI_STM32L0_I2C_TIMEOUTR_RSV28		(UINT32_C(0x7) << 28)	///< reserved: do not change
+#define	MCCI_STM32L0_I2C_TIMEOUTR_TIMEOUTB	(UINT32_C(0xFFF) << 16)	///< bus timeout B [11:0]
+#define	MCCI_STM32L0_I2C_TIMEOUTR_TIMOUTEN	(UINT32_C(1) << 15)	///< clock timeout enable
+#define	MCCI_STM32L0_I2C_TIMEOUTR_RSV13		(UINT32_C(0x3) << 13)	///< reserved: do not change
+#define	MCCI_STM32L0_I2C_TIMEOUTR_TIDLE		(UINT32_C(1) << 12)	///< idle clock timeout detection
+#define	MCCI_STM32L0_I2C_TIMEOUTR_TIMEOUTA	(UINT32_C(0xFFF) << 0)	///< bus timeout A [11:0]
+///	@}
+
+/// \name I2C_ISR bits
+///	@{
+#define	MCCI_STM32L0_I2C_ISR_RSV24	UINT32_C(0xFF000000)	///< reserved: do not change
+#define	MCCI_STM32L0_I2C_ISR_ADDCODE	(UINT32_C(0x7F) << 17)	///< address match code (slave) [6:0]
+#define	MCCI_STM32L0_I2C_ISR_DIR	(UINT32_C(1) << 16)	///< transfer direction (slave): 1=read, 0=write
+#define	MCCI_STM32L0_I2C_ISR_BUSY	(UINT32_C(1) << 15)	///< bus busy
+#define	MCCI_STM32L0_I2C_ISR_RSV14	(UINT32_C(1) << 14)	///< reserved: do not change
+#define	MCCI_STM32L0_I2C_ISR_ALERT	(UINT32_C(1) << 13)	///< SMBus alert
+#define	MCCI_STM32L0_I2C_ISR_TIMEOUT	(UINT32_C(1) << 12)	///< timeout or tLOW detection flag
+#define	MCCI_STM32L0_I2C_ISR_PECERR	(UINT32_C(1) << 11)	///< PEC error in reception
+#define	MCCI_STM32L0_I2C_ISR_OVR	(UINT32_C(1) << 10)	///< overrun/underrun (slave)
+#define	MCCI_STM32L0_I2C_ISR_ARLO	(UINT32_C(1) << 9)	///< arbitration lost
+#define	MCCI_STM32L0_I2C_ISR_BERR	(UINT32_C(1) << 8)	///< bus error
+#define	MCCI_STM32L0_I2C_ISR_TCR	(UINT32_C(1) << 7)	///< transfer complete reload
+#define	MCCI_STM32L0_I2C_ISR_TC		(UINT32_C(1) << 6)	///< transfer complete (master)
+#define	MCCI_STM32L0_I2C_ISR_STOPF	(UINT32_C(1) << 5)	///< STOP detection flag
+#define	MCCI_STM32L0_I2C_ISR_NACKF	(UINT32_C(1) << 4)	///< not acknowledge received flag
+#define	MCCI_STM32L0_I2C_ISR_ADDR	(UINT32_C(1) << 3)	///< address matched (slave)
+#define	MCCI_STM32L0_I2C_ISR_RXNE	(UINT32_C(1) << 2)	///< receive data register not empty
+#define	MCCI_STM32L0_I2C_ISR_TXIS	(UINT32_C(1) << 1)	///< transmit interrupt status
+#define	MCCI_STM32L0_I2C_ISR_TXE	(UINT32_C(1) << 0)	///< transmit data register empty
+///	@}
+
+/// \name I2C_ICR bits
+///	@{
+#define	MCCI_STM32L0_I2C_ICR_RSV14	UINT32_C(0xFFFFC000)	///< reserved: do not change
+#define	MCCI_STM32L0_I2C_ICR_ALERTCF	(UINT32_C(1) << 13)	///< alert flag clear
+#define	MCCI_STM32L0_I2C_ICR_TIMOUTCF	(UINT32_C(1) << 12)	///< timeout detection flag clear
+#define	MCCI_STM32L0_I2C_ICR_PECCF	(UINT32_C(1) << 11)	///< PEC error flag clear
+#define	MCCI_STM32L0_I2C_ICR_OVRCF	(UINT32_C(1) << 10)	///< overrun/underrun flag clear
+#define	MCCI_STM32L0_I2C_ICR_ARLOCF	(UINT32_C(1) << 9)	///< arbitration lost flag clear
+#define	MCCI_STM32L0_I2C_ICR_BERRCF	(UINT32_C(1) << 8)	///< bus error flag clear
+#define	MCCI_STM32L0_I2C_ICR_RSV6	(UINT32_C(0x3) << 6)	///< reserved: do not change
+#define	MCCI_STM32L0_I2C_ICR_STOPCF	(UINT32_C(1) << 5)	///< STOP detection flag clear
+#define	MCCI_STM32L0_I2C_ICR_NACKCF	(UINT32_C(1) << 4)	///< not acknowledge flag clear
+#define	MCCI_STM32L0_I2C_ICR_ADDRCF	(UINT32_C(1) << 3)	///< address matched flag clear
+#define	MCCI_STM32L0_I2C_ICR_RSV0	(UINT32_C(0x7) << 0)	///< reserved: do not change
 ///	@}
 
 
