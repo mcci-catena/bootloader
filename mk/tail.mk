@@ -610,6 +610,10 @@ install-$1-$2:
 
 all: all-$1-$2
 clean: clean-$1-$2
+
+# all-pre builds tools (e.g. mccibootloader_image) that the family
+# builds use, so make sure it finishes first, even with -j.
+all-$1-$2: | all-pre
 endef
 
 define MCCI_DOFAMILY
