@@ -24,6 +24,7 @@ Author:
 
 #include "mcci_bootloader_cm0plus_appimage.h"
 #include "mcci_bootloader.h"
+#include "mcci_bootloader_led_annunciator.h"
 #include "mcci_bootloader_stm32l0.h"
 #include "mcci_stm32l0xx.h"
 #include "mcci_arm_cm0plus.h"
@@ -258,6 +259,11 @@ McciBootloaderBoard_Catena1sj_fail(
 
 		// wait 60 seconds flashing error code before rebooting
 		timeToReboot = 60 * 1000;
+
+		// We may get here before annunciator init (for example, if PMIC
+		// setup fails), so start the LED state machine here. Restarting
+		// it is harmless, because we set a new code right after.
+		McciBootloader_LED_annunciatorInit();
 
 		// set the error code to be displayed
 		McciBootloaderBoard_Catena1sj_annunciatorIndicateState(errorCode);
