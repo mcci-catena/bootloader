@@ -457,11 +457,23 @@ i2cBusRead(
 			tStart = McciBootloaderPlatform_getMilliseconds();
 			}
 
+		else if (isr & MCCI_STM32L0_I2C_ISR_BERR)
+			{
+			// bus error. stop transfer now (though hw might be happy to go on).
+			status = McciBootloaderI2cBusStm32l0_Status_BusError;
+			}
+
 		else if (isr & MCCI_STM32L0_I2C_ISR_STOPF)
 			{
-			// AUTOEND: STOPF means we're done.
-			status = McciBootloaderI2cBusStm32l0_Status_Done;
+			// STOPF and NACKF mean NACK error.
+			if (isr & MCCI_STM32L0_I2C_ISR_NACKF)
+				status = McciBootloaderI2cBusStm32l0_Status_NackError;
+			else
+				// AUTOEND: STOPF means we're done.
+				status = McciBootloaderI2cBusStm32l0_Status_Done;
 			}
+
+		// NACKF without stop also means done, with error.
 		else if (isr & MCCI_STM32L0_I2C_ISR_NACKF)
 			{
 			status = McciBootloaderI2cBusStm32l0_Status_NackError;
@@ -577,14 +589,18 @@ i2cBusWrite(
 			status = McciBootloaderI2cBusStm32l0_Status_BusError;
 			}
 
+		else if (isr & MCCI_STM32L0_I2C_ISR_STOPF)
+			{
+			// detect stop+nack.
+			if (isr & MCCI_STM32L0_I2C_ISR_NACKF)
+				status = McciBootloaderI2cBusStm32l0_Status_NackError;
+			else
+				status = McciBootloaderI2cBusStm32l0_Status_Done;
+			}
+
 		else if (isr & MCCI_STM32L0_I2C_ISR_NACKF)
 			{
 			status = McciBootloaderI2cBusStm32l0_Status_NackError;
-			}
-
-		else if (isr & MCCI_STM32L0_I2C_ISR_STOPF)
-			{
-			status = McciBootloaderI2cBusStm32l0_Status_Done;
 			}
 
 		// otherwise keep waiting for busy to come on.
@@ -612,14 +628,18 @@ i2cBusWrite(
 			status = McciBootloaderI2cBusStm32l0_Status_BusError;
 			}
 
+		else if (isr & MCCI_STM32L0_I2C_ISR_STOPF)
+			{
+			// detect stop+nack.
+			if (isr & MCCI_STM32L0_I2C_ISR_NACKF)
+				status = McciBootloaderI2cBusStm32l0_Status_NackError;
+			else
+				status = McciBootloaderI2cBusStm32l0_Status_Done;
+			}
+
 		else if (isr & MCCI_STM32L0_I2C_ISR_NACKF)
 			{
 			status = McciBootloaderI2cBusStm32l0_Status_NackError;
-			}
-
-		else if (isr & MCCI_STM32L0_I2C_ISR_STOPF)
-			{
-			status = McciBootloaderI2cBusStm32l0_Status_Done;
 			}
 
 		else if (isr & MCCI_STM32L0_I2C_ISR_TXE)
