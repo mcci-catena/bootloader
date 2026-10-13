@@ -14,5 +14,6 @@ LIBS_McciBootloader_4801 :=				\
 ### end LIBS_McciBootloader_4801
 
 LDSCRIPT_McciBootloader_4801	:=	$(BOOTLOADER_LDSCRIPT_ABZ)
+IMAGE_COMMENT_McciBootloader_4801	:=	Catena 4801
 
 include platform/board/mcci/catena4801/mk/libmcci_bootloader_catena4801.mk

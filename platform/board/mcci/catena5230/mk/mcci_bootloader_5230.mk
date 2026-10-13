@@ -16,5 +16,6 @@ LIBS_McciBootloader_5230 :=				\
 ### end LIBS_McciBootloader_5230
 
 LDSCRIPT_McciBootloader_5230	:=	$(BOOTLOADER_LDSCRIPT_1SJ)
+IMAGE_COMMENT_McciBootloader_5230	:=	Catena 5230
 
 include platform/board/mcci/catena5230/mk/libmcci_bootloader_catena5230.mk
