@@ -203,6 +203,11 @@ endif
 # path of bootloader_image itself
 MCCIBOOTLOADER_IMAGE ?=	${MCCIBOOTLOADER_IMAGE_PATH}mccibootloader_image${MCCIBOOTLOADER_IMAGE_SUFFIX}
 
+# flags for mccibootloader_image. Makefile-*.mk sets MCCIBOOTLOADER_IMAGE_FLAGS
+# before including this file; a caller adds flags (such as -v) with
+# MCCIBOOTLOADER_IMAGE_FLAGS_USER, as for CFLAGS_USER.
+MCCIBOOTLOADER_IMAGE_FLAGS +=	${MCCIBOOTLOADER_IMAGE_FLAGS_USER}
+
 #
 # set path to test-signing key file
 #

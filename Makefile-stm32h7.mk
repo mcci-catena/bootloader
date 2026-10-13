@@ -22,7 +22,7 @@
 ##############################################################################
 
 TARGET_FAMILY := stm32h7
-MCCIBOOTLOADER_IMAGE_FLAGS=--app-version 1.0.0 --comment Manouria
+MCCIBOOTLOADER_IMAGE_FLAGS=--app-version 1.0.0 --comment "Manouria"
 
 include mk/setup.mk
 
