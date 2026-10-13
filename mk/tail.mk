@@ -383,6 +383,8 @@ endef
 #	LDFLAGS_$1	the specific link flags for this program
 #	LDADDDEP_$1	any additional dependencies to be added.
 #	LDSCRIPT_$1	the linker script (no default)
+#	IMAGE_COMMENT_$1 the comment to put in the signed image's AppInfo,
+#			at most 16 bytes, e.g. "Catena 4801". Optional.
 #
 # Output:
 #	all: is updated with $(T_OBJDIR)/$1
@@ -424,7 +426,7 @@ MCCI_CLEANFILES += $$(T_OBJDIR)/$1.elf
 $$(T_OBJDIR)/$1.elf: $$(T_OBJDIR)/$1 $${MCCI_BOOTLOADER_KEYFILE}
 	@echo $1.elf
 	@if [ "$${strip $${MCCI_BOOTLOADER_KEYFILE}}" = "$${strip $${MCCI_BOOTLOADER_KEYFILE_TEST}}" ]; then echo "Warning: using test-signing key" ; fi
-	$${MAKEHUSH}$$(MCCIBOOTLOADER_IMAGE) $$(T_OBJDIR)/$1 $$@ --sign --add-time --keyfile "$$(MCCI_BOOTLOADER_KEYFILE)" $${MCCIBOOTLOADER_IMAGE_FLAGS}
+	$${MAKEHUSH}$$(MCCIBOOTLOADER_IMAGE) $$(T_OBJDIR)/$1 $$@ --sign --add-time --keyfile "$$(MCCI_BOOTLOADER_KEYFILE)" $${MCCIBOOTLOADER_IMAGE_FLAGS} $$(if $$(IMAGE_COMMENT_$1),--comment "$$(IMAGE_COMMENT_$1)")
 
 # rule for making the signed .bin file.
 MCCI_CLEANFILES += $$(T_OBJDIR)/$1.bin

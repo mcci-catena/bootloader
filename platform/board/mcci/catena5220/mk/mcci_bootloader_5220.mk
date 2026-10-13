@@ -14,5 +14,6 @@ LIBS_McciBootloader_5220 :=				\
 ### end LIBS_McciBootloader_5220
 
 LDSCRIPT_McciBootloader_5220	:=	$(BOOTLOADER_LDSCRIPT_1SJ)
+IMAGE_COMMENT_McciBootloader_5220	:=	Catena 5220
 
 include platform/board/mcci/catena5220/mk/libmcci_bootloader_catena5220.mk

@@ -22,6 +22,8 @@
 ##############################################################################
 
 TARGET_FAMILY := stm32l0
+MCCIBOOTLOADER_IMAGE_FLAGS=--app-version 1.0.0
+
 include mk/setup.mk
 
 include platform/board/mcci/catena4801/mk/mcci_bootloader_4801.mk

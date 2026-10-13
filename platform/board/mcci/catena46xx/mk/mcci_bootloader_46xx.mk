@@ -14,5 +14,6 @@ LIBS_McciBootloader_46xx :=				\
 ### end LIBS_McciBootloader_46xx
 
 LDSCRIPT_McciBootloader_46xx	:=	$(BOOTLOADER_LDSCRIPT_ABZ)
+IMAGE_COMMENT_McciBootloader_46xx	:=	Catena 46xx
 
 include platform/board/mcci/catena46xx/mk/libmcci_bootloader_catena46xx.mk
