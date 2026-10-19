@@ -39,7 +39,12 @@ gk_McciBootloader_BootSize      = 20K;
 /* size of mfg page */
 gk_McciBootloader_MfgSize       = 4K;
 /* size and base of bootlooader's ram */
-gk_McciBootloader_WorkingRamSize = 8K;
+/*
+|| 16K: the stack needs about 4.3K for the ed25519 check on the update
+|| path (crypto_sign_ed25519_tweet_open), and with 8K it ran into the top
+|| of .bss. The ASSERT at the end keeps at least 5K for the stack.
+*/
+gk_McciBootloader_WorkingRamSize = 16K;
 g_McciBootloader_WorkingRamBase = g_McciBootloader_SocRamTop - gk_McciBootloader_WorkingRamSize;
 
 /* size of app */
@@ -147,5 +152,9 @@ SECTIONS
                 } > RAM
         }
 
+
+/* keep room for the stack above .bss */
+ASSERT(g_McciBootloader_StackTop - g_McciBootloader_BssTop >= 5K,
+       "bootloader stack below 5K: raise gk_McciBootloader_WorkingRamSize")
 
 /* end of script */
